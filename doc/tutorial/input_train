@@ -1,0 +1,39 @@
+# Network details
+# ------------------------------------------------
+network_type = nn        # Perform a fit using a neural network
+hidden=  20              # 1 hidden layer of 20 nodes
+input= structure         # Use the atomic configuration as input
+output = energy          # Use total energy as output
+transfer = tanh          # Use a tanh transfer funtion for all nodes
+
+
+# Specify the geometry mapping functions
+# ------------------------------------------------
+Nradial=5
+Nangular=4
+Rcut=4
+
+
+# Training details
+# -------------------------------------------------
+algorithm=rprop              # Use the default Rprop training algorithm
+Niterations = 300            # Stop training after 300 iterations
+threshold = 0                # Don't stop on the basis of the gradient
+Nprint = 10                  # Print fitting information every 10 steps
+#checkpoint_in = potential   # We're not restarting so no need to read a potential
+checkpoint_out = potential   # Save the potential using the base name "potential"
+Ncheckpoint = 100            # Save the potential every 100 steps
+
+# specify the data
+# --------------------------------------------------
+include training_data        # Data are specified in the "training_data" file
+
+
+
+
+# FOR TUTORIAL PURPOSES ONLY
+# --------------------------------------------------
+seed = 135492                # We set the random number seed here for purposes
+                             # of the tutorial only. It ensures we all
+                             # get the same numbers.  IT IS NOT GENERALLY 
+                             # NECESSARY TO SET THIS. 

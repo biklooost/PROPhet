@@ -1,0 +1,114 @@
+//     _____________________________________      _____   |    
+//     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
+//     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
+//     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
+//     /_/     /_/ |_| \____/ /_/     /_/ /_/\___/\__/    |
+//---------------------------------------------------------
+                                                          
+  This file is part of the PROPhet code, which was written 
+  by Brian Kolb and Levi Lentz in the group of Alexie      
+  Kolpak at MIT.                                           
+  
+  See the documentation in doc/PROPhet_documentation.pdf for
+  a full description of PROPhet.
+
+  Please see the LICENSE file for license information
+                                                           
+***********************************************************
+
+
+
+Compilation instructions
+--------------------------------------------------------
+
+Compilation follows the standard linux paradigm:
+
+    ./configure [options]
+    make
+    make install
+
+If you want to use PROPhet potentials in the LAMMPS MD code,
+you should execute:
+
+    ./configure [options] --enable-lammps=LAMMPS_DIR
+    make 
+    make install
+
+
+where LAMMPS_DIR is the directory with the LAMMPS source.
+This will make the lammps library of PROPhet, and attempt 
+to insert it into the LAMMPS package system.  The LAMMPS
+code must be relinked after completion to link in the 
+PROPhet library.  If automatic instalation fails, the 
+library can be inserted into LAMMPS by following the 
+instructions given in the documentation. 
+
+
+
+Usage instructions can be found in the documentation,
+and by looking in the examples directory. A fully
+annotated input_file is also included in the 
+examples directory.
+
+
+
+
+Description of classes in this package. The descriptions
+apply to the *.h and associated *.cpp files
+--------------------------------------------------------
+Analysis	:  A class to provide statistical analysis of a
+	     	   fit during a "-validate" run
+Art          	:  Some logos, etc.
+Atom         	:  A class for holding name and atomic number of
+	     	   atoms.
+Common		:  A single wrapper class to include headers for 
+	     	   common classes. Also defined here are random
+	     	   number generators.	     
+DFT_IO	     	:  An interface class for interacting with DFT
+	     	   codes. 
+Error	     	:  A class defining an Error and Warning routine
+	     	   which provide useful information at runtime.
+FHIAIMS      	:  An interface to the FHI-Aims DFT code
+Functional   	:  A high-level class to perform machine learning 
+	     	   fits to properties of interest other than
+	     	   structure, which is handled by the Potential
+	     	   class
+Functional_params : General parameters for a run
+Grid_data	  : Data in grid format. This is mainly used for 
+		    charge density.
+Network		  : Abstract interface class for a machine learning
+		    method.
+Network_node	  : Abstract interface class for a node in a neural
+		    network.
+NN		  : A class to implement a nueral network
+NN_node		  : A class to implement a node in a neural
+		    network
+Optimizer	  : This class performs the optimization of a 
+		    network.
+pair_nn		  : A class which can be linked into the LAMMPS code
+		    to use a PROPhet potential in LAMMPS.
+Parallel	  : A wrapper to MPI functions
+Potential	  : A high-level class to perform fits based on 
+		    structure.
+QE		  : An interface to the Quantum Espresso DFT code.
+Setup		  : This class handles user input and run setup.
+Structure	  : This class holds structural information and
+		    performs operations allowing structure fits.
+System_data	  : A container class to hold training properties.
+System		  : A wrapper for 
+Tables		  : This class implements expensive functions via
+		    look-up-tables with spline interpolation.
+VASP		  : An interface to the VASP DFT-code
+xml_reader	  : A wrapper for the pugixml xml parser.
+
+
+In addition, two files are provided for the 
+pugixml xml parser (see http://pugixml.org/)
+-----------------------------------------------------
+pugiconfig.hpp	  
+pugixml.hpp	  
+
+
+
+
+

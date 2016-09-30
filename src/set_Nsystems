@@ -1,0 +1,13 @@
+Functional.cpp:  opt->set_params(params);
+Functional.cpp:  opt->set_Nsystems(Nsystems);
+Functional.cpp:  opt->set_Niterations(params.Niterations());
+Functional.cpp:  opt->set_Ncheckpoint(params.Ncheckpoint());
+Functional.cpp:  opt->set_training_algorithm(params.training_algorithm());
+Functional.cpp:  opt->set_threshold(params.threshold());
+Functional.cpp:  opt->set_debug(params.debug());
+NF.cpp:  opt->init(temp_nodes);
+NN.cpp:  opt->init(temp_nodes);
+Potential.cpp:  opt->internal_init();
+Potential.cpp:  while (!opt->is_converged()) {
+Potential.cpp:    opt->update_network(SSE, gradient);
+Potential.cpp:    if (opt->is_checkpoint()) {

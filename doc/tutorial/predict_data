@@ -1,0 +1,61 @@
+
+data code=vasp      # start with a "data" statement. Data for this example were generated 
+                    # with VASP. The "data" statement affects all data examples that come 
+                    # after it, until the next "data" statement.
+
+
+# Then provide the base directory for each training example, each 
+# on its own line.  Often it is best to specify absolute paths,
+# so that different training runs can be conducted on the same data. 
+# Here, relative paths are used.
+
+./data/251
+./data/252
+./data/253
+./data/254
+./data/255
+./data/256
+./data/257
+./data/258
+./data/259
+./data/260
+./data/261
+./data/262
+./data/263
+./data/264
+./data/265
+./data/266
+./data/267
+./data/268
+./data/269
+./data/270
+./data/271
+./data/272
+./data/273
+./data/274
+./data/275
+./data/276
+./data/277
+./data/278
+./data/279
+./data/280
+./data/281
+./data/282
+./data/283
+./data/284
+./data/285
+./data/286
+./data/287
+./data/288
+./data/289
+./data/290
+./data/291
+./data/292
+./data/293
+./data/294
+./data/295
+./data/296
+./data/297
+./data/298
+./data/299
+./data/300

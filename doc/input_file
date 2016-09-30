@@ -1,0 +1,373 @@
+# This is the main input file for the code.  
+# Whitespace is generally ignored.
+# The tags are not case-sensitive
+# Anything after # is ignored as a comment
+
+# Input works by key = value pairs (although the "="
+# can be ommitted.
+
+
+###          NETWORK CONSTRUCTION PARAMETERS
+
+#============================================================
+####                       INPUT                         ####
+#============================================================
+# A list of the properties to use as inputs to the network
+# Possible choices at present are:
+#     structure
+#     density
+#     energy
+#     dft_gap or gw_gap
+#     volume
+#     user## (where ## is a number specifying the row in an 
+#             external file)
+#     random (mostly for seeing how well a fit is doing)
+#
+# Please let me what other properties should be available
+#------------------------------------------------------------
+input = structure	  
+#============================================================
+
+
+#============================================================
+####                       OUTPUT                        ####
+#============================================================
+# The desired output of the network (what property we're 
+# trying to predict).
+# At present, this is limited to a single scalar property
+# The list of possibilities is largely the same as for "input"
+#------------------------------------------------------------
+output = energy         
+#============================================================
+
+
+#============================================================
+####                       HIDDEN                        ####
+#============================================================
+# The topology of the network.  A list of integers specifying 
+# the number of nodes in each layer. e.g. two layers with 10
+# 12 nodes would be specified as hidden = 10 12
+# Note: This specifies only the HIDDEN layers, as the 
+# number of input and output nodes are determined from the 
+# "input" and "output" flags, respectively.
+#------------------------------------------------------------
+hidden = 5              
+#============================================================
+
+
+#============================================================
+####                    TRANSFER                         ####
+#============================================================
+# The transfer functions of the non-output nodes.
+# Possible values at present are:
+#     linear
+#     tanh (default)
+#     tanh_spline (just a faster version of tanh)
+# Note: this flag sets the transfer functions for ALL non-output
+# nodes.  The functions can be changed on a per-node basis by
+# changing the checkpoint file.
+#------------------------------------------------------------
+transfer = tanh
+#============================================================
+
+
+#============================================================
+####                  NETWORK_TYPE                       ####
+#============================================================
+# Type of network
+# Possible choices are:
+#     neural_network or nn
+#     network_function or nf (experimental and not yet working)
+#------------------------------------------------------------
+network_type = nn       
+#============================================================
+
+
+
+
+
+#####         PARAMETERS GOVERNING TRAINING
+
+#============================================================
+####                     ALGORITHM                       ####
+#============================================================
+# The training algorithm to use
+# Possible choices are:
+#     rprop (default)
+#     steepest_descent
+#     steepest_descent_with_momentum
+#     steepest_descent_with_line_opt (currently not working)
+#     bfgs (second order with full line optimization)
+#
+# The default is rprop
+# It is suggested to start with rprop then switch to BFGS
+# when the system gets closer to the minimum
+#------------------------------------------------------------
+algorithm=rprop         
+#============================================================
+
+
+#============================================================
+####                     THRESHOLD                       ####
+#============================================================
+# The convergence criterion.
+# This governs both the global definition of convergence (when
+# the training will stop), and the internal definition of 
+# convergence during a line minimization (while training with 
+# the "bfgs" or "steepest_descent_with_line_opt" algorithms).
+#------------------------------------------------------------
+threshold = 1e-6       
+#============================================================
+
+
+#============================================================
+####                     NITERATIONS                     ####
+#============================================================
+# Total number of steps to run before quitting.
+# The default (if this flag is not specified)
+# is to run forever
+#------------------------------------------------------------
+#Niterations=150000     
+#============================================================
+
+
+#============================================================
+####                        NPRINT                       ####
+#============================================================
+# Number of steps between printing error and gradient
+# Note: printing too frequently will affect performance
+# default = 1000
+#------------------------------------------------------------
+Nprint = 1000           
+#============================================================
+
+
+#============================================================
+####                    NCHECKPOINT                      ####
+#============================================================
+# Number of steps between system checkpoints.
+# The system will periodically save its state in case of a 
+# crash.  This specifies the frequency of those saves.  
+# Note: checkpointing too frequently will affect performance
+#------------------------------------------------------------
+Ncheckpoint = 1000      #
+#============================================================
+
+
+#============================================================
+####             GLOBAL OPTIMIZATION PARAMETERS          ####
+#============================================================
+# These parameters pertain to a novel global optimization
+# algorithm that turns on a special perturbation designed 
+# to guide the network to the global optimium.  It is still 
+# somewhat experimental.
+#------------------------------------------------------------
+# The magnitude of the perturbation
+#lambda_max = 0          
+# How many times to try to apply it
+#Ncycles = 3             
+#============================================================
+
+
+#============================================================
+####                    CHECKPOINT_IN                    ####
+#============================================================
+# The name of a restart file from which to read.  This is 
+# used when continuing a training run or otherwise using a 
+# pre-trained network. If the flag is not specified the 
+# system will start from scratch
+#------------------------------------------------------------
+#checkpoint_in = functional_temp  
+#============================================================
+
+
+#============================================================
+####                   CHECKPOINT_OUT                    ####
+#============================================================
+# The name of the file to which checkpoints are saved.
+# Careful, if the file already exists it will be overwritten.  
+# This flag can be specified separately from the 
+# corresponding checkpoint input so a continuation run 
+# doesn't clobber itself.
+#------------------------------------------------------------
+checkpoint_out = functional_temp   
+#============================================================
+
+#============================================================
+####                    REGULARIZATION                   ####
+#============================================================
+# Sets the prefactor for a regularization term that penalizes
+# large parameters.  It does this by adding the sum of 
+# squares of the paremters (weighted by the value given in
+# this parameter) to the error function.  
+#------------------------------------------------------------
+#regularization = 0.1
+#============================================================
+
+#============================================================
+####                     SD_MOMENTUM                     ####
+#============================================================
+# Adds a momentum term to the steepest descent algorithm. 
+# This adds a portion (set by the magnitude of sd_momentum) 
+# of the previous optimization step to the current step. 
+# This can sometimes be useful to avoid local minima.
+#------------------------------------------------------------
+# sd_momentum = 0
+#============================================================
+
+#============================================================
+####                  LINE_MIN_EPSILON                   ####
+#============================================================
+# Sets the tolerance for the line minimzation during BFGS
+# training. This parameter defaults to 0.1*(threshold) if 
+# threshold is above 100*machine_eps and 100*machine_eps
+# otherwise. Setting this too low can produce warnings that
+# the function could not be optimized to the specifid 
+# precision. These can usually be ignored.
+#------------------------------------------------------------
+# line_min_epsilon = 1e-6
+#============================================================
+
+
+#============================================================
+####                 PRECONDITION_OUTPUT                 ####
+#============================================================
+# Turns on/off output preconditioning. With output 
+# preconditioning on, PROPhet will train to the scaled and 
+# shifted targets that have mean 0 and variance 1. This can
+# improve training efficiency if all targets have similar
+# value, but can cause substantial problems for systems with
+# very different input values. Use this option with caution.
+#------------------------------------------------------------
+# output_precondition = false
+#============================================================
+
+
+#####         Potential related flags
+
+# Further information about the symmetry functions used here 
+# and general issues related to machine-learned analytical 
+# potentials can be found in
+#
+# J. Behler Int. J. Quant. Chem. 115, 1032-1050 (2015)
+#
+# and references therein. It should be pointed out, however, 
+# that the numbering scheme for the symmetry functions
+# (e.g. G1, G2, G3, ...) changes in different papers. The 
+# scheme used here is that of the paper cited above.
+
+
+#============================================================
+###                         RCUT                          ###
+#============================================================
+# This flag sets the radial cutoff for defining the symmetry
+# functions in the neural network potential method of 
+# Behler and Parrinello.  The default value is 10 Angstroms.
+#------------------------------------------------------------
+# Rcut = 6.0
+#============================================================
+
+#============================================================
+###                         NRADIAL                       ###
+#============================================================
+# This sets the number of radial functions for the potential 
+# fit. If specified, Nradial G2 functions will be used. These
+# will be generated by setting Rs (the shifted center) for 
+# the G2 functions on a uniform grid from 1 Angstrom to Rcut.
+#------------------------------------------------------------
+# Nradial = 8
+#============================================================
+
+
+#============================================================
+###                         NANGULAR                      ###
+#============================================================
+# This sets the number of angular functions for the potential
+# fit. If specified, the code will generate G4 functions
+# using eta=1.2 and lambda=-1,1. Nangular of these functions 
+# will be generated by sweeping xi through the range 1-16 on
+# a uniform grid in as many steps as is necessary.
+#------------------------------------------------------------
+# Nangular = 8
+#============================================================
+
+
+#============================================================
+###                SYMMETRY FUNCTION BLOCK                ###
+#============================================================
+# Here one can specify symmetry functions explicitly.  These 
+# are ADDED to the set generated by Nradial and Nangular, so
+# be careful about double inclusion. Set Nradial=Nangular=0
+# to use only the explicitly given functions. 
+# This is only recommended for those familiar with the neural
+# network potential method of Behler.  See 
+# J. Behler, Int. J. Quant. Chem., 115 1032-1050 (2015)
+# for details, in particular, the definitions of the function
+# types. Equation numbers given below in parentheses refer to
+# this paper.
+#
+# The precise format depends on the function type being 
+# specified. The possibilities are as follows:
+# G1 cutoff damping_function                     (Eq 8)
+# G2 cutoff damping_function eta Rs              (Eq 9)
+# G3 cutoff damping_function eta xi lambda       (Eq 10)
+# G4 cutoff damping_function eta xi lambda       (Eq 11)
+# with:
+# cutoff : the radial cutoff distance beyond which 
+#          interactions are ignored. This is the 
+#          same as Rcut above, but on a funcion-
+#          by-function level. It must be specified
+#          for every function, even if Rcut is given.
+# damping_function : specifies the type of damping function to
+#                    use as.
+#		     Choices are 0 for cos function (Eq 6)
+#                    or 1 for tanh^3 function       (Eq 7)
+# eta : the exponent of the Gaussian functions
+# xi  : the exponent in the angular part of the functions
+# lambda : the prefactor for the cos(theta) term	     
+# 
+#------------------------------------------------------------
+#============================================================
+
+
+
+
+#####         DATA RELATED FIELDS
+
+#============================================================
+###                     DATA BLOCK                        ###
+#============================================================
+# Here we specify the data to use
+#============================================================
+# This line begins with "data" followed by a specification of
+# specifics for this data set.  Possibilities include:
+# 
+# "code = xxx", where "xxx" can be one of"
+#     vasp
+#     qe
+#     fhiaims
+# "property = property_dir" where "property" is an input 
+#     property specified  in the "inputs" field and 
+#     property_dir is the PATH RELATIVE TO THE DIRECTORIES THAT
+#     FOLLOW where the property is held. Generally, this is not 
+#     needed, and is only required when a particular property
+#     is not housed in the root directory for a run, e.g. you 
+#     run GW as a post-processing step in a sub-directory
+# Note: There can be any number of "data" blocks, so
+# data generated in differen ways (e.g. using 
+# different codes) can be used
+#------------------------------------------------------------
+data code=vasp          
+#------------------------------------------------------------
+# Here we have a list of directories where each DFT run can be found.
+# This can be specified either as a hard-wired list in this file, or
+# as a list in another file, which is included here using
+# "include filename".  This latter approach makes it easy to switch 
+# data sets, e.g. switch from a training set to a testing set, or 
+# between different training sets.
+#------------------------------------------------------------
+include /home/homesoftware/NNProject/Si_training_data  
+#============================================================
+
+
+
