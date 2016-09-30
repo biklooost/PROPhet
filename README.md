@@ -6,6 +6,7 @@
 //     /_/     /_/ |_| \____/ /_/     /_/ /_/\___/\__/    |
 //---------------------------------------------------------
 ```
+[![DOI](https://zenodo.org/badge/68395684.svg)](https://zenodo.org/badge/latestdoi/68395684)
 
  PROPhet was ceated by      
  Brian Kolb and Levi Lentz     
