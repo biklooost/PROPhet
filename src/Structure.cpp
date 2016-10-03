@@ -123,14 +123,9 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 	
 	for(int jj = 0; jj < jnum; jj++) {
 	  int j = jlist[jj];
-	  if (j == i) { continue; }
 	  
-	  vector<int> T;
-	  if (this->trans_indices.empty()) {
-	    T = vector<int>(3,0);
-	  } else {
-	    T = trans_indices[ii][jj];
-	  }
+	  vector<int> T = trans_indices[ii][jj];
+
 	  for (int tt=0; tt<T.size(); tt++) {
 	    for(int z=0; z<3; z++) { 
 	      jr[z] = this->pos[j][z] + translations[T[tt]][z];
@@ -138,6 +133,10 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 	    }
 	    this->To_Cart(del);
 	    R = sqrt(del[0]*del[0]+del[1]*del[1]+del[2]*del[2]); 
+
+	    if (R < 0.01) { continue; }
+	    for (int z=0; z<3; z++) { del[z] /= R; }
+	    
 	    if(!G1p.empty()) {
 	      for (int r1=0; r1<G1p.size(); r1++) {
 		if (R >= G1p[r1][0]) { continue; }
@@ -163,14 +162,9 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 	    if (!G3p.empty() || !G4p.empty()) {
 	      for(int jj2 = 0; jj2< jnum; jj2++) {
 		int j2 = firstneigh[i][jj2]; 
-		if((j2 == j) || (j2 == i)) {continue;}
 		
-		vector<int> T2;
-		if (trans_indices.empty()) {
-		  T = vector<int>(3,0);
-		} else {
-		  T = trans_indices[ii][jj2];
-		}
+		vector<int> T2 = trans_indices[ii][jj2];
+
 		for (int tt2=0; tt2<T2.size(); tt2++) {
 		  for(int z=0; z<3; z++) { 
 		    ju[z] = this->pos[j2][z] + translations[T2[tt2]][z];
@@ -180,7 +174,8 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 		  
 		  Ru = sqrt(del2[0]*del2[0] + del2[1]*del2[1] + del2[2]*del2[2]);
 		  Rjk = sqrt(del3[0]*del3[0]+del3[1]*del3[1]+del3[2]*del3[2]);
-		  
+
+		  if (Ru < 0.0 || Rjk < 0.01) { continue; }		  
 		  if (Ru > Rcut) { continue; }
 		  
 		  for (int z=0; z<3; z++) {
@@ -796,7 +791,7 @@ void Structure::Calc_G(int ii) {
 	      for(int z=0; z<3; z++) { 
 		del2[z] = (pos[j2][z]+translations[T2[tt2]][z]) - ir[z];
 		del3[z] = (pos[j2][z]+translations[T2[tt2]][z]) - jr[z];
-	      }  
+	      }
 	      this->To_Cart(del2);
 	      this->To_Cart(del3);
 	      
@@ -992,6 +987,8 @@ void Structure::Set_Neighbor(REAL Rcut) {
   this->translations.clear();
   this->trans_indices.clear();
   this->ilist.clear();
+  this->firstneigh.clear();
+  this->numneigh.clear();
 
   if(this->periodic == true) {
     int max_lattice_X, max_lattice_Y, max_lattice_Z;
