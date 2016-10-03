@@ -115,196 +115,211 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
     vector<REAL> G_vec;
     
     if(this->periodic == true) {
-      for (int ii=0; ii<this->pos.size(); ii++) {
+      for (int ii=0; ii<this->ilist.size(); ii++) {
 	int i = this->ilist[ii];
 	for(int z=0; z<3; z++) { ir[z] = this->pos[i][z]; }  
 	vector <int> jlist = this->firstneigh[i];
 	int jnum = this->numneigh[i];
 	
 	for(int jj = 0; jj < jnum; jj++) {
-	  if(jj == i) {continue;}
 	  int j = jlist[jj];
+	  if (j == i) { continue; }
 	  
-	  vector<int> T = trans_indices[ii][jj];
+	  vector<int> T;
+	  if (this->trans_indices.empty()) {
+	    T = vector<int>(3,0);
+	  } else {
+	    T = trans_indices[ii][jj];
+	  }
 	  for (int tt=0; tt<T.size(); tt++) {
 	    for(int z=0; z<3; z++) { 
 	      jr[z] = this->pos[j][z] + translations[T[tt]][z];
 	      del[z] = jr[z] - ir[z];
 	    }
-          this->To_Cart(del);
-          R = sqrt(del[0]*del[0]+del[1]*del[1]+del[2]*del[2]); 
-          if(!G1p.empty()) {
-            for (int r1=0; r1<G1p.size(); r1++) {
-              if (R >= G1p[r1][0]) { continue; }
-              REAL force = dE_dG[i][G_index(r1,types[j].atomic_number())]*d_fc(G1p[r1][0],R,G1p[r1][1]);
-              for (int dir=0; dir<3; dir++) {
-                f[i][dir] += force*del[dir];
-                f[j][dir] -= force*del[dir];
-              }
-            }
-          }
-          if(!G2p.empty()) {
-            for (int r1=0; r1<G2p.size(); r1++) {
-              if (R >= G2p[r1][0]) { continue; }
-              REAL delta_R = R-G2p[r1][3];
-	      dE_dR = dE_dG[i][G_index(r1+G1p.size(),types[j].atomic_number())]*exp_term(-G2p[r1][2]*delta_R*delta_R)
-                * (d_fc(G2p[r1][0],R,G2p[r1][1]) - 2*G2p[r1][2]*delta_R*fc(R/G2p[r1][0],G2p[r1][1]));
-              for (int dir=0; dir<3; dir++) {
-                f[i][dir] += dE_dR*del[dir];
-                f[j][dir] -= dE_dR*del[dir];
-              }
-            }
-          }
-	  if (!G3p.empty() || !G4p.empty()) {
-	    for(int jj2 = 0; jj2< jnum; jj2++) {
-	      int j2 = firstneigh[i][jj2]; 
-	      if((j2 == j) || (j2 == i)) {continue;}
-	      
-	      for(int z=0; z<3; z++) { 
-		del2[z] = pos[j2][z] - pos[i][z];
-		del3[z] = pos[j][z] - pos[j2][z];
-	      } 
-	      Ru = sqrt(del2[0]*del2[0] + del2[1]*del2[1] + del2[2]*del2[2]);
-	      Rjk = sqrt(del3[0]*del3[0]+del3[1]*del3[1]+del3[2]*del3[2]);
-	      
-	      if (Ru > Rcut) { continue; }
-	      
-	      for (int z=0; z<3; z++) {
-		del2[z] /= Ru;
-		del3[z] /= Rjk;
-	      } 
-	      
-	      REAL theta = 0;
-	      for (int temp = 0; temp < 3; temp++) { theta += (del2[temp])*(del[temp]); }
-	      
-	      if(!G3p.empty()) {
-		if (Rjk > Rcut) { continue; }
-		
-		for (int r1=0; r1<G3p.size(); r1++) {
-		  
-		  if (R >= G3p[r1][0] || Ru >= G3p[r1][0] || Rjk >= G3p[r1][0]) { continue; }
-		  
-		  term = (1+G3p[r1][4]*theta);
-		  if (term <= 0) { continue; }
-		  
-		  prefactor = prefactor_A.at(G3p[r1][3])*pow(term,G3p[r1][3])*exp(-G3p[r1][2]*(R*R + Ru*Ru + Rjk*Rjk));
-		  prefactor *= dE_dG[i][G_index(r1,types[j].atomic_number(),types[j2].atomic_number())];
-		  fc_R = fc(R/G3p[r1][0],G3p[r1][1]);
-		  fc_Ru = fc(Ru/G3p[r1][0],G3p[r1][1]);
-		  fc_Rjk = fc(Rjk/G3p[r1][0],G3p[r1][1]);
-		  dist_prod = R*Ru;
-		  
-		  dG_dR = prefactor*fc_Ru*fc_Rjk*(d_fc(G3p[r1][0],R,G3p[r1][1])/R - 2*G3p[r1][2]*fc_R);
-		  dG_dRu = prefactor*fc_R*fc_Rjk*(d_fc(G3p[r1][0],Ru,G3p[r1][1])/Ru - 2*G3p[r1][2]*fc_Ru);
-		  dG_dRjk = prefactor*fc_R*fc_Ru*(d_fc(G3p[r1][0],Rjk,G3p[r1][1])/Rjk - 2*G3p[r1][2]*fc_Rjk);
-		  dG_dcos = prefactor*(G3p[r1][3]*G3p[r1][4]/term)*fc_R*fc_Ru*fc_Rjk;
-		  
-		  for (int dir=0; dir<3; dir++) {
-		    Fij = dG_dR*del[dir] - dG_dRjk*del3[dir] 
-		      + dG_dcos*(del2[dir]/dist_prod - theta*del[dir]/(dist_prod*dist_prod));
-		    Fij2 = dG_dRu*del2[dir] + dG_dRjk*del3[dir]
-		      + dG_dcos*(del[dir]/dist_prod - theta*del2[dir]/(dist_prod*dist_prod));
-		    f[j][dir] -= Fij;
-		    f[j2][dir] -= Fij2;
-		    f[i][dir] += Fij + Fij2;
-		  }
-		}
-	      }
-	      
-	      if (!G4p.empty()) {
-		for (int r1=0; r1<G4p.size(); r1++) {
-		  if (R >= G4p[r1][0] || Ru >= G4p[r1][0]) { continue; }
-		  
-		  term = (1+G4p[r1][4]*theta);
-		  if (term <= 0) { continue; }
-		  if (r1 == 0) {
-		    prefactor = Structure::prefactor_A.at(G4p[r1][3])
-		      *dE_dG[i][G_index(r1+G3p.size(),types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G4p[r1]);
-		    
-		    G_exp1 = exp_term(-G4p[r1][2]*(R*R + Ru*Ru));
-		    
-		    fc_R = fc(R/G4p[r1][0],G4p[r1][1]);
-		    fc_Ru = fc(Ru/G4p[r1][0],G4p[r1][1]);
-		    dG_dR = G_exp1*fc_Ru*(d_fc(G4p[r1][0],R,G4p[r1][1]) - 2*R*G4p[r1][2]*fc_R);
-		    dG_dRu = G_exp1*fc_R*(d_fc(G4p[r1][0],Ru,G4p[r1][1]) - 2*Ru*G4p[r1][2]*fc_Ru); 
-		    dG_dcos = G_exp1*(G4p[r1][3]*G4p[r1][4]/term)*fc_R*fc_Ru/(R*Ru);
-		  } else {
-		    prefactor = Structure::prefactor_A.at(G4p[r1][3])
-		      *dE_dG[i][G_index(r1+G3p.size(),types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G4p[r1]);
-		    if (old_row2 != G4p[r1][2]) {
-		      if (old_row0 != G4p[r1][0] || old_row1 != G4p[r1][1]) {
-			fc_R = fc(R/G4p[r1][0],G4p[r1][1]);
-			fc_Ru = fc(Ru/G4p[r1][0],G4p[r1][1]);
-			old_row0 = G4p[r1][0];
-			old_row1 = G4p[r1][1];
-		      }
-		      G_exp1 = exp_term(-G4p[r1][2]*(R*R + Ru*Ru));
-		      dG_dR = G_exp1*fc_Ru*(d_fc(G4p[r1][0],R,G4p[r1][1]) - 2*R*G4p[r1][2]*fc_R);
-		      dG_dRu = G_exp1*fc_R*(d_fc(G4p[r1][0],Ru,G4p[r1][1]) - 2*Ru*G4p[r1][2]*fc_Ru); 
-		      old_row2 = G4p[r1][2];
-		    } else if (old_row0 != G4p[r1][0] || old_row1 != G4p[r1][1]) {
-		      fc_R = fc(R/G4p[r1][0],G4p[r1][1]);
-		      fc_Ru = fc(Ru/G4p[r1][0],G4p[r1][1]);
-		      old_row0 = G4p[r1][0];
-		      old_row1 = G4p[r1][1];
-		    }
-		    dG_dcos = G_exp1*(G4p[r1][3]*G4p[r1][4]/term)*fc_R*fc_Ru/(R*Ru);
-		  }
-		  for (int dir=0; dir<3; dir++) {
-		    Fij  = prefactor*(dG_dR*del[dir]  + Ru*dG_dcos*(del2[dir] - theta*del[dir]));
-		    Fij2 = prefactor*(dG_dRu*del2[dir] + R*dG_dcos*(del[dir] - theta*del2[dir]));
-		    
-		    f[j][dir]  -= Fij;
-		    f[j2][dir] -= Fij2;
-		    f[i][dir]  += Fij + Fij2;
-		  }
+	    this->To_Cart(del);
+	    R = sqrt(del[0]*del[0]+del[1]*del[1]+del[2]*del[2]); 
+	    if(!G1p.empty()) {
+	      for (int r1=0; r1<G1p.size(); r1++) {
+		if (R >= G1p[r1][0]) { continue; }
+		REAL force = dE_dG[i][G_index(r1,types[j].atomic_number())]*d_fc(G1p[r1][0],R,G1p[r1][1]);
+		for (int dir=0; dir<3; dir++) {
+		  f[i][dir] += force*del[dir];
+		  f[j][dir] -= force*del[dir];
 		}
 	      }
 	    }
-	    /*
-	      if(!G1p.empty()) {
-	      for(int r1 = 0;r1<G1p.size(); r1++ ) {
-              this->d_G1(force,G1p[r1],R,del);
+	    if(!G2p.empty()) {
+	      for (int r1=0; r1<G2p.size(); r1++) {
+		if (R >= G2p[r1][0]) { continue; }
+		REAL delta_R = R-G2p[r1][3];
+		dE_dR = dE_dG[i][G_index(r1+G1p.size(),types[j].atomic_number())]*exp_term(-G2p[r1][2]*delta_R*delta_R)
+		  * (d_fc(G2p[r1][0],R,G2p[r1][1]) - 2*G2p[r1][2]*delta_R*fc(R/G2p[r1][0],G2p[r1][1]));
+		for (int dir=0; dir<3; dir++) {
+		  f[i][dir] += dE_dR*del[dir];
+		  f[j][dir] -= dE_dR*del[dir];
+		}
 	      }
-	      }
-	      if(!G2p.empty()) {
-	      for(int r1 = G1p.size();r1<G1p.size() + G2p.size(); r1++ ) {
-              this->d_G2(force,G2p[r1-G1p.size()], R, del);
-	      }
-	      }
-	      if (!G3p.empty() || !G4p.empty()) {
+	    }
+	    if (!G3p.empty() || !G4p.empty()) {
 	      for(int jj2 = 0; jj2< jnum; jj2++) {
-              if((jj2 == jj) || (jj2 == i )) {continue;}
-              int j2 = jlist[jj2];
-              vector<int> T2 = this->trans_indices[ii][jj2];
-              for (int tt2=0; tt2<T2.size(); tt2++) {
-	      for(int z=0; z<3; z++) { 
-	      ju[z] = this->pos[j2][z] + translations[T2[tt2]][z]; 
-	      del2[z] = ju[z] - ir[z];
-	      del3[z] = ju[z] - jr[z]+translations[T2[tt2]][z];
-	      }  
-	      this->To_Cart(del2);
-	      this->To_Cart(del3);
-	      Ru = sqrt(del2[0]*del2[0] + del2[1]*del2[1] + del2[2]*del2[2]);
-	      Rjk = sqrt(del3[0]*del3[0]+del3[1]*del3[1]+del3[2]*del3[2]);
-	      REAL theta = 0;
-	      for (int temp = 0; temp < 3; temp++) { theta += (del2[temp])*(del[temp]); }
-	      theta = theta/(R*Ru);
-	      if(!G3p.empty()) {
-	      for(int r1 = G1p.size() + G2p.size();r1<G1p.size() + G1p.size() + G3p.size(); r1++) {
-	      this->d_G3(force,G3p[r1-G2p.size() -G1p.size()],R,Ru,Rjk,theta,del,del2);
+		int j2 = firstneigh[i][jj2]; 
+		if((j2 == j) || (j2 == i)) {continue;}
+		
+		vector<int> T2;
+		if (trans_indices.empty()) {
+		  T = vector<int>(3,0);
+		} else {
+		  T = trans_indices[ii][jj2];
+		}
+		for (int tt2=0; tt2<T2.size(); tt2++) {
+		  for(int z=0; z<3; z++) { 
+		    ju[z] = this->pos[j2][z] + translations[T2[tt2]][z];
+		    del2[z] = ju[z] - ir[z];
+		    del3[z] = ju[z] - jr[z];
+		  } 
+		  
+		  Ru = sqrt(del2[0]*del2[0] + del2[1]*del2[1] + del2[2]*del2[2]);
+		  Rjk = sqrt(del3[0]*del3[0]+del3[1]*del3[1]+del3[2]*del3[2]);
+		  
+		  if (Ru > Rcut) { continue; }
+		  
+		  for (int z=0; z<3; z++) {
+		    del2[z] /= Ru;
+		    del3[z] /= Rjk;
+		  } 
+		  
+		  REAL theta = 0;
+		  for (int temp = 0; temp < 3; temp++) { theta += (del2[temp])*(del[temp]); }
+		  
+		  if(!G3p.empty()) {
+		    if (Rjk > Rcut) { continue; }
+		    
+		    for (int r1=0; r1<G3p.size(); r1++) {
+		      
+		      if (R >= G3p[r1][0] || Ru >= G3p[r1][0] || Rjk >= G3p[r1][0]) { continue; }
+		      
+		      term = (1+G3p[r1][4]*theta);
+		      if (term <= 0) { continue; }
+		      
+		      prefactor = prefactor_A.at(G3p[r1][3])*pow(term,G3p[r1][3])*exp(-G3p[r1][2]*(R*R + Ru*Ru + Rjk*Rjk));
+		      prefactor *= dE_dG[i][G_index(r1,types[j].atomic_number(),types[j2].atomic_number())];
+		      fc_R = fc(R/G3p[r1][0],G3p[r1][1]);
+		      fc_Ru = fc(Ru/G3p[r1][0],G3p[r1][1]);
+		      fc_Rjk = fc(Rjk/G3p[r1][0],G3p[r1][1]);
+		      dist_prod = R*Ru;
+		      
+		      dG_dR = prefactor*fc_Ru*fc_Rjk*(d_fc(G3p[r1][0],R,G3p[r1][1])/R - 2*G3p[r1][2]*fc_R);
+		      dG_dRu = prefactor*fc_R*fc_Rjk*(d_fc(G3p[r1][0],Ru,G3p[r1][1])/Ru - 2*G3p[r1][2]*fc_Ru);
+		      dG_dRjk = prefactor*fc_R*fc_Ru*(d_fc(G3p[r1][0],Rjk,G3p[r1][1])/Rjk - 2*G3p[r1][2]*fc_Rjk);
+		      dG_dcos = prefactor*(G3p[r1][3]*G3p[r1][4]/term)*fc_R*fc_Ru*fc_Rjk;
+		      
+		      for (int dir=0; dir<3; dir++) {
+			Fij = dG_dR*del[dir] - dG_dRjk*del3[dir] 
+			  + dG_dcos*(del2[dir]/dist_prod - theta*del[dir]/(dist_prod*dist_prod));
+			Fij2 = dG_dRu*del2[dir] + dG_dRjk*del3[dir]
+			  + dG_dcos*(del[dir]/dist_prod - theta*del2[dir]/(dist_prod*dist_prod));
+			f[j][dir] -= Fij;
+			f[j2][dir] -= Fij2;
+			f[i][dir] += Fij + Fij2;
+		      }
+		    }
+		  }
+		  
+		  if (!G4p.empty()) {
+		    for (int r1=0; r1<G4p.size(); r1++) {
+		      if (R >= G4p[r1][0] || Ru >= G4p[r1][0]) { continue; }
+		      
+		      term = (1+G4p[r1][4]*theta);
+		      if (term <= 0) { continue; }
+		      if (r1 == 0) {
+			prefactor = Structure::prefactor_A.at(G4p[r1][3])
+			  *dE_dG[i][G_index(r1+G3p.size(),types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G4p[r1]);
+			
+			G_exp1 = exp_term(-G4p[r1][2]*(R*R + Ru*Ru));
+			
+			fc_R = fc(R/G4p[r1][0],G4p[r1][1]);
+			fc_Ru = fc(Ru/G4p[r1][0],G4p[r1][1]);
+			dG_dR = G_exp1*fc_Ru*(d_fc(G4p[r1][0],R,G4p[r1][1]) - 2*R*G4p[r1][2]*fc_R);
+			dG_dRu = G_exp1*fc_R*(d_fc(G4p[r1][0],Ru,G4p[r1][1]) - 2*Ru*G4p[r1][2]*fc_Ru); 
+			dG_dcos = G_exp1*(G4p[r1][3]*G4p[r1][4]/term)*fc_R*fc_Ru/(R*Ru);
+		      } else {
+			prefactor = Structure::prefactor_A.at(G4p[r1][3])
+			  *dE_dG[i][G_index(r1+G3p.size(),types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G4p[r1]);
+			if (old_row2 != G4p[r1][2]) {
+			  if (old_row0 != G4p[r1][0] || old_row1 != G4p[r1][1]) {
+			    fc_R = fc(R/G4p[r1][0],G4p[r1][1]);
+			    fc_Ru = fc(Ru/G4p[r1][0],G4p[r1][1]);
+			    old_row0 = G4p[r1][0];
+			    old_row1 = G4p[r1][1];
+			  }
+			  G_exp1 = exp_term(-G4p[r1][2]*(R*R + Ru*Ru));
+			  dG_dR = G_exp1*fc_Ru*(d_fc(G4p[r1][0],R,G4p[r1][1]) - 2*R*G4p[r1][2]*fc_R);
+			  dG_dRu = G_exp1*fc_R*(d_fc(G4p[r1][0],Ru,G4p[r1][1]) - 2*Ru*G4p[r1][2]*fc_Ru); 
+			  old_row2 = G4p[r1][2];
+			} else if (old_row0 != G4p[r1][0] || old_row1 != G4p[r1][1]) {
+			  fc_R = fc(R/G4p[r1][0],G4p[r1][1]);
+			  fc_Ru = fc(Ru/G4p[r1][0],G4p[r1][1]);
+			  old_row0 = G4p[r1][0];
+			  old_row1 = G4p[r1][1];
+			}
+			dG_dcos = G_exp1*(G4p[r1][3]*G4p[r1][4]/term)*fc_R*fc_Ru/(R*Ru);
+		      }
+		      for (int dir=0; dir<3; dir++) {
+			Fij  = prefactor*(dG_dR*del[dir]  + Ru*dG_dcos*(del2[dir] - theta*del[dir]));
+			Fij2 = prefactor*(dG_dRu*del2[dir] + R*dG_dcos*(del[dir] - theta*del2[dir]));
+			
+			f[j][dir]  -= Fij;
+			f[j2][dir] -= Fij2;
+			f[i][dir]  += Fij + Fij2;
+		      }
+		    }
+		  }
+		}
+		/*
+		  if(!G1p.empty()) {
+		  for(int r1 = 0;r1<G1p.size(); r1++ ) {
+		  this->d_G1(force,G1p[r1],R,del);
+		  }
+		  }
+		  if(!G2p.empty()) {
+		  for(int r1 = G1p.size();r1<G1p.size() + G2p.size(); r1++ ) {
+		  this->d_G2(force,G2p[r1-G1p.size()], R, del);
+		  }
+		  }
+		  if (!G3p.empty() || !G4p.empty()) {
+		  for(int jj2 = 0; jj2< jnum; jj2++) {
+		  if((jj2 == jj) || (jj2 == i )) {continue;}
+		  int j2 = jlist[jj2];
+		  vector<int> T2 = this->trans_indices[ii][jj2];
+		  for (int tt2=0; tt2<T2.size(); tt2++) {
+		  for(int z=0; z<3; z++) { 
+		  ju[z] = this->pos[j2][z] + translations[T2[tt2]][z]; 
+		  del2[z] = ju[z] - ir[z];
+		  del3[z] = ju[z] - jr[z]+translations[T2[tt2]][z];
+		  }  
+		  this->To_Cart(del2);
+		  this->To_Cart(del3);
+		  Ru = sqrt(del2[0]*del2[0] + del2[1]*del2[1] + del2[2]*del2[2]);
+		  Rjk = sqrt(del3[0]*del3[0]+del3[1]*del3[1]+del3[2]*del3[2]);
+		  REAL theta = 0;
+		  for (int temp = 0; temp < 3; temp++) { theta += (del2[temp])*(del[temp]); }
+		  theta = theta/(R*Ru);
+		  if(!G3p.empty()) {
+		  for(int r1 = G1p.size() + G2p.size();r1<G1p.size() + G1p.size() + G3p.size(); r1++) {
+		  this->d_G3(force,G3p[r1-G2p.size() -G1p.size()],R,Ru,Rjk,theta,del,del2);
+		  }
+		  }
+		  if(!G4p.empty()) {
+		  for(int r1 = G1p.size() + G2p.size() + G3p.size();r1<G1p.size() + G2p.size() + G3p.size() + G4p.size(); r1++) {
+		  this->d_G4(force,G4p[r1-G2p.size() -G1p.size() - G3p.size()],R,Ru,Rjk,theta,del,del2);
+		  }
+		  }
+		  }
+		  }
+		  }
+		*/
 	      }
-	      }
-	      if(!G4p.empty()) {
-	      for(int r1 = G1p.size() + G2p.size() + G3p.size();r1<G1p.size() + G2p.size() + G3p.size() + G4p.size(); r1++) {
-	      this->d_G4(force,G4p[r1-G2p.size() -G1p.size() - G3p.size()],R,Ru,Rjk,theta,del,del2);
-	      }
-	      }
-              }
-	      }
-	      }
-	    */
-	  }
+	    }
 	  }
 	}
       }
@@ -368,8 +383,8 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 	      if (Ru > Rcut) { continue; }
 	      
 	      for (int z=0; z<3; z++) {
-	      	del2[z] /= Ru;
-	      	del3[z] /= Rjk;
+		del2[z] /= Ru;
+		del3[z] /= Rjk;
 	      } 
 	      
 	      REAL theta = 0;
