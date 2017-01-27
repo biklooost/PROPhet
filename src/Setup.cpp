@@ -491,15 +491,18 @@ void Setup::split_systems() {
 void Setup::print_details() {
   
   int Ntotal_systems = mpi->Reduce(systems.size(), MPI_SUM);
-  map<string,REAL>::iterator it;
+
   if (mpi->io_node()) {
     cout << endl << "Found " << Ntotal_systems << plural(" system",Nsystems()) << endl;
   }
   
   if (mpi->io_node()) {
-      cout << endl << "Free Energies: " << endl;
-      for (it = F.my_FE.begin(); it != F.my_FE.end(); it++){
-          cout << it->first << " : " << it->second;
+      if (!F.my_FE.empty()){
+        map<string,REAL>::iterator it;
+        cout << endl << "Free Energies: " << endl;
+        for (it = F.my_FE.begin(); it != F.my_FE.end(); it++){
+            cout << it->first << " : " << it->second;
+        }
       }
     cout << endl << "Functional parameters" <<endl;
     cout << F.Ninputs() << plural(" input",F.Ninputs()) << " :  ";
