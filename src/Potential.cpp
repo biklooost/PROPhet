@@ -88,6 +88,12 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
 	for (int layer=0; layer<params.Nlayers(); layer++) {
 	  cout << params.NNodes(layer)<<"  ";
 	}
+        cout << endl;
+        map<string,REAL> FE = params.FE();
+        if(!FE.empty()) {
+            cout << params.current_atom_type << " Free Energy : " << FE[params.current_atom_type] << endl;
+            
+        }
 	cout << endl << endl;
       }
     }
@@ -934,9 +940,6 @@ void Potential::create_system_map() {
 
 // ########################################################
 // ########################################################
-
-
-
 
 // ########################################################
 //                       INSERT_ATOM_TYPE

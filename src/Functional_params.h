@@ -170,6 +170,7 @@ class Functional_params {
   inline int Nangular() { return my_Nangular; }
   inline REAL Rcut() { return my_Rcut; }
   inline void Rcut(REAL cutoff) { my_Rcut = cutoff; }
+  inline map<string,REAL> FE() { return my_FE;}
   
   vector<vector<REAL> >  G1;
   vector<vector<REAL> >  G2;

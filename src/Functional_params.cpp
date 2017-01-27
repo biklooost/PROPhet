@@ -119,7 +119,7 @@ Functional_params::~Functional_params() {
 
 void Functional_params::print(ostream &out) {
   
-  out << this->my_network_type << endl;
+  out << this->my_network_type << endl; 
   
   for (int i=0; i<my_inputs.size(); i++) {
     out << my_inputs.at(i) <<"  ";
@@ -131,6 +131,9 @@ void Functional_params::print(ostream &out) {
       out << my_atomic_symbols[i] << " ";
     }
     out << endl;
+    if (!this->my_FE.empty()) {
+        out << "FE:  " << this->my_FE[current_atom_type] << endl;
+    }
     out << G1.size()+G2.size()+G3.size()+G4.size()<<endl;
     for  (int i=0; i<G1.size(); i++) {
       out << setprecision(12)<<"G1 "<<G1.at(i).at(0) << " "<<G1.at(i).at(1)
@@ -229,6 +232,15 @@ void Functional_params::read(istream &in) {
     Line.clear();
 
     getline(in, line);
+    if (line.find("FE") != std::string::npos) {
+        Line.str(line);
+        REAL FE;
+        string temp;
+        Line >> temp >> FE;
+        this->my_FE[this->current_atom_type] = FE;
+        Line.clear();
+        getline(in,line);
+    }
     Line.str(line);
     int Nfunctions, function_count=1;
     Line >> Nfunctions;
