@@ -130,7 +130,7 @@ void Setup::read_input (string filename) {
   int int_value;
   REAL real_value;
   REAL Rcut_max = 0;
-
+ 
   ifstream* file = new ifstream();
 
   file->open(filename.c_str());
@@ -187,6 +187,14 @@ void Setup::read_input (string filename) {
 	if (string_value == "structure") { my_is_potential = true; }
       }
       
+    }else if (key == "nsave"){
+        Line >> int_value;
+        F.my_Nbackup = int_value;
+        F.my_Tbackup = true;
+    }else if (key == "free_energy"){
+        while (Line >> KEY >> real_value){
+            F.my_FE[KEY] = real_value;
+        }
     } else if (key == "output") {
       
       Line >> string_value;
@@ -483,12 +491,16 @@ void Setup::split_systems() {
 void Setup::print_details() {
   
   int Ntotal_systems = mpi->Reduce(systems.size(), MPI_SUM);
-  
+  map<string,REAL>::iterator it;
   if (mpi->io_node()) {
     cout << endl << "Found " << Ntotal_systems << plural(" system",Nsystems()) << endl;
   }
   
   if (mpi->io_node()) {
+      cout << endl << "Free Energies: " << endl;
+      for (it = F.my_FE.begin(); it != F.my_FE.end(); it++){
+          cout << it->first << " : " << it->second;
+      }
     cout << endl << "Functional parameters" <<endl;
     cout << F.Ninputs() << plural(" input",F.Ninputs()) << " :  ";
     for (int i=0; i<F.Ninputs(); i++) {

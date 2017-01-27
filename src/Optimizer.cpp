@@ -80,15 +80,19 @@ Optimizer::Optimizer(Parallel *mpi_ptr, Functional_params params, int Nsystems) 
   this->get_next_x = &Optimizer::rprop;
   this->my_Nsystems = Nsystems;
   this->do_print = true;
-
+  if (params.Tbackup()){
+      this->set_Tbackup(true);
+      this->set_Nbackup(params.Nbackup());
+  } else {
+      this->set_Tbackup(false);
+  }
   this->set_Nsystems(Nsystems);
   this->set_Niterations(params.Niterations());
   this->set_Ncheckpoint(params.Ncheckpoint());
   this->set_training_algorithm(params.training_algorithm());
   this->set_threshold(params.threshold());
   this->set_debug(params.debug());
-
-  
+ 
 }
 
 // ########################################################
@@ -98,7 +102,7 @@ Optimizer::Optimizer(Parallel *mpi_ptr, Functional_params params, int Nsystems) 
 
 
 // ########################################################
-//                       Desctructor
+//                       Destructor
 // ########################################################
 //
 
@@ -124,9 +128,6 @@ void Optimizer::set_params(Functional_params params) {
 
 // ########################################################
 // ########################################################
-
-
-
 
 // ########################################################
 //                       SET_TRAINING_ALGORITHM
@@ -170,9 +171,6 @@ void Optimizer::set_training_algorithm(string algorithm) {
 
 // ########################################################
 // ########################################################
-
-
-
 
 // ########################################################
 //                       INIT
@@ -566,7 +564,7 @@ vector<REAL> Optimizer::rprop() {
 // ########################################################
 //                       LBFGS
 // ########################################################
-// Implemnts the lesser memory BFGS algorithm.
+// Implements the lesser memory BFGS algorithm.
 
 vector<REAL> Optimizer::LBFGS() { 
   
@@ -924,25 +922,31 @@ void Optimizer::update_network(REAL Error, vector<REAL> grad, REAL SSE) {
   
   
   if (do_print) {
-  if (mpi->io_node()) {
-    if (this->line_min) {
+    if (mpi->io_node()) {
+      if (this->line_min) {
 
-      if ( !(iteration_counter % F_params.Nprint()) || my_is_converged){
-#ifdef USE_LONG_DOUBLE
-	printf("%-9d %#13.6Le %#13.6Le\n",iteration_counter++,sqrt(SSE),norm);
-#else
-	printf("%-9d %#13.6e %#13.6e\n",iteration_counter++,sqrt(SSE),norm);
-#endif
-      } else {
-	iteration_counter++;
+        if ( !(iteration_counter % F_params.Nprint()) || my_is_converged){
+  #ifdef USE_LONG_DOUBLE
+          printf("%-9d %#13.6Le %#13.6Le\n",iteration_counter++,sqrt(SSE),norm);
+  #else
+          printf("%-9d %#13.6e %#13.6e\n",iteration_counter++,sqrt(SSE),norm);
+  #endif
+        } else {
+          iteration_counter++;
+        }
+        my_is_checkpoint = ((iteration_counter-1) % my_Ncheckpoint ? false : true);
+        if (my_Tbackup){
+            my_is_backup = ((iteration_counter-1) % my_Nbackup ? false : true);
+        }
+        if (iteration_counter == 1) { 
+            my_is_checkpoint = false; 
+            my_is_backup = false;
+        }
       }
-      my_is_checkpoint = ((iteration_counter-1) % my_Ncheckpoint ? false : true);
-      if (iteration_counter == 1) { my_is_checkpoint = false; }
-    }
-    
   }
   
   my_is_checkpoint = mpi->Bcast(my_is_checkpoint);
+  my_is_backup = mpi->Bcast(my_is_backup);
   
   if (dalpha_dt) {
     

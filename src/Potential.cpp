@@ -234,7 +234,29 @@ void Potential::save() {
 }
 
 // ########################################################
+//                       BACKUP
 // ########################################################
+// Write the Backup Potential file
+void Potential::backup(int niter) {
+  
+  if (!mpi->io_node()) { return; }
+  ostringstream convert; 
+  convert << niter - 1;
+  Atom atom_type;
+  
+  for (map<int, Network*>::iterator it=nets.begin(); it != nets.end(); ++it) {
+    
+    atom_type.set_type(it->first);
+
+    ofstream output;
+    string filename = params.output_file()+"_"+atom_type.atomic_symbol()+"_"+convert.str();
+    output.open(filename.c_str());
+    it->second->print(output);
+    output.close();
+  
+  }
+
+}
 
 
 
@@ -514,6 +536,10 @@ REAL Potential::train() {
     
     if (opt->is_checkpoint()) {
       this->save();
+    }
+    
+    if (opt->is_backup()){
+        this->backup(opt->iteration());
     }
     
   }

@@ -72,12 +72,21 @@ class Optimizer {
 
   inline bool is_converged() { return my_is_converged; }
   inline bool is_checkpoint() { return my_is_checkpoint; }
+  inline bool is_backup() { 
+      if (this->my_Tbackup) {
+          return my_is_backup;
+      } else {
+          return false;
+      }
+  }
   inline bool is_line_min() { return line_min; }
   inline int iteration() { return iteration_counter; }
   
   inline void set_Ncheckpoint(int N) { this->my_Ncheckpoint = N; }
   inline void set_Niterations(int N) { this->my_max_steps = N; }
   inline void set_Nsystems(int N) { this->my_Nsystems = N; }
+  inline void set_Nbackup(int N) {this->my_Nbackup = N;}
+  inline void set_Tbackup(bool T) { this->my_Tbackup = T;}
   
   void set_training_algorithm(string algorithm);
   inline void set_threshold(REAL threshold) { my_threshold = threshold; }
@@ -101,10 +110,12 @@ class Optimizer {
   REAL line_min_threshold;
   
   bool do_print;
+  bool my_Tbackup;
+  int my_Nbackup;
  
   // Member variables
   int iteration_counter;
-  bool my_is_converged, my_is_checkpoint;
+  bool my_is_converged, my_is_checkpoint, my_is_backup;
   REAL lambda0, lambda;
   bool is_initialized;
   bool allow_training_switch;

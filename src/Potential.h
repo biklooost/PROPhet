@@ -99,6 +99,7 @@ class Potential {
 
   map<int,vector<REAL>::iterator> indices;
   void save();
+  void backup(int niter);
   void load(string filename);
   void Precondition();
   

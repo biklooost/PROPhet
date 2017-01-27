@@ -48,6 +48,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <map>
 
 #include "Common.h"
 #include "Atom.h"
@@ -163,7 +164,8 @@ class Functional_params {
     }
   }
 
-  
+  inline bool Tbackup() { return my_Tbackup;}
+  inline int Nbackup() { return my_Nbackup;}
   inline int Nradial() { return my_Nradial; }
   inline int Nangular() { return my_Nangular; }
   inline REAL Rcut() { return my_Rcut; }
@@ -229,7 +231,8 @@ class Functional_params {
   int my_Niterations;
   int my_Ncheckpoint;
   int my_Nprint;
-
+  int my_Nbackup; //How often to save the functional file
+  bool my_Tbackup;
   REAL my_debug;
 
   string my_training_algorithm;
@@ -243,6 +246,7 @@ class Functional_params {
   REAL my_Rcut;
   int my_Nradial;
   int my_Nangular;
+  std::map<string,REAL> my_FE;
 
 };
 

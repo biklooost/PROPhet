@@ -85,6 +85,9 @@ Functional_params::Functional_params() {
   this->my_output_precondition = false;
   this->output_mean = 0;
   this->output_variance = 1;
+  
+  this->my_Nbackup = 0;
+  this->my_Tbackup = false;
 
 }
 
