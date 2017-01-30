@@ -821,17 +821,17 @@ void Potential::validate() {
     }
   }
   
-  vector<REAL> output = mpi->Gatherv(my_outputs);
-  unraveled = mpi->Gatherv(unraveled);
-  
   vector<REAL> targets = nets.begin()->second->get_targets();
-  targets = mpi->Gatherv(targets);
-  vector<REAL> unTargets(unraveled.size(),0.0);
+  vector<REAL> unTargets(systems.size(),0.0);
   if (unrav) {
         for (int i_sys=0; i_sys<systems.size(); i_sys++) {
             unTargets[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,targets.at(i_sys));
         }
   }
+  unTargets = mpi->Gatherv(unTargets);
+  vector<REAL> output = mpi->Gatherv(my_outputs);
+  unraveled = mpi->Gatherv(unraveled);
+  targets = mpi->Gatherv(targets);
 
   double SSE = 0.0;
   int count = 0;
@@ -871,6 +871,8 @@ void Potential::validate() {
     cout << "RMS Error =  "<< sqrt(SSE/(double)(Nsystems)) << endl;
     SSE = 0.0;
     if (unrav){
+        count = 1;
+        cout << setprecision(10);
         cout << endl;
         cout << "Predicted Total Energies" << endl;
         cout << "System         Prediction(total)       Target(total)"<<endl;
@@ -887,12 +889,13 @@ void Potential::validate() {
                 max_E = Error;
             }
         }
+    
+        cout << setprecision(6);
+        cout << endl;
+        cout << "Minimum Error =  "<<min_E<<endl;
+        cout << "Maximum Error =  "<<max_E<<endl;
+        cout << "RMS Error =  "<< sqrt(SSE/(double)(Nsystems)) << endl;
     }
-    cout << setprecision(6);
-    cout << endl;
-    cout << "Minimum Error =  "<<min_E<<endl;
-    cout << "Maximum Error =  "<<max_E<<endl;
-    cout << "RMS Error =  "<< sqrt(SSE/(double)(Nsystems)) << endl;
     
     Analysis A;
     REAL D = A.KS(output, targets);

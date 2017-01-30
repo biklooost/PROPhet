@@ -72,6 +72,7 @@ class Structure {
         void Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f);
         bool periodic;
         int Natom, inum;
+        map<string,REAL> FE;
         vector<vector<REAL>*> init_G(Functional_params *F);
         vector < vector<REAL> > pos, cpos;
         vector < vector <int> > firstneigh;

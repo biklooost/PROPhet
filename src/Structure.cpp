@@ -599,6 +599,7 @@ vector<vector<REAL>*> Structure::init_G(Functional_params* F) {
 
 
   this->is_MD = F->is_MD;
+  this->FE = F->FE();
   this->Rcut = F->Rcut();
   vector<int> atom_types = F->atomic_numbers();
   
