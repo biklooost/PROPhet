@@ -807,29 +807,44 @@ void Potential::validate() {
   }
 
   vector<REAL> my_outputs(systems.size(), 0.0);
-  
+  vector<REAL> unraveled(systems.size(),0.0);
+  map<string,REAL> FE = params.FE();
+  bool unrav = !FE.empty();
   this->syncronize();
   
   for (int i_sys=0; i_sys<systems.size(); i_sys++) {
     for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
       my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(i_sys);
     }
+    if (unrav) {
+        unraveled[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,my_outputs[i_sys]);
+    }
   }
   
   vector<REAL> output = mpi->Gatherv(my_outputs);
-
+  unraveled = mpi->Gatherv(unraveled);
   
   vector<REAL> targets = nets.begin()->second->get_targets();
   targets = mpi->Gatherv(targets);
+  vector<REAL> unTargets(unraveled.size(),0.0);
+  if (unrav) {
+        for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+            unTargets[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,targets.at(i_sys));
+        }
+  }
 
   double SSE = 0.0;
   int count = 0;
 
   if (mpi->io_node()) {
     cout << endl;
-    cout << "System         Prediction       Target"<<endl;
-    cout << "-----------------------------------------"<<endl;
-    
+    if (unrav){
+        cout << "System         Prediction(per Atom)       Target(per Atom)"<<endl;
+        cout << "----------------------------------------------------------"<<endl;  
+    }else {
+        cout << "System         Prediction       Target"<<endl;
+        cout << "--------------------------------------"<<endl;
+    }
     REAL Error, min_E = 9e9, max_E = 0.0;
     int Nroot = my_outputs.size(), count=1;  
     
@@ -839,7 +854,7 @@ void Potential::validate() {
     
     for (int i=0; i<system_map.size(); i++) {
       int index = system_map[i];
-      cout <<count++ << "              "<<output.at(index)+output_mean << "       "<<targets.at(index) << endl;
+      cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) <<  endl;
       Error = output.at(index)+output_mean - targets.at(index);
       SSE += pow(Error,2);
       if (abs(Error)<abs(min_E)) {
@@ -849,7 +864,16 @@ void Potential::validate() {
 	max_E = Error;
       }
     }
-    
+    if (unrav){
+        cout << endl;
+        cout << "Predicted Total Energies" << endl;
+        cout << "System         Prediction(total)       Target(total)"<<endl;
+        cout << "----------------------------------------------------"<<endl; 
+        for (int i=0; i<system_map.size(); i++) {
+            int index = system_map[i];
+            cout <<count++ << "              "<<unraveled.at(index) << "              "<<unTargets.at(index) <<  endl;
+        }
+    }
     cout << setprecision(6);
     cout << endl;
     cout << "Minimum Error =  "<<min_E<<endl;

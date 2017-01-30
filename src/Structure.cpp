@@ -96,7 +96,59 @@ Structure::~Structure() {
 // ########################################################
 // ########################################################
 
+//#########################################################
+//                      train_local
+// Allows user to train to per-atom energies as opposed to 
+// total energies.
+//
+//#########################################################
+REAL Structure::train_Local(Functional_params *F,REAL totalenergy) {
+    map<string,REAL> FE = F->FE();
+    map<string,int> count;
+    REAL numerator = 0., denominator = 1.,ENERGY = 0.0;
+    for(int i = 0; i < pos.size(); i++) {
+        count[types[i].atomic_symbol()] += 1;
+    }
+    
+    map<string,int>::iterator it;
+    for (it = count.begin(); it != count.end(); it++){
+        string str = it->first;
+        std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
+        str.erase(end_pos, str.end());
+        if(FE.count(str) == 0){
+            ERROR("No Free Energy supplied for " + it->first);
+        } else {
+            numerator += it->second*FE[str];
+            denominator *= it->second;
+        }
+    }
+    ENERGY = (totalenergy - numerator)/denominator;
+    return ENERGY;
+}
 
+REAL Structure::unravel_Energy(Functional_params *F, REAL localenergy) {
+    map<string,REAL> FE = F->FE();
+    map<string,int> count;
+    REAL numerator = 0., denominator = 1.,ENERGY = 0.0;
+    for(int i = 0; i < pos.size(); i++) {
+        count[types[i].atomic_symbol()] += 1;
+    }
+    map<string,int>::iterator it;
+    for (it = count.begin(); it != count.end(); it++){
+        string str = it->first;
+        std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
+        str.erase(end_pos, str.end());
+        if(FE.count(str) == 0){
+            ERROR("No Free Energy supplied for " + it->first);
+        } else {
+            numerator += it->second*FE[str];
+            denominator *= it->second;
+        }
+    }
+    ENERGY = localenergy*denominator + numerator;
+    return ENERGY;    
+    
+}
 
 
 // ########################################################

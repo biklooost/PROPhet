@@ -499,10 +499,12 @@ void Setup::print_details() {
   if (mpi->io_node()) {
       if (!F.my_FE.empty()){
         map<string,REAL>::iterator it;
-        cout << endl << "Free Energies: " << endl;
+        cout << "############" << endl << "TRAINING TO PER ATOM ENERGIES" << endl;
+        cout << "Free Energies: " << endl;
         for (it = F.my_FE.begin(); it != F.my_FE.end(); it++){
             cout << it->first << " : " << it->second;
         }
+        cout << endl <<"############" << endl;
       }
     cout << endl << "Functional parameters" <<endl;
     cout << F.Ninputs() << plural(" input",F.Ninputs()) << " :  ";

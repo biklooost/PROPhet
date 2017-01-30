@@ -65,6 +65,8 @@ class Structure {
         void Set_Neighbor(REAL Rcut);
         void Normalize();
         void Set_Convert();
+        REAL train_Local(Functional_params *F,REAL totalenergy);
+        REAL unravel_Energy(Functional_params *F, REAL localenergy);
         int NG() { return my_NG; }
 
         void Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f);

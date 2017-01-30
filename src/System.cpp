@@ -111,10 +111,16 @@ System::System(map<string,string> files, Functional_params *F) {
   } else if (F->output().find("user")==0) {
     int prop = atoi(F->output().substr(4).c_str());
     properties.target(DFT->get_user_property(prop, files["user"]).at(0));
-  } else {
+  } else if (F->output() == "energy") {
+      REAL energy = DFT->get_property(F->output(), files[F->output()]);;
+      if (!F->FE().empty()){
+          energy = this->structure.train_Local(F,energy);
+      } 
+      //cout << "What we are training to: " << energy << endl;
+      properties.target(energy);
+    } else {
     properties.target(DFT->get_property(F->output(), files[F->output()]));
   }
-
   delete DFT;
 
 }
