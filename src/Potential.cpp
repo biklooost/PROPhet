@@ -864,6 +864,12 @@ void Potential::validate() {
 	max_E = Error;
       }
     }
+    cout << setprecision(6);
+    cout << endl;
+    cout << "Minimum Error =  "<<min_E<<endl;
+    cout << "Maximum Error =  "<<max_E<<endl;
+    cout << "RMS Error =  "<< sqrt(SSE/(double)(Nsystems)) << endl;
+    SSE = 0.0;
     if (unrav){
         cout << endl;
         cout << "Predicted Total Energies" << endl;
@@ -872,6 +878,14 @@ void Potential::validate() {
         for (int i=0; i<system_map.size(); i++) {
             int index = system_map[i];
             cout <<count++ << "              "<<unraveled.at(index) << "              "<<unTargets.at(index) <<  endl;
+            Error = unraveled.at(index) - unTargets.at(index);
+            SSE += pow(Error,2);
+            if (abs(Error)<abs(min_E)) {
+                min_E = Error;
+            } 
+            if (abs(Error)>abs(max_E)) {
+                max_E = Error;
+            }
         }
     }
     cout << setprecision(6);
