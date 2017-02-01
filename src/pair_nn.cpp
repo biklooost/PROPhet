@@ -165,11 +165,10 @@ void PairNN::compute(int eflag, int vflag)
   
   
   for(int ii = 0; ii< sysdata->structure.ilist.size(); ii++) {
-
-    Energy = potential->evaluate_MD(ii, type[ii], dE_dG[ii]);
-
+      bool is_Local = (!params.FE().empty()) ? true : false;
+      Energy = potential->evaluate_MD(ii, type[ii], dE_dG[ii]);
     if (eflag_global) { eng_vdwl += Energy; }
-    if (eflag_atom) { eatom[ii] += Energy; } //Add energy here
+    if (eflag_atom) { eatom[ii] += Energy; } 
     
   }
   
@@ -244,7 +243,9 @@ void PairNN::coeff(int narg, char **arg) {
   
   if (comm->me==0) {  cout << "Initializing atom type "<<this_type<<" with file "<<arg[1]<<endl; }
   
+  
   potential->insert_atom_type(this_type, arg[1], sysdata);
+  sysdata->structure.lammps_conv[this_type] = potential->ret_params().current_atom_type; //testing
   stringstream ss;  
   //ss << this_type << " " << arg[1];
   ss << arg[1];
@@ -537,6 +538,7 @@ void PairNN::settings(int narg, char* argv[]) {
   vector<System*> system(1,sysdata);
   this->potential = new Potential(params);
   potential->add_system(sysdata);
+
   if (!allocated) { allocate(); }
   
   for (int i=1; i<=atom->ntypes; i++) {

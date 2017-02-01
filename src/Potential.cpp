@@ -575,7 +575,6 @@ REAL Potential::train() {
 // J. Chem. Phys. 144, 224103 (2016)
 
 void Potential::optimize_Gs() {
-  
   int counter = 0;
   vector<vector<REAL> > G1, G2, G3, G4;
   
@@ -817,7 +816,8 @@ void Potential::validate() {
       my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(i_sys);
     }
     if (unrav) {
-        unraveled[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,my_outputs[i_sys]);
+        //unraveled[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,my_outputs[i_sys]);
+        unraveled[i_sys] = systems[i_sys]->structure.unravel_Energy(my_outputs[i_sys]);
     }
   }
   
@@ -825,7 +825,8 @@ void Potential::validate() {
   vector<REAL> unTargets(systems.size(),0.0);
   if (unrav) {
         for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-            unTargets[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,targets.at(i_sys));
+            //unTargets[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,targets.at(i_sys));
+            unTargets[i_sys] = systems[i_sys]->structure.unravel_Energy(targets.at(i_sys));
         }
   }
   unTargets = mpi->Gatherv(unTargets);
@@ -940,7 +941,12 @@ double Potential::evaluate_MD(int index, int type, vector<REAL> &dE_dG) {
     systems[0]->properties.set_inputs(systems[0]->structure.init_G(&params));
   }
   systems[0]->structure.Calc_G(index);
-  return (double)(nets.at(type)->evaluate_MD(dE_dG));
+  REAL output = nets.at(type)->evaluate_MD(dE_dG);
+  bool is_Local = true;
+  if (is_Local) {
+      output = systems[0]->structure.unravel_Energy(output);
+  }
+  return (double)(output);
 }
 
 // ########################################################

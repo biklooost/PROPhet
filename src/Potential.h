@@ -71,8 +71,10 @@ class Potential {
   
   void insert_atom_type(int atom_number, char* filename, System* system);
   
+  //double evaluate_MD(int index, int type, vector<REAL> &dE_dG);
   double evaluate_MD(int index, int type, vector<REAL> &dE_dG);
   void add_system(System* new_system);
+  inline Functional_params ret_params() { return params; };
   
   void set_F_params(Functional_params F);
   REAL energy_shift() { return output_mean; }

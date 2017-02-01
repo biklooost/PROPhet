@@ -66,13 +66,20 @@ class Structure {
         void Normalize();
         void Set_Convert();
         REAL train_Local(Functional_params *F,REAL totalenergy);
-        REAL unravel_Energy(Functional_params *F, REAL localenergy);
+        REAL unravel_Energy(REAL localenergy);
         int NG() { return my_NG; }
 
         void Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f);
         bool periodic;
         int Natom, inum;
         map<string,REAL> FE;
+        inline void print_FE() {
+            map<string,REAL>::iterator it;
+            for (it = FE.begin(); it != FE.end(); it++){
+                cout << it->first << " : " << it->second << endl << endl;
+            }
+        }
+        map<int,string> lammps_conv; //converts lammps type to FE energy symbol
         vector<vector<REAL>*> init_G(Functional_params *F);
         vector < vector<REAL> > pos, cpos;
         vector < vector <int> > firstneigh;

@@ -189,7 +189,6 @@ void Functional_params::print(ostream &out) {
 // Read state from checkpoint file
 
 void Functional_params::read(istream &in) {
-  
   string line, input;
   istringstream Line;
   int hidden;

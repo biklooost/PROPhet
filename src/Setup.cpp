@@ -518,6 +518,13 @@ void Setup::print_details() {
     }
     cout << endl << "output :  " << F.output() << endl;
     cout << endl;
+    /*
+    if (F.step_size == 0.2) {
+        cout << "Default step size of " << F.step_size << endl;
+    } else {
+        cout << "step size : " << F.step_size << endl;
+    }*/
+    cout << endl;
   }
   
   int min,max,temp;
