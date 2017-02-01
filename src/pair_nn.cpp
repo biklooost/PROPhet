@@ -165,7 +165,6 @@ void PairNN::compute(int eflag, int vflag)
   
   
   for(int ii = 0; ii< sysdata->structure.ilist.size(); ii++) {
-      bool is_Local = (!params.FE().empty()) ? true : false;
       Energy = potential->evaluate_MD(ii, type[ii], dE_dG[ii]);
     if (eflag_global) { eng_vdwl += Energy; }
     if (eflag_atom) { eatom[ii] += Energy; } 

@@ -942,9 +942,9 @@ double Potential::evaluate_MD(int index, int type, vector<REAL> &dE_dG) {
   }
   systems[0]->structure.Calc_G(index);
   REAL output = nets.at(type)->evaluate_MD(dE_dG);
-  bool is_Local = true;
+  bool is_Local = (!params.FE().empty()) ? true : false;
   if (is_Local) {
-      output = systems[0]->structure.unravel_Energy(output);
+      output = systems[0]->structure.unravel_Energy(output)/systems[0]->structure.pos.size();
   }
   return (double)(output);
 }
