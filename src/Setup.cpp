@@ -192,9 +192,11 @@ void Setup::read_input (string filename) {
         F.my_Nbackup = int_value;
         F.my_Tbackup = true;
     }else if (key == "free_energy"){
+        Line.precision(9);
         while (Line >> KEY >> real_value){
             F.my_FE[KEY] = real_value;
         }
+        Line.precision(6);
     } else if (key == "output") {
       
       Line >> string_value;
@@ -501,9 +503,11 @@ void Setup::print_details() {
         map<string,REAL>::iterator it;
         cout << "############" << endl << "TRAINING TO PER ATOM ENERGIES" << endl;
         cout << "Free Energies: " << endl;
+        cout.precision(9);
         for (it = F.my_FE.begin(); it != F.my_FE.end(); it++){
             cout << it->first << " : " << it->second;
         }
+        cout.precision(6);
         cout << endl <<"############" << endl;
       }
     cout << endl << "Functional parameters" <<endl;

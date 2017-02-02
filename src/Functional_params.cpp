@@ -132,7 +132,9 @@ void Functional_params::print(ostream &out) {
     }
     out << endl;
     if (!this->my_FE.empty()) {
+        out.precision(9);
         out << "FE:  " << this->my_FE[current_atom_type] << endl;
+        out.precision(6);
     }
     out << G1.size()+G2.size()+G3.size()+G4.size()<<endl;
     for  (int i=0; i<G1.size(); i++) {
@@ -235,8 +237,10 @@ void Functional_params::read(istream &in) {
         Line.str(line);
         REAL FE;
         string temp;
+        Line.precision(9);
         Line >> temp >> FE;
         this->my_FE[this->current_atom_type] = FE;
+        Line.precision(6);
         Line.clear();
         getline(in,line);
     }
