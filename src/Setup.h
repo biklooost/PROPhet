@@ -64,7 +64,7 @@ public:
   inline int Nsystems() { return this->systems.size(); }
   inline map<string,string> system(int i) { 
     if (this->systems.at(i).empty()) {
-      ERROR("No file specifiec for input field"); 
+      ERROR("No file specified for input field"); 
     } 
     return this->systems.at(i); 
   }

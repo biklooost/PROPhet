@@ -505,7 +505,7 @@ void Setup::print_details() {
         cout << "Free Energies: " << endl;
         cout.precision(9);
         for (it = F.my_FE.begin(); it != F.my_FE.end(); it++){
-            cout << it->first << " : " << it->second;
+            cout << it->first << " : " << it->second <<endl;
         }
         cout.precision(6);
         cout << endl <<"############" << endl;
