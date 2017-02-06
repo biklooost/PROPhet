@@ -91,8 +91,9 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
         cout << endl;
         map<string,REAL> FE = params.FE();
         if(!FE.empty()) {
+            cout.precision(9);
             cout << params.current_atom_type << " Free Energy : " << FE[params.current_atom_type] << endl;
-            
+            cout.precision(6);
         }
 	cout << endl << endl;
       }
