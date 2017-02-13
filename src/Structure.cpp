@@ -179,7 +179,7 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
         }
         FE_test = true;
     }
-    FE_conv = 1.0;
+    //FE_conv = 1.0;
     
     REAL R,Ru,Rjk, G1t, G2t, G3t, G4t;
     vector<REAL> force(3,0.0);
