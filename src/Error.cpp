@@ -56,7 +56,7 @@ void fatal_error(string message, string in_class, string in_function, int on_lin
       
       cout << endl;
       
-      skull();
+      //skull();
       cout << "*****ERROR*****"<<endl<<endl;
       
       cout << "Location: " << in_class;
