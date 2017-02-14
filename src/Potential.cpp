@@ -792,7 +792,35 @@ vector<int> Potential::get_all_atom_types() {
 // ########################################################
 // ########################################################
 
-
+// ########################################################
+//                       GET_FORCES
+// ########################################################
+// This is an analysis routine to test the forces of the
+// potential. 
+void Potential::forces() {
+  if (params.input_file().empty()) {
+    ERROR("Cannot do forces without checkpoint file (checkpoint_in flag)");
+  }    
+    this->syncronize();
+    vector<REAL> my_outputs(systems.size(), 0.0);
+    vector< vector<REAL> > dE_dG(systems.size());
+    for (int i_sys=0; i_sys < systems.size(); i_sys++) {
+        int nlocal = systems[i_sys]->structure.pos.size();
+        for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
+            my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(dE_dG[i_sys]);
+        }
+        //cout << my_outputs[i_sys] << endl;
+    }
+    for (int i_sys=0; i_sys < systems.size(); i_sys++) {
+        vector < vector <REAL> > f(systems[i_sys]->structure.ilist.size(),vector<REAL>(3,0.0));
+        cout << systems[i_sys]->structure.ilist.size() << endl;
+        //systems[i_sys]->structure.Get_Forces(dE_dG,&&f);
+        //cout << my_outputs[i_sys] << " " << dE_dG[i_sys].size() << endl;
+    }
+    
+}
+// ########################################################
+// ########################################################
 
 // ########################################################
 //                       VALIDATE

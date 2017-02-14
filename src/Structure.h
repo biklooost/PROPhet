@@ -164,7 +164,7 @@ class Structure {
 	
 	
 	// This functions calculates (1+lambda*cos(theta))^xi.
-	// The algirthm first checks if xi is an integer and, 
+	// The algorithm first checks if xi is an integer and, 
 	// if so, calls int_power.
         // Otherwise, it performs the Taylor series approximation
 	// of (1+lambda*cos(theta))^xi. It uses the C++ "pow" 

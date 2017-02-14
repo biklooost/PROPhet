@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
       run_type = "validate";
     } else if (!strcmp(argv[i],"-optimize")) {
       run_type = "optimize";
+    } else if (!strcmp(argv[i],"-forces")) {
+        run_type = "forces";
     } else {
       ERROR("Command line argument \""+(string)argv[i]+"\" not recognized");
     }
@@ -66,6 +68,8 @@ int main(int argc, char *argv[]) {
       pot.validate();
     } else if (run_type == "optimize") {
       pot.optimize_Gs();
+    } else if (run_type == "forces") {
+        pot.forces();
     }
 
   } else {

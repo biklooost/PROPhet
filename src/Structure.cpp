@@ -122,12 +122,11 @@ REAL Structure::train_Local(Functional_params *F,REAL totalenergy) {
             denominator *= it->second;
         }
     }
-    ENERGY = (totalenergy - numerator)/denominator;
+    ENERGY = (totalenergy - numerator);///denominator; //note: removed this for rational training. 
     return ENERGY;
 }
 
-//REAL Structure::unravel_Energy(Functional_params *F, REAL localenergy) {
-//    map<string,REAL> FE = F->FE();
+
 REAL Structure::unravel_Energy(REAL localenergy) {
     map<string,int> count;
     REAL numerator = 0., denominator = 1.,ENERGY = 0.0;
@@ -150,7 +149,8 @@ REAL Structure::unravel_Energy(REAL localenergy) {
             denominator *= it->second;
         }
     }
-    ENERGY = localenergy*denominator + numerator;
+    //ENERGY = localenergy*denominator + numerator;
+    ENERGY = localenergy + numerator;
     return ENERGY;    
     
 }
@@ -165,20 +165,20 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
     vector <REAL> ir(3,0), jr(3,0), ju(3,0);
     vector <REAL> del(3,0.0), del2(3,0.0), del3(3,0.0);
     vector <REAL> row(this->inum, 0.0);
-    map<string,int> count;
-    for (int i = 0; i < pos.size(); i++) {
-        count[types[i].atomic_symbol()] += 1;
-    }
-    
-    REAL FE_conv = 1.;
-    bool FE_test = false;
-    if (!this->FE.empty()) {
-        map<string, int>::iterator it;
-        for (it = count.begin(); it != count.end(); it++) {
-            FE_conv *= REAL (it->second);
-        }
-        FE_test = true;
-    }
+//    map<string,int> count;
+//    for (int i = 0; i < pos.size(); i++) {
+//        count[types[i].atomic_symbol()] += 1;
+//    }
+//    
+//    REAL FE_conv = 1.;
+//    bool FE_test = false;
+//    if (!this->FE.empty()) {
+//        map<string, int>::iterator it;
+//        for (it = count.begin(); it != count.end(); it++) {
+//            FE_conv *= REAL (it->second);
+//        }
+//        FE_test = true;
+//    }
     //FE_conv = 1.0;
     
     REAL R,Ru,Rjk, G1t, G2t, G3t, G4t;
@@ -215,13 +215,13 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 		if (R >= G1p[r1][0]) { continue; }
 		REAL force = dE_dG[i][G_index(r1,types[j].atomic_number())]*d_fc(G1p[r1][0],R,G1p[r1][1]);
 		for (int dir=0; dir<3; dir++) {
-                  if (FE_test) {
-                    f[i][dir] += FE_conv*force*del[dir];
-                    f[j][dir] -= FE_conv*force*del[dir];
-                  } else {
+//                  if (FE_test) {
+//                    f[i][dir] += FE_conv*force*del[dir];
+//                    f[j][dir] -= FE_conv*force*del[dir];
+//                  } else {
                     f[i][dir] += force*del[dir];
                     f[j][dir] -= force*del[dir];
-                  }
+                  //}
 		}
 	      }
 	    }
@@ -233,13 +233,13 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 		  * (d_fc(G2p[r1][0],R,G2p[r1][1]) - 2*G2p[r1][2]*delta_R*fc(R/G2p[r1][0],G2p[r1][1]));
 		for (int dir=0; dir<3; dir++) {
 
-                  if (FE_test) {
-                    f[i][dir] += FE_conv*dE_dR*del[dir];
-                    f[j][dir] -= FE_conv*dE_dR*del[dir];  
-                  } else {
+//                  if (FE_test) {
+//                    f[i][dir] += FE_conv*dE_dR*del[dir];
+//                    f[j][dir] -= FE_conv*dE_dR*del[dir];  
+//                  } else {
                     f[i][dir] += dE_dR*del[dir];
                     f[j][dir] -= dE_dR*del[dir];   
-                  }
+                  //}
 		}
 	      }
 	    }
@@ -297,15 +297,15 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 			  + dG_dcos*(del2[dir]/dist_prod - theta*del[dir]/(dist_prod*dist_prod));
 			Fij2 = dG_dRu*del2[dir] + dG_dRjk*del3[dir]
 			  + dG_dcos*(del[dir]/dist_prod - theta*del2[dir]/(dist_prod*dist_prod));
-                        if (FE_test) {
-                            f[j][dir] -= FE_conv*Fij;
-                            f[j2][dir] -= FE_conv*Fij2;
-                            f[i][dir] += FE_conv*(Fij + Fij2);
-                        } else {
+//                        if (FE_test) {
+//                            f[j][dir] -= FE_conv*Fij;
+//                            f[j2][dir] -= FE_conv*Fij2;
+//                            f[i][dir] += FE_conv*(Fij + Fij2);
+//                        } else {
                             f[j][dir] -= Fij;
                             f[j2][dir] -= Fij2;
                             f[i][dir] += Fij + Fij2;
-                        }
+                        //}
 		      }
 		    }
 		  }
@@ -354,15 +354,15 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 			Fij2 = prefactor*(dG_dRu*del2[dir] + R*dG_dcos*(del[dir] - theta*del2[dir]));
 			
 
-                        if (FE_test) {
-                            f[j][dir]  -= FE_conv*Fij;
-                            f[j2][dir] -= FE_conv*Fij2;
-                            f[i][dir]  += FE_conv*(Fij + Fij2);
-                        }else {
+//                        if (FE_test) {
+//                            f[j][dir]  -= FE_conv*Fij;
+//                            f[j2][dir] -= FE_conv*Fij2;
+//                            f[i][dir]  += FE_conv*(Fij + Fij2);
+//                        }else {
                             f[j][dir]  -= Fij;
                             f[j2][dir] -= Fij2;
                             f[i][dir]  += Fij + Fij2;
-                        }
+                        //}
 		      }
 		    }
 		  }
@@ -440,13 +440,13 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 	      REAL force = dE_dG[i][G_index(r1,types[j].atomic_number())]*d_fc(G1p[r1][0],R,G1p[r1][1]);
 	      
 	      for (int dir=0; dir<3; dir++) {
-                  if (FE_test) {
-                    f[i][dir] += FE_conv*force*del[dir];
-                    f[j][dir] -= FE_conv*force*del[dir];
-                  }else{
+//                  if (FE_test) {
+//                    f[i][dir] += FE_conv*force*del[dir];
+//                    f[j][dir] -= FE_conv*force*del[dir];
+//                  }else{
                     f[i][dir] += force*del[dir];
                     f[j][dir] -= force*del[dir];
-                  }
+//                  }
 	      }
 	      
 	    }
@@ -459,13 +459,13 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 		* (d_fc(G2p[r1][0],R,G2p[r1][1]) - 2*G2p[r1][2]*delta_R*fc(R/G2p[r1][0],G2p[r1][1]));
 	      
 	      for (int dir=0; dir<3; dir++) {
-                  if (FE_test) {
-                    f[i][dir] += FE_conv*dE_dR*del[dir];
-                    f[j][dir] -= FE_conv*dE_dR*del[dir];
-                  }else{
+//                  if (FE_test) {
+//                    f[i][dir] += FE_conv*dE_dR*del[dir];
+//                    f[j][dir] -= FE_conv*dE_dR*del[dir];
+//                  }else{
                     f[i][dir] += dE_dR*del[dir];
                     f[j][dir] -= dE_dR*del[dir];                  
-                  }
+                  //}
 	      }
 	    }
 	  }
@@ -518,15 +518,15 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 		      + dG_dcos*(del2[dir]/dist_prod - theta*del[dir]/(dist_prod*dist_prod));
 		    Fij2 = dG_dRu*del2[dir] + dG_dRjk*del3[dir]
 		      + dG_dcos*(del[dir]/dist_prod - theta*del2[dir]/(dist_prod*dist_prod));
-		    if (FE_test) {
-                        f[j][dir] -= FE_conv*Fij;
-                        f[j2][dir] -= FE_conv*Fij2;
-                        f[i][dir] += FE_conv*(Fij + Fij2);
-                    }else{
+//		    if (FE_test) {
+//                        f[j][dir] -= FE_conv*Fij;
+//                        f[j2][dir] -= FE_conv*Fij2;
+//                        f[i][dir] += FE_conv*(Fij + Fij2);
+//                    }else{
                         f[j][dir] -= Fij;
                         f[j2][dir] -= Fij2;
                         f[i][dir] += Fij + Fij2;                        
-                    }
+                    //}
 		    
                   }
 		  
@@ -588,15 +588,15 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 		    
 		    Fij  = prefactor*(dG_dR*del[dir]  + Ru*dG_dcos*(del2[dir] - theta*del[dir]));
 		    Fij2 = prefactor*(dG_dRu*del2[dir] + R*dG_dcos*(del[dir] - theta*del2[dir]));
-		    if(FE_test){
-                        f[j][dir]  -= FE_conv*Fij;
-                        f[j2][dir] -= FE_conv*Fij2;
-                        f[i][dir]  += FE_conv*(Fij + Fij2);
-                    }else{
+//		    if(FE_test){
+//                        f[j][dir]  -= FE_conv*Fij;
+//                        f[j2][dir] -= FE_conv*Fij2;
+//                        f[i][dir]  += FE_conv*(Fij + Fij2);
+//                    }else{
                         f[j][dir]  -= Fij;
                         f[j2][dir] -= Fij2;
                         f[i][dir]  += Fij + Fij2;                        
-                    }
+//                    }
 		  }
 		  
 		}
@@ -1093,7 +1093,7 @@ void Structure::Normalize() {
 // ########################################################
 //                       SET_NEIGHBOR
 // ########################################################
-// Determines the neighbor list for the requird cutoff 
+// Determines the neighbor list for the required cutoff 
 // distance.
 void Structure::Set_Neighbor(REAL Rcut) { 
   REAL delx, dely, delz;

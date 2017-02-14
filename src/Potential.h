@@ -68,6 +68,7 @@ class Potential {
   REAL train();
   vector<REAL> evaluate();
   void validate();
+  void forces();
   
   void insert_atom_type(int atom_number, char* filename, System* system);
   

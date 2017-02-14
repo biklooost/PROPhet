@@ -192,7 +192,7 @@ void Setup::read_input (string filename) {
         F.my_Nbackup = int_value;
         F.my_Tbackup = true;
     }else if (key == "free_energy"){
-        ERROR('Free Energy Training currently under development');
+        ERROR("Free Energy Training currently under development");
         Line.precision(9);
         while (Line >> KEY >> real_value){
             F.my_FE[KEY] = real_value;

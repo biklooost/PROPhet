@@ -132,8 +132,6 @@ void PairNN::compute(int eflag, int vflag)
   double **f = atom->f;
   int *type = atom->type;
   int nlocal = atom->nlocal;
-
-
   double Energy;
   vector<vector<REAL> > dE_dG(nlocal,vector<REAL>(1,0.0));
 
