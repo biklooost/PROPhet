@@ -101,6 +101,7 @@ class Structure {
 	vector<REAL> variance(int atomic_number, const vector<REAL> &means);
 	
         bool CART;
+        bool NORM;
 
     protected:
 	int my_NG;

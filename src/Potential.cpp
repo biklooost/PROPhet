@@ -799,23 +799,32 @@ vector<int> Potential::get_all_atom_types() {
 // potential. 
 void Potential::forces() {
   if (params.input_file().empty()) {
-    ERROR("Cannot do forces without checkpoint file (checkpoint_in flag)");
-  }    
+    ERROR("Cannot compute forces without checkpoint file (checkpoint_in flag)");
+  } 
     this->syncronize();
-    vector<REAL> my_outputs(systems.size(), 0.0);
-    vector< vector<REAL> > dE_dG(systems.size());
+    
+    
     for (int i_sys=0; i_sys < systems.size(); i_sys++) {
         int nlocal = systems[i_sys]->structure.pos.size();
+        vector<vector<REAL> > dE_dG(nlocal,vector<REAL>(1,0.0));
+        vector<REAL> my_outputs(nlocal, 0.0);
         for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
-            my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(dE_dG[i_sys]);
+            my_outputs[atom] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(dE_dG[atom]);
+            //my_outputs[atom] += this->evaluate_MD(atom,systems[i_sys]->structure.types[atom].atomic_number(),dE_dG[atom]);
         }
-        //cout << my_outputs[i_sys] << endl;
-    }
-    for (int i_sys=0; i_sys < systems.size(); i_sys++) {
-        vector < vector <REAL> > f(systems[i_sys]->structure.ilist.size(),vector<REAL>(3,0.0));
-        cout << systems[i_sys]->structure.ilist.size() << endl;
-        //systems[i_sys]->structure.Get_Forces(dE_dG,&&f);
-        //cout << my_outputs[i_sys] << " " << dE_dG[i_sys].size() << endl;
+        REAL** f = new double*[systems[i_sys]->structure.pos.size()];
+        for (int i=0; i < systems[i_sys]->structure.pos.size(); i++) { f[i] = new double[3]; }
+        systems[i_sys]->structure.Get_Forces(dE_dG,f);
+        stringstream ss;
+        ss << i_sys << ".force"; 
+        ofstream fout;
+        fout.open(ss.str().c_str());
+        int w = 10;
+        fout << "Atom" << setw(w) << "E" << setw(w) << "fx" << setw(w) << "fy" << setw(w) << "fz\n";
+        for (int atom=0; atom<systems[i_sys]->structure.pos.size(); atom++) {
+            fout << systems[i_sys]->structure.types[atom].atomic_symbol() << "  " << setw(w) << my_outputs[atom] << " " << setw(w) << f[atom][0] << " " << setw(w) << f[atom][1] << " " << setw(w) << f[atom][2] << endl;
+        }
+        fout.close();
     }
     
 }
@@ -845,7 +854,7 @@ void Potential::validate() {
       my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(i_sys);
     }
     if (unrav) {
-        //unraveled[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,my_outputs[i_sys]);
+        systems[i_sys]->structure.FE = params.FE();
         unraveled[i_sys] = systems[i_sys]->structure.unravel_Energy(my_outputs[i_sys]);
     }
   }
@@ -854,7 +863,9 @@ void Potential::validate() {
   vector<REAL> unTargets(systems.size(),0.0);
   if (unrav) {
         for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-            //unTargets[i_sys] = systems[i_sys]->structure.unravel_Energy(&params,targets.at(i_sys));
+            if (!systems[i_sys]->structure.NORM) { 
+                targets.at(i_sys) = systems[i_sys]->structure.train_Local(&params,targets.at(i_sys));
+            }
             unTargets[i_sys] = systems[i_sys]->structure.unravel_Energy(targets.at(i_sys));
         }
   }
@@ -899,8 +910,11 @@ void Potential::validate() {
     cout << "Minimum Error =  "<<min_E<<endl;
     cout << "Maximum Error =  "<<max_E<<endl;
     cout << "RMS Error =  "<< sqrt(SSE/(double)(Nsystems)) << endl;
-    SSE = 0.0;
+
     if (unrav){
+        SSE = 0.0;
+        min_E = 9e9; 
+        max_E = 0.0;        
         count = 1;
         cout << setprecision(10);
         cout << endl;

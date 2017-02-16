@@ -94,7 +94,7 @@ virtual vector<REAL> variance(vector<REAL> means);
   inline virtual vector<REAL> get_targets() {
     vector<REAL> targets;
     for (int i=0; i<systems.size(); i++) {
-      targets.push_back(systems[i]->properties.target());
+            targets.push_back(systems[i]->properties.target());
     }
     return targets;
   }

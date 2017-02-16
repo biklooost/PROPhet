@@ -76,6 +76,7 @@ Structure::Structure() {
   }
  
   is_MD = false;
+  this->NORM = false;
   
 }
 
@@ -123,6 +124,7 @@ REAL Structure::train_Local(Functional_params *F,REAL totalenergy) {
         }
     }
     ENERGY = (totalenergy - numerator);///denominator; //note: removed this for rational training. 
+    this->NORM = true;
     return ENERGY;
 }
 
@@ -145,7 +147,7 @@ REAL Structure::unravel_Energy(REAL localenergy) {
         if(this->FE.count(str) == 0){
             ERROR("No Free Energy supplied for " + it->first);
         } else {
-            numerator += it->second*FE[str];
+            numerator += it->second*this->FE[str];
             denominator *= it->second;
         }
     }
@@ -274,6 +276,7 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 		    if (Rjk > Rcut) { continue; }
 		    
 		    for (int r1=0; r1<G3p.size(); r1++) {
+
 		      
 		      if (R >= G3p[r1][0] || Ru >= G3p[r1][0] || Rjk >= G3p[r1][0]) { continue; }
 		      
@@ -302,6 +305,7 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 //                            f[j2][dir] -= FE_conv*Fij2;
 //                            f[i][dir] += FE_conv*(Fij + Fij2);
 //                        } else {
+                                            
                             f[j][dir] -= Fij;
                             f[j2][dir] -= Fij2;
                             f[i][dir] += Fij + Fij2;

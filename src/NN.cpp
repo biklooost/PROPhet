@@ -484,6 +484,7 @@ REAL Neural_network::evaluate_MD(vector<REAL> &dE_dG) {
   
   dOut_dIn.assign(NNodes.at(NNodes.size()-2),0.0);
   
+  
   for (int i=0; i<dOut_dIn.size(); i++) {
     dOut_dIn.at(i) = nodes.back().at(0)->dOutput_dInputs(i);
   }
@@ -497,7 +498,6 @@ REAL Neural_network::evaluate_MD(vector<REAL> &dE_dG) {
     }
     dOut_dIn = temp_dOut_dIn;
   }
-  
   dE_dG = dOut_dIn;
   
   for (int i=0; i<dE_dG.size(); i++) {

@@ -77,7 +77,9 @@ class System_data {
     ERROR("Could not find key '"+key+" in system data");
   }
   
-  inline REAL target() { return my_target.at(0); }
+  inline REAL target() { 
+      return my_target.at(0); 
+  }
   inline void target(REAL target_value) { my_target.push_back(target_value); }
 
   inline vector<REAL> count() {
