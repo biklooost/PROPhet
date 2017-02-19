@@ -161,13 +161,20 @@ void PairNN::compute(int eflag, int vflag)
   }
   sysdata->structure.periodic = 0;
   
-  
   for(int ii = 0; ii< sysdata->structure.ilist.size(); ii++) {
       Energy = potential->evaluate_MD(ii, type[ii], dE_dG[ii]);
     if (eflag_global) { eng_vdwl += Energy; }
     if (eflag_atom) { eatom[ii] += Energy; } 
     
   }
+  /*
+  for(int ii=0; ii<dE_dG.size();ii++){
+      //cout << ii << endl;
+      for (int jj=0; jj<dE_dG[ii].size(); jj++) {
+          cout << dE_dG[ii][jj] << '\t';
+      }
+      cout << endl;
+  }*/
   
   if (comm->me == 0) {
     if (eflag_global) { eng_vdwl += potential->energy_shift();

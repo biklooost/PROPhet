@@ -68,9 +68,11 @@ int main(int argc, char *argv[]) {
       pot.validate();
     } else if (run_type == "optimize") {
       pot.optimize_Gs();
-    } else if (run_type == "forces") {
-        pot.forces();
-    }
+    } 
+    /*else if (run_type == "forces") {
+        
+        //pot.forces();
+    }*/
 
   } else {
   

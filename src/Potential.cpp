@@ -809,8 +809,8 @@ void Potential::forces() {
         vector<vector<REAL> > dE_dG(nlocal,vector<REAL>(1,0.0));
         vector<REAL> my_outputs(nlocal, 0.0);
         for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
-            my_outputs[atom] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(dE_dG[atom]);
-            //my_outputs[atom] += this->evaluate_MD(atom,systems[i_sys]->structure.types[atom].atomic_number(),dE_dG[atom]);
+            //my_outputs[atom] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(dE_dG[atom]);
+            my_outputs[atom] += this->evaluate_MD(atom,systems[i_sys]->structure.types[atom].atomic_number(),dE_dG[atom]);
         }
         REAL** f = new double*[systems[i_sys]->structure.pos.size()];
         for (int i=0; i < systems[i_sys]->structure.pos.size(); i++) { f[i] = new double[3]; }
@@ -879,13 +879,15 @@ void Potential::validate() {
 
   if (mpi->io_node()) {
     cout << endl;
+    /*
     if (unrav){
         cout << "System         Prediction(per Atom)       Target(per Atom)"<<endl;
         cout << "----------------------------------------------------------"<<endl;  
     }else {
+     */
         cout << "System         Prediction       Target"<<endl;
         cout << "--------------------------------------"<<endl;
-    }
+    //}
     REAL Error, min_E = 9e9, max_E = 0.0;
     int Nroot = my_outputs.size(), count=1;  
     
@@ -895,9 +897,15 @@ void Potential::validate() {
     
     for (int i=0; i<system_map.size(); i++) {
       int index = system_map[i];
-      cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) <<  endl;
-      Error = output.at(index)+output_mean - targets.at(index);
-      SSE += pow(Error,2);
+      if (unrav) {
+        cout <<count++ << "              "<<unraveled.at(index) << "              "<<unTargets.at(index) <<  endl;
+        Error = unraveled.at(index) - unTargets.at(index);
+        SSE += pow(Error,2);
+      }else {
+        cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) <<  endl;
+        Error = output.at(index)+output_mean - targets.at(index);
+        SSE += pow(Error,2);
+      }
       if (abs(Error)<abs(min_E)) {
 	min_E = Error;
       } 
@@ -910,7 +918,7 @@ void Potential::validate() {
     cout << "Minimum Error =  "<<min_E<<endl;
     cout << "Maximum Error =  "<<max_E<<endl;
     cout << "RMS Error =  "<< sqrt(SSE/(double)(Nsystems)) << endl;
-
+    /*
     if (unrav){
         SSE = 0.0;
         min_E = 9e9; 
@@ -940,7 +948,7 @@ void Potential::validate() {
         cout << "Maximum Error =  "<<max_E<<endl;
         cout << "RMS Error =  "<< sqrt(SSE/(double)(Nsystems)) << endl;
     }
-    
+    */
     Analysis A;
     REAL D = A.KS(output, targets);
     cout << endl<<endl;
@@ -986,6 +994,7 @@ double Potential::evaluate_MD(int index, int type, vector<REAL> &dE_dG) {
   systems[0]->structure.Calc_G(index);
   REAL output = nets.at(type)->evaluate_MD(dE_dG);
   bool is_Local = (!params.FE().empty()) ? true : false;
+  //is_Local = false;
   if (is_Local) {
       output = systems[0]->structure.unravel_Energy(output)/systems[0]->structure.pos.size();
   }
