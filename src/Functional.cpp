@@ -72,6 +72,15 @@ Functional::Functional(const vector<System*> &systems, Functional_params F_in) :
   }
   
   this->Nsystems = mpi->Reduce(systems.size(), MPI_SUM);
+  int Ntotal_params = this->net->Nparameters();
+  REAL ratio = (REAL)this->Nsystems/(REAL)Ntotal_params;
+  if (mpi->io_node()) {
+    if (ratio <= 1) {
+        cout << "<< WARNING >> ";
+    }
+    cout << "Ratio of training data to parameters =  "<< (REAL)this->Nsystems/Ntotal_params << endl << endl;
+  }
+
 
 }
 
@@ -220,6 +229,7 @@ void Functional::train() {
   opt->set_training_algorithm(params.training_algorithm());
   opt->set_threshold(params.threshold());
   opt->set_debug(params.debug());
+  
   
   net->attach_optimizer(opt);
 

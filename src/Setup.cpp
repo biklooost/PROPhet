@@ -57,7 +57,7 @@ Setup::Setup(string input_file) {
     cout << "run on:  ";
     time_t rawtime;
     time (&rawtime);
-    cout << asctime(localtime(&rawtime))<<endl<<endl;
+    cout << asctime(localtime(&rawtime))<<endl;
   }
   
   unsigned int seed = time(NULL);
@@ -191,7 +191,8 @@ void Setup::read_input (string filename) {
         Line >> int_value;
         F.my_Nbackup = int_value;
         F.my_Tbackup = true;
-    }else if (key == "free_energy"){
+    }else if (key == "free_energy" ){
+    //}else if (key.compare("free_energy" ) ||key.compare("formation_energy")||key.compare("cohesive_energy")||key.compare("coh_energy")){
         //ERROR("Free Energy Training currently under development");
         Line.precision(9);
         while (Line >> KEY >> real_value){
@@ -496,22 +497,22 @@ void Setup::print_details() {
   int Ntotal_systems = mpi->Reduce(systems.size(), MPI_SUM);
 
   if (mpi->io_node()) {
-    cout << endl << "Found " << Ntotal_systems << plural(" system",Nsystems()) << endl;
+    cout << endl << "Found " << Ntotal_systems << plural(" system",Nsystems()) << endl  << endl;
   }
   
   if (mpi->io_node()) {
       if (!F.my_FE.empty()){
         map<string,REAL>::iterator it;
-        cout << "############" << endl << "TRAINING TO PER ATOM ENERGIES" << endl;
-        cout << "Free Energies: " << endl;
+        cout << "############" << endl << "TRAINING TO FORMATION ENERGIES" << endl;
+        cout << "Species Energies: " << endl;
         cout.precision(9);
         for (it = F.my_FE.begin(); it != F.my_FE.end(); it++){
             cout << it->first << " : " << it->second << endl;
         }
         cout.precision(6);
-        cout <<"############" << endl;
+        cout <<"############" << endl << endl;
       }
-    cout << endl << "Functional parameters" <<endl;
+    cout << "Functional parameters" <<endl;
     cout << F.Ninputs() << plural(" input",F.Ninputs()) << " :  ";
     for (int i=0; i<F.Ninputs(); i++) {
       cout << F.inputs(i) << "   ";
@@ -522,14 +523,14 @@ void Setup::print_details() {
       cout << F.hidden(i) << "   ";
     }
     cout << endl << "output :  " << F.output() << endl;
-    cout << endl;
+    //cout << endl;
     /*
     if (F.step_size == 0.2) {
         cout << "Default step size of " << F.step_size << endl;
     } else {
         cout << "step size : " << F.step_size << endl;
     }*/
-    cout << endl;
+    //cout << endl;
   }
   
   int min,max,temp;

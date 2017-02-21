@@ -68,7 +68,10 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
   Nsystems = mpi->Bcast(Nsystems);
   
   Ntotal_params = 0;
-  
+  if(!F_in.input_file().empty() && mpi->io_node()){
+//      cout << "############" << endl;
+      cout << "Reading from checkpoint files:" <<endl <<endl;
+  }
   for (int i=0; i<atom_types.size(); i++) {
     string filename;
     Atom atom(atom_types[i]);
@@ -95,10 +98,10 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
             cout << params.current_atom_type << " Free Energy : " << FE[params.current_atom_type] << endl;
             cout.precision(6);
         }
-	cout << endl << endl;
+        cout << endl;
       }
     }
-    
+   
     if (!systems[0]->structure.is_initialized()) {
       for (int i_sys=0; i_sys<systems.size(); i_sys++) {
 	systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
@@ -121,7 +124,9 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
     }
     Ntotal_params += nets[atom_types[i]]->Nparameters();
   }
-  
+//  if(!F_in.input_file().empty() && mpi->io_node()){
+//      cout << "############" << endl << endl;
+//  } 
   gradient.reserve(Ntotal_params);
   
   Ntotal_params = 0;
@@ -137,7 +142,8 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
     if (ratio <= 1) {
       cout << "<< WARNING >> ";
     }
-    cout << "Ratio of training data to parameters =  "<<ratio<<endl<<endl<<endl;
+    //cout << "Ratio of training data to parameters =  "<<ratio<<endl<<endl<<endl;
+    cout << "Ratio of training data to parameters =  "<<ratio<<endl<<endl;
   
   }
   
@@ -994,7 +1000,6 @@ double Potential::evaluate_MD(int index, int type, vector<REAL> &dE_dG) {
   systems[0]->structure.Calc_G(index);
   REAL output = nets.at(type)->evaluate_MD(dE_dG);
   bool is_Local = (!params.FE().empty()) ? true : false;
-  //is_Local = false;
   if (is_Local) {
       output = systems[0]->structure.unravel_Energy(output)/systems[0]->structure.pos.size();
   }
