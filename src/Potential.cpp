@@ -262,7 +262,7 @@ void Potential::backup(int niter) {
     atom_type.set_type(it->first);
 
     ofstream output;
-    string filename = params.output_file()+"_"+atom_type.atomic_symbol()+"_"+convert.str();
+    string filename = params.output_file()+"_"+convert.str()+"_"+atom_type.atomic_symbol();
     output.open(filename.c_str());
     it->second->print(output);
     output.close();
