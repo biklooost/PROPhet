@@ -229,6 +229,7 @@ void Functional::train() {
   opt->set_training_algorithm(params.training_algorithm());
   opt->set_threshold(params.threshold());
   opt->set_debug(params.debug());
+  opt->set_Nbackup(params.Nbackup());
   
   
   net->attach_optimizer(opt);
