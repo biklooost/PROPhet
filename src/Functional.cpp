@@ -240,6 +240,9 @@ void Functional::train() {
   while (net->train()) {
    
     this->save();
+    if (opt->is_backup()){
+        this->backup(opt->iteration());
+    }
 
   }
   
@@ -385,8 +388,26 @@ void Functional::save() {
 // ########################################################
 // ########################################################
 
+// ########################################################
+//                       BACKUP
+// ########################################################
+// Backup the functional every nsave iterations
 
+void Functional::backup(int niter) { 
+  
+  if (mpi->io_node()) {
+    ofstream output;
+    ostringstream convert; 
+    convert << niter - 1;
+    string filename = params.output_file()+"_"+convert.str();
+    //output.open(params.output_file().c_str());
+    output.open(filename.c_str());
+    net->print(output);
+    
+    output.close();
+  }
 
+}
 
 // ########################################################
 //                       LOAD

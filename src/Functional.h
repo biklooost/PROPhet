@@ -81,6 +81,7 @@ class Functional {
   vector<REAL> dE_dParameters;
   
   void save();
+  void backup(int niter);
   void load(string file);
   
   void syncronize();

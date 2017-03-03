@@ -76,17 +76,22 @@ class DFT_IO {
     this->skip_lines(property-1);
     this->get_line();
     if (line.empty()) { 
-      ERROR("User property does not exist"); }
+      ERROR("User property does not exist"); 
+    }
+    
     REAL value;
     Line.clear();
-    while (Line >> value) {
+    Line >> noskipws >> value;
+    if (!Line.eof() && Line.fail()) {
+      ERROR("Invalid value for " + directory + ", check user_input file");
+    } else {
       data.push_back(value);
     }
     file.close();
     
     return data;
   }
-      
+ 
   
  protected:
   
