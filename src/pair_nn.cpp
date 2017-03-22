@@ -77,7 +77,6 @@ using namespace MathConst;
 PairNN::PairNN(LAMMPS *lmp) : Pair(lmp)
 {
   writedata = 1;
-  
   feenableexcept(FE_INVALID | FE_OVERFLOW);
 
 }
@@ -99,8 +98,6 @@ PairNN::~PairNN()
 {
   //  if (potential) { delete potential; }
   if (allocated) {
-
-    
     memory->destroy(setflag);
     memory->destroy(cutsq);
 
@@ -223,9 +220,6 @@ void PairNN::allocate()
 // ########################################################
 // ########################################################
 
-
-
-
 // ########################################################
 //                       COEFF
 // ########################################################
@@ -251,7 +245,6 @@ void PairNN::coeff(int narg, char **arg) {
   potential->insert_atom_type(this_type, arg[1], sysdata);
   sysdata->structure.lammps_conv[this_type] = potential->ret_params().current_atom_type; //testing
   stringstream ss;  
-  //ss << this_type << " " << arg[1];
   ss << arg[1];
   potential_names.push_back(ss.str()); 
   potential_numbers.push_back(this_type);
@@ -296,9 +289,6 @@ void PairNN::init_style()
 
 // ########################################################
 // ########################################################
-
-
-
 
 /* ----------------------------------------------------------------------
    neighbor callback to inform pair style of neighbor list to use
@@ -398,6 +388,7 @@ void PairNN::read_restart(FILE *fp)
     for (int j =0; j < size; j++) {
       fread(&tmp[j],sizeof(char),1,fp);
     }
+    Line.str(std::string());
     Line << type;
     array[0] = const_cast<char*>(Line.str().c_str());
     array[1] = tmp;
@@ -516,20 +507,16 @@ void PairNN::settings(int narg, char* argv[]) {
   if (narg != 1) {
     error->all(FLERR,"");
   }
-  
-  //Functional_params F;
-  params.is_MD = true;
-  vector<string> inputs(1,"structure");
-  params.set_inputs(inputs);
-  params.set_output("energy");
-
-  
   if (narg == 1) {
     params.Rcut(force->numeric(FLERR,argv[0]));
   } else {
     
   }
-
+  //Functional_params F;
+  params.is_MD = true;
+  vector<string> inputs(1,"structure");
+  params.set_inputs(inputs);
+  params.set_output("energy");
 
   // Need to set up the system here
   this->sysdata = new System();
