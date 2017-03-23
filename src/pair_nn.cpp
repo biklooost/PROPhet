@@ -85,10 +85,6 @@ PairNN::PairNN(LAMMPS *lmp) : Pair(lmp)
 // ########################################################
 
 
-
-/* ---------------------------------------------------------------------- */
-
-
 // ########################################################
 //                       Destructor
 // ########################################################
@@ -107,10 +103,6 @@ PairNN::~PairNN()
 // ########################################################
 // ########################################################
 
-
-
-
-/* ---------------------------------------------------------------------- */
 
 // ########################################################
 //                       COMPUTE
@@ -188,13 +180,6 @@ void PairNN::compute(int eflag, int vflag)
 // ########################################################
 // ########################################################
 
-
-
-
-/* ----------------------------------------------------------------------
-   allocate all arrays
-------------------------------------------------------------------------- */
-
 // ########################################################
 //                       ALLOCATE
 // ########################################################
@@ -261,9 +246,6 @@ void PairNN::coeff(int narg, char **arg) {
 // ########################################################
 // ########################################################
 
-
-
-
 // ########################################################
 //                       INIT_STYLE
 // ########################################################
@@ -290,12 +272,6 @@ void PairNN::init_style()
 // ########################################################
 // ########################################################
 
-/* ----------------------------------------------------------------------
-   neighbor callback to inform pair style of neighbor list to use
-   regular or rRESPA
-------------------------------------------------------------------------- */
-
-
 // ########################################################
 //                       INIT_LIST
 // ########################################################
@@ -308,11 +284,6 @@ void PairNN::init_list(int id, NeighList *ptr)
 
 // ########################################################
 // ########################################################
-
-
-
-
-
 
 // ########################################################
 //                       init_one
@@ -337,67 +308,71 @@ double PairNN::init_one(int i, int j)
 
 void PairNN::write_restart(FILE *fp)
 {
-  write_restart_settings(fp);
-  double Rcut = params.Rcut();
-  fwrite(&Rcut,sizeof(double),1,fp);
-  for (int i = 0; i < potential_numbers.size(); i++) {
-    int size = potential_names[i].size();
-    int type = potential_numbers[i];
-    fwrite(&type,sizeof(int),1,fp);
-    fwrite(&size,sizeof(int),1,fp);
-    for (int j =0; j < potential_names[i].size(); j++) {
-      fwrite(&potential_names[i][j],sizeof(char),1,fp);
-    }
-  }
+	write_restart_settings(fp);
+	double Rcut = params.Rcut();
+	int rank;
+	rank = comm->me;
+	if (rank == 0 ) { 
+		fwrite(&Rcut,sizeof(double),1,fp);
+		for (int i = 0; i < potential_numbers.size(); i++) {
+			int size = potential_names[i].size();
+			int type = potential_numbers[i];
+			fwrite(&type,sizeof(int),1,fp);
+			fwrite(&size,sizeof(int),1,fp);
+			for (int j =0; j < potential_names[i].size(); j++) {
+				fwrite(&potential_names[i][j],sizeof(char),1,fp);
+			}
+		}
+	}
+
 }
 
 // ########################################################
 // ########################################################
 
 
-
-
 // ########################################################
 //                       READ_RESTART
 // ########################################################
-// Reads from restart file.  Not yet implemented.
+// Reads from restart file.  Tested to work, but use with caution
 
 void PairNN::read_restart(FILE *fp)
 {
-  read_restart_settings(fp);
-  allocate();
-
-  stringstream Line;
-  char* array[2];
-  
-  double Rcut;
-  fread(&Rcut,sizeof(double),1,fp);
-  MPI_Bcast(&Rcut,1,MPI_DOUBLE, 0, world);
-  
-  Line << Rcut;
-  array[0] = const_cast<char*>(Line.str().c_str());
-  this->settings(1, array);
-  params.Rcut(Rcut);
-  
-  int type;
-  int size;
-  for (int i = 1; i <= atom->ntypes; i++) {
-    fread(&type, sizeof(int),1,fp);
-    fread(&size, sizeof(int),1,fp);
-    char tmp[size];
-    for (int j =0; j < size; j++) {
-      fread(&tmp[j],sizeof(char),1,fp);
-    }
-    Line.str(std::string());
-    Line << type;
-    array[0] = const_cast<char*>(Line.str().c_str());
-    array[1] = tmp;
-    this->coeff(2, array);
-  }
-
-  
-
-  
+	read_restart_settings(fp);
+	allocate(); 
+	int rank;
+	rank = comm->me;
+	char* array[2];
+	double Rcut;
+	int type;
+	int size;
+		stringstream Line;
+	if (rank == 0) {fread(&Rcut,sizeof(double),1,fp); }
+	MPI_Bcast(&Rcut,1,MPI_DOUBLE, 0, world);
+	Line << Rcut;
+	array[0] = const_cast<char*>(Line.str().c_str());
+	this->settings(1, array);
+	params.Rcut(Rcut);
+	for (int i = 1; i <= atom->ntypes; i++) {
+		if (rank == 0) {
+			fread(&type, sizeof(int),1,fp);
+			fread(&size, sizeof(int),1,fp);
+		}
+		MPI_Bcast(&type,1,MPI_INT, 0, world);
+		MPI_Bcast(&size,1,MPI_INT, 0, world);
+		char tmp[size];
+		if (rank == 0) {
+			for (int j =0; j < size; j++) {
+				fread(&tmp[j],sizeof(char),1,fp);
+			}
+		}
+		MPI_Bcast(&tmp,size,MPI_CHAR, 0, world);
+		Line.str(std::string());
+		Line << type;
+		array[0] = const_cast<char*>(Line.str().c_str());
+		array[1] = tmp;
+		this->coeff(2, array);
+	}
 }
 
 // ########################################################
