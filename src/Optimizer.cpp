@@ -124,6 +124,12 @@ Optimizer::~Optimizer() {
 
 void Optimizer::set_params(Functional_params params) { 
   F_params = params; 
+  if (params.Tbackup()){
+      this->set_Tbackup(true);
+      this->set_Nbackup(params.Nbackup());
+  } else {
+      this->set_Tbackup(false);
+  }
 }
 
 // ########################################################
