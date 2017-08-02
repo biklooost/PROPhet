@@ -164,6 +164,8 @@ class Functional_params {
     }
   }
 
+  inline bool NormCD() { return my_norm_cd;}
+  inline REAL NormCD_val() {return my_norm_cd_val; }
   inline bool Tbackup() { return my_Tbackup;}
   inline int Nbackup() { return my_Nbackup;}
   inline int Nradial() { return my_Nradial; }
@@ -211,6 +213,8 @@ class Functional_params {
 
   bool my_output_precondition;
   REAL my_regularization;
+  bool my_norm_cd;
+  REAL my_norm_cd_val;
 
   int my_Ninput_nodes;
   

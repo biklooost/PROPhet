@@ -134,7 +134,7 @@ double Grid_data::integrate() {
 // ########################################################
 // Precondition the values on the grid.
 
-void Grid_data::normalize(double A) {
+void Grid_data::normalize(REAL A) {
 
   double integral = this->integrate();
   

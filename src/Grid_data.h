@@ -103,7 +103,7 @@ class Grid_data {
 
   inline REAL get_dV() { return dV;}
 
-  void normalize(double A = 1.0);
+  void normalize(REAL A = 1.0);
 
   void set_dV();
   inline void set_dV(REAL new_dV) { dV = new_dV; }

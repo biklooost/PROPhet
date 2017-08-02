@@ -186,7 +186,10 @@ void Setup::read_input (string filename) {
 	F.my_inputs.push_back(to_lower(string_value));
 	if (string_value == "structure") { my_is_potential = true; }
       }
-      
+    } else if (key == "norm_cd") {
+        Line >> real_value;
+        F.my_norm_cd = true;
+        F.my_norm_cd_val = real_value;
     }else if (key == "nsave"){
         Line >> int_value;
         F.my_Nbackup = int_value;
