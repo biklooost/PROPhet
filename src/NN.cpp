@@ -317,9 +317,10 @@ bool Neural_network::train() {
     this->SSE_mod = 0.0;
     REAL output = 0.0;
     my_dOutput_dParameters.assign(my_dOutput_dParameters.size(), 0);
-    
-    for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-      
+    this->get_training_set();
+    //for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+    for (int jj = 0; jj < this->training_set.size(); jj ++ ) {
+      int i_sys = this->training_set[jj];
       output = 0.0; 
       vector<REAL> temp_dOutput_dParameters(Nparams, 0.0);
       vector<REAL> dOut_dIn; 
