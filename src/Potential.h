@@ -69,6 +69,7 @@ class Potential {
   vector<REAL> evaluate();
   void validate();
   void forces();
+  void get_training_set();
   
   void insert_atom_type(int atom_number, char* filename, System* system);
   
@@ -89,6 +90,8 @@ class Potential {
   Optimizer* opt;
   
   int Nsystems;
+  
+  vector<int> training_set;
 
   REAL output_mean;
   REAL output_variance;

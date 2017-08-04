@@ -533,7 +533,16 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f) {
 	}
       }
     }
-    
+    /*
+    if(!this->FE.empty()) {
+        for (int ii=0; ii<this->ilist.size(); ii++) {
+            int i = this->ilist[ii];
+            for (int dir=0; dir<3; dir++) {
+                f[i][dir] *= this->pos.size();
+            }
+        }
+    }
+     */
 }
 
 // ########################################################

@@ -67,6 +67,8 @@ Functional_params::Functional_params() {
   this->my_Ninput_nodes = 0;
   this->my_line_min_epsilon = 0;
   this->my_sd_momentum = 0.0;  
+  this->my_SGD = false;
+  this->my_SGD_cnt = 0;
 
   this->my_Rcut = 6.0;
   this->my_Nradial = 8;

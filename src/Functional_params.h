@@ -171,6 +171,8 @@ class Functional_params {
   inline int Nradial() { return my_Nradial; }
   inline int Nangular() { return my_Nangular; }
   inline REAL Rcut() { return my_Rcut; }
+  inline bool SGD() { return my_SGD; }
+  inline int SGD_cnt() { return my_SGD_cnt; }
   inline void Rcut(REAL cutoff) { my_Rcut = cutoff; }
   inline map<string,REAL> FE() { return my_FE;}
   
@@ -210,7 +212,8 @@ class Functional_params {
   
   std::set<string> my_keys;
   std::set<string> my_valid_params;
-
+  bool my_SGD; 
+  int my_SGD_cnt; 
   bool my_output_precondition;
   REAL my_regularization;
   bool my_norm_cd;

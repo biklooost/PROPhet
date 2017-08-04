@@ -148,6 +148,12 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
   }
   
   this->output_mean = params.output_mean;
+  
+  if (!F_in.SGD()){
+      for(int i = 0; i < this->systems.size(); i++){
+          this->training_set.push_back(i);
+      }
+  }
 
 }
 
@@ -515,14 +521,15 @@ REAL Potential::train() {
   REAL output;
   
   this->syncronize();
-
+  int i_sys;
   while (!opt->is_converged()) {
     
     REAL SSE = 0;
     gradient.assign(Ntotal_params, 0.0);
     
-    for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-      
+    //for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+    for (int jj = 0; jj<this->training_set.size(); jj++) {
+      i_sys = this->training_set[jj];  
       output = 0;
       for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
 	output += nets[systems[i_sys]->structure.types[atom].atomic_number()]->train_MD(i_sys);
@@ -753,11 +760,6 @@ void Potential::optimize_Gs() {
 // ######################################################## 
 // ######################################################## 
 
-
-
-
-
-
 // ########################################################
 //                       GET_ALL_ATOM_TYPES
 // ########################################################
@@ -854,11 +856,12 @@ void Potential::validate() {
   map<string,REAL> FE = params.FE();
   bool unrav = !FE.empty();
   this->syncronize();
-  
+  vector<int> nat(systems.size(), 0);
   for (int i_sys=0; i_sys<systems.size(); i_sys++) {
     for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
       my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(i_sys);
     }
+    nat.at(i_sys) = systems[i_sys]->structure.Natom;
     if (unrav) {
         systems[i_sys]->structure.FE = params.FE();
         unraveled[i_sys] = systems[i_sys]->structure.unravel_Energy(my_outputs[i_sys]);
@@ -879,7 +882,7 @@ void Potential::validate() {
   vector<REAL> output = mpi->Gatherv(my_outputs);
   unraveled = mpi->Gatherv(unraveled);
   targets = mpi->Gatherv(targets);
-
+  nat = mpi->Gatherv(nat);
   double SSE = 0.0;
   int count = 0;
 
@@ -891,8 +894,10 @@ void Potential::validate() {
         cout << "----------------------------------------------------------"<<endl;  
     }else {
      */
-        cout << "System         Prediction       Target"<<endl;
-        cout << "--------------------------------------"<<endl;
+        //cout << "System         Prediction       Target       Natom"<<endl;
+        cout << "System" << setw(20) << "Prediction" << setw(20) << "Target" << setw(20)<< "Natom"<<endl;
+        //cout << "--------------------------------------------------"<<endl;
+        cout << setfill('-') << setw(67)<< "-" << setfill(' ') << endl;
     //}
     REAL Error, min_E = 9e9, max_E = 0.0;
     int Nroot = my_outputs.size(), count=1;  
@@ -904,11 +909,12 @@ void Potential::validate() {
     for (int i=0; i<system_map.size(); i++) {
       int index = system_map[i];
       if (unrav) {
-        cout <<count++ << "              "<<unraveled.at(index) << "              "<<unTargets.at(index) <<  endl;
+        cout <<count++ << "               "<<unraveled.at(index) << setw(25) <<unTargets.at(index) <<  setw(15) << nat.at(index) <<  endl;
+        //cout <<count++ << setw(20+(6-((int)log10((double)i))+1)) <<unraveled.at(index) << setw(20) <<unTargets.at(index) << setw(20) << nat.at(index) <<  endl;
         Error = unraveled.at(index) - unTargets.at(index);
         SSE += pow(Error,2);
       }else {
-        cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) <<  endl;
+        cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) << "      " << nat.at(index) <<  endl;
         Error = output.at(index)+output_mean - targets.at(index);
         SSE += pow(Error,2);
       }
@@ -956,7 +962,12 @@ void Potential::validate() {
     }
     */
     Analysis A;
-    REAL D = A.KS(output, targets);
+    REAL D;
+    if (unrav) {
+        D = A.KS(unraveled, unTargets);
+    }else {
+        D = A.KS(output, targets);
+    }
     cout << endl<<endl;
     cout << "-- Approximate Kolmogorov-Smirnov test --"<<endl;
     cout << "  D       =  "<<D<<endl;
@@ -1089,6 +1100,19 @@ void Potential::insert_atom_type(int atom_number, char* filename, System* system
 	  
 }
 
+// ########################################################
+//                      GET_TRAINING_SET
+// ########################################################
+// This splits the data in the case of SVD flag
+
+void Potential::get_training_set() {
+    if (this->params.SGD()) {
+        this->training_set.clear();
+        for(int i = 0; i < this->params.SGD_cnt(); i++ ) {
+            this->training_set.push_back(rand() % this->Nsystems);
+        }
+    }
+}
 // ########################################################
 // ########################################################
 

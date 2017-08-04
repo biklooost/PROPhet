@@ -190,6 +190,10 @@ void Setup::read_input (string filename) {
         Line >> real_value;
         F.my_norm_cd = true;
         F.my_norm_cd_val = real_value;
+    } else if (key == "sgd") {
+        Line >> int_value;
+        F.my_SGD = true;
+        F.my_SGD_cnt = int_value;
     }else if (key == "nsave"){
         Line >> int_value;
         F.my_Nbackup = int_value;
