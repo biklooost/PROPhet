@@ -115,6 +115,8 @@ virtual vector<REAL> variance(vector<REAL> means);
     params.output_variance = new_variance;
   }
   
+  void get_training_set();
+  
   
  private:
   
@@ -128,6 +130,8 @@ virtual vector<REAL> variance(vector<REAL> means);
 
   vector<REAL> phi; 
   REAL d_phi;
+  
+  vector<int> training_set;
 
   vector<vector<REAL> > values;
   vector<vector<Neural_network_node*> > nodes;

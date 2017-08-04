@@ -106,6 +106,13 @@ Neural_network::Neural_network(const vector<System*> &in_systems, Functional_par
   
   last_i_sys = -1;
   
+  if (!network_details.SGD()){
+      for(int i = 0; i < systems.size(); i++){
+          this->training_set.push_back(i);
+      }
+  }
+
+  
 }
 
 // ########################################################
@@ -766,6 +773,15 @@ void Neural_network::print(ostream &output) {
     }
   }
   
+}
+
+void Neural_network::get_training_set() {
+    if (this->params.SGD()) {
+        this->training_set.clear();
+        for(int i = 0; i < this->params.SGD_cnt(); i++ ) {
+            this->training_set.push_back(rand() % systems.size());
+        }
+    }
 }
 
 // ########################################################

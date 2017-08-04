@@ -81,7 +81,7 @@ Functional::Functional(const vector<System*> &systems, Functional_params F_in) :
     cout << "Ratio of training data to parameters =  "<< (REAL)this->Nsystems/Ntotal_params << endl << endl;
   }
 
-
+  
 }
 
 // ########################################################
