@@ -65,6 +65,8 @@ class Grid_data {
   
   double integrate();
   
+  void variance(int lbound, int ubound);
+  
   
   
   inline REAL& operator()(int x, int y, int z) {
