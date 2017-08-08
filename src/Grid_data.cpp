@@ -153,13 +153,13 @@ void Grid_data::normalize(REAL A) {
 // This is a quick and dirty function to remove the tails of the 
 // charge density vector. May have memory leaks
 
-void Grid_data::variance(int lbound = 25, int ubound = 95) {
+void Grid_data::variance(int lbound, int ubound) {
     vector <REAL> old_data = this->data;
     sort(old_data.begin(),old_data.end());
     REAL lower = old_data[floor(old_data.size()*lbound/100.)];
     REAL upper = old_data[ceil(old_data.size()*ubound/100.)];
     vector <REAL> new_data;
-    for(int i = 0; i++; i<this->data.size()) {
+    for(int i = 0; i<this->data.size(); i++) {
         if ((this->data.at(i) < upper) && (this->data.at(i) > lower)) {
             new_data.push_back(this->data.at(i));
         }
