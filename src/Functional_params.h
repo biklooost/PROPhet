@@ -175,6 +175,7 @@ class Functional_params {
   inline int SGD_cnt() { return my_SGD_cnt; }
   inline void Rcut(REAL cutoff) { my_Rcut = cutoff; }
   inline map<string,REAL> FE() { return my_FE;}
+  inline vector <int> var_bounds() {return my_bounds; }
   
   vector<vector<REAL> >  G1;
   vector<vector<REAL> >  G2;
@@ -242,6 +243,7 @@ class Functional_params {
   int my_Nbackup; //How often to save the functional file
   bool my_Tbackup;
   REAL my_debug;
+  vector <int> my_bounds; //vector of lbound and rbound used in variance in Charge Density
 
   string my_training_algorithm;
 

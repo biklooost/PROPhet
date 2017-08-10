@@ -65,7 +65,7 @@ class Grid_data {
   
   double integrate();
   
-  void variance(int lbound = 25, int ubound = 95);
+  void variance(vector <int> bounds);
   
   
   
