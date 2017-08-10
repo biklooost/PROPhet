@@ -187,7 +187,10 @@ void Setup::read_input (string filename) {
 	if (string_value == "structure") { my_is_potential = true; }
       }
     } else if ( key == "variance_bounds" ) {
-        Line >> F.my_bounds[0] >> F.my_bounds[1];
+        for (int cnt = 0; cnt < 2; cnt++){
+            Line >> int_value;
+            F.my_bounds[cnt] = int_value;
+        }
     } else if (key == "norm_cd") {
         Line >> real_value;
         F.my_norm_cd = true;
