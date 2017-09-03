@@ -322,10 +322,10 @@ bool Neural_network::train() {
     REAL output = 0.0;
     my_dOutput_dParameters.assign(my_dOutput_dParameters.size(), 0);
     this->get_training_set();
+    this->bernoulli_sample(this->params.dropout());
     for (int i_sys=0; i_sys<systems.size(); i_sys++) {
     //for (int jj = 0; jj < this->training_set.size(); jj ++ ) {
     //  int i_sys = this->training_set[jj];
-      this->bernoulli_sample(this->params.dropout());
       output = 0.0; 
       vector<REAL> temp_dOutput_dParameters(Nparams, 0.0);
       vector<REAL> dOut_dIn; 
@@ -775,13 +775,13 @@ void Neural_network::print(ostream &output) {
   for (int layer=0; layer<nodes.size(); layer++) {
     output << "[[ layer "<<layer<<" ]] " << endl;
     for (int node=0; node<nodes.at(layer).size(); node++) {
-        nodes[layer][node]->print(output);
-        /*
+        /*nodes[layer][node]->print(output);*/
+        
         if (layer == 0) {
             nodes[layer][node]->print(output,1.0);
         }  else {
             nodes[layer][node]->print(output,this->params.dropout());
-        }*/
+        }
     }
         
   }
