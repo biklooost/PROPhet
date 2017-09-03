@@ -410,7 +410,12 @@ void Setup::read_input (string filename) {
 
       Line >> real_value;
       F.dT = real_value;
-
+      
+    }else if (key == "dropout") {
+        
+       Line >> real_value;
+       F.my_dropoutP = real_value;
+        
     } else {
       
       struct stat info;
@@ -534,7 +539,9 @@ void Setup::print_details() {
     for (int i=0; i<F.Nlayers(); i++) {
       cout << F.hidden(i) << "   ";
     }
-    cout << endl << "output :  " << F.output() << endl;
+    cout << endl << "Dropout Probability: " << 1 - F.dropout() << endl;
+    cout << "output :  " << F.output() << endl;
+    
     //cout << endl;
     /*
     if (F.step_size == 0.2) {
