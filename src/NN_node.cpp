@@ -219,7 +219,19 @@ void Neural_network_node::read(istream &input) {
 // ########################################################
 // Writes node's parametrs to checkpoint file.
 
-void Neural_network_node::print(ostream &output) {
+void Neural_network_node::print(ostream &output,REAL p) {
+  
+  output << "  [ node "<<this->index()<<" ]  " << my_transfer_function << endl;
+  
+  for (int i=0; i<Parameters.size()-1; i++) {
+    output << "   " << setprecision(18) << p*Parameters.at(i) << "  ";
+  }
+  output << endl;
+  output << "   " << setprecision(18) << p*Parameters.back() << endl;
+
+}
+
+/*void Neural_network_node::print(ostream &output) {
   
   output << "  [ node "<<this->index()<<" ]  " << my_transfer_function << endl;
   
@@ -229,8 +241,7 @@ void Neural_network_node::print(ostream &output) {
   output << endl;
   output << "   " << setprecision(18) << Parameters.back() << endl;
 
-}
-
+}*/
 // ########################################################
 // ########################################################
 

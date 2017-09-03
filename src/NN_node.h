@@ -90,7 +90,8 @@ public:
   virtual void set_parameters(vector<REAL> new_params);
   virtual inline vector<REAL> get_parameters() { return Parameters; }
   
-  virtual void print(ostream &stream = std::cout);
+  virtual void print(ostream &stream = std::cout,REAL p=1.0);
+  //virtual void print(ostream &stream = std::cout);
   virtual void read(istream &input);
   
   void set_transfer_function(string new_transfer_function);

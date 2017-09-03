@@ -123,7 +123,7 @@ void Network_function_node::read(istream &input) {
   this->Ninputs = Parameters.size();
 }
 
-void Network_function_node::print(ostream &output) {
+void Network_function_node::print(ostream &output, REAL p) {
   
   output << "  [ node "<<this->index()<<" ]  " << endl;
   

@@ -337,7 +337,7 @@ bool Neural_network::train() {
 	
 	for (int layer=0; layer<nodes.size()-1; layer++) {
 	  for (int node=0; node<nodes[layer].size(); node++) {
-	    values[layer+1][node] = nodes[layer][node]->evaluate(values[layer]);
+	    values[layer+1][node] = this->dropout[layer][node]*nodes[layer][node]->evaluate(values[layer]);
 	  }
 	}
 
@@ -361,10 +361,10 @@ bool Neural_network::train() {
 	  for (int node=0; node<NNodes[layer]; node++) {
 	    for (int i=0; i<NNodes[layer-1]+1; i++) {
 	      temp_dOutput_dParameters.at(deriv_offsets.at(nodes.at(layer-1).at(node)->index())+i)
-		+= dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dParameters(i);
+		+= this->dropout[layer-1][node]*dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dParameters(i);
 	    }
 	    for (int i=0; i<NNodes[layer-1]; i++) {
-	      temp_dOut_dIn.at(i) += dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dInputs(i);
+	      temp_dOut_dIn.at(i) += this->dropout[layer-1][node]*dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dInputs(i);
 	    }
 	  }
 	  dOut_dIn = temp_dOut_dIn;
@@ -775,8 +775,15 @@ void Neural_network::print(ostream &output) {
   for (int layer=0; layer<nodes.size(); layer++) {
     output << "[[ layer "<<layer<<" ]] " << endl;
     for (int node=0; node<nodes.at(layer).size(); node++) {
-      nodes[layer][node]->print(output);
+        nodes[layer][node]->print(output);
+        /*
+        if (layer == 0) {
+            nodes[layer][node]->print(output,1.0);
+        }  else {
+            nodes[layer][node]->print(output,this->params.dropout());
+        }*/
     }
+        
   }
   
 }
@@ -798,7 +805,7 @@ void Neural_network::bernoulli_sample(REAL p) {
                 dropout[i][j] = 1.0;
             } else {
                 dropout[i][j] = 0.0;
-                cout << "Node" << j << " in layer " << i << "will be dropped\n";
+                //cout << "Node" << j << " in layer " << i << " will be dropped\n";
             }
         }
     }

@@ -60,7 +60,8 @@ public:
   virtual void set_parameters(vector<REAL> new_params) = 0;
   virtual vector<REAL> get_parameters() = 0;
   
-  virtual void print(ostream &stream = std::cout) = 0;
+//  virtual void print(ostream &stream = std::cout) = 0;
+  virtual void print(ostream &steam = std::cout, REAL p=1.0) = 0;
   virtual void read(istream &input) = 0;
   
   virtual int Nparameters() = 0;

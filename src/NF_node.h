@@ -75,7 +75,7 @@ public:
   virtual void set_parameters(vector<REAL> new_params);
   virtual vector<REAL> get_parameters();
   
-  virtual void print(ostream &stream = std::cout);
+  virtual void print(ostream &stream = std::cout, REAL p = 1.0);
   virtual void read(istream &input);
   
   virtual inline int Nparameters() { return 2*my_Nparameters; }
