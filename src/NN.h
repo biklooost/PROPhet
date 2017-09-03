@@ -136,6 +136,8 @@ virtual vector<REAL> variance(vector<REAL> means);
   vector<vector<REAL> > values;
   vector<vector<Neural_network_node*> > nodes;
   
+  vector <vector<REAL> > dropout;
+  
   vector<REAL> my_dOutput_dParameters;
   vector<REAL> my_dOutput_dInputs;
 
@@ -167,6 +169,8 @@ virtual vector<REAL> variance(vector<REAL> means);
 
 
   Functional_params  params;
+  
+  void bernoulli_sample(REAL p);
 
 };
 

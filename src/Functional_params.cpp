@@ -93,6 +93,7 @@ Functional_params::Functional_params() {
   this->my_norm_cd = false;
   this->my_bounds = vector <int> (2,0);
 
+  this->my_dropoutP = 1.0;
 }
 
 // ########################################################

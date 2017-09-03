@@ -176,6 +176,7 @@ class Functional_params {
   inline void Rcut(REAL cutoff) { my_Rcut = cutoff; }
   inline map<string,REAL> FE() { return my_FE;}
   inline vector <int> var_bounds() {return my_bounds; }
+  inline REAL dropout() { return my_dropoutP; }
   
   vector<vector<REAL> >  G1;
   vector<vector<REAL> >  G2;
@@ -244,6 +245,8 @@ class Functional_params {
   bool my_Tbackup;
   REAL my_debug;
   vector <int> my_bounds; //vector of lbound and rbound used in variance in Charge Density
+  
+  REAL my_dropoutP; //dropout probability
 
   string my_training_algorithm;
 

@@ -54,6 +54,8 @@ Neural_network::Neural_network(const vector<System*> &in_systems, Functional_par
   vector<REAL> input_layer(network_details.Ninput_nodes());
   values.push_back(input_layer);
   NNodes.push_back(network_details.Ninput_nodes());
+  vector <REAL> temp(network_details.Ninput_nodes(),1.0);
+  dropout.push_back(temp);
   
   for (int i=0; i<network_details.Nlayers(); i++) {
     vector<REAL> layer_values(network_details.NNodes(i),0.0);
@@ -65,6 +67,8 @@ Neural_network::Neural_network(const vector<System*> &in_systems, Functional_par
     values.push_back(layer_values);
     nodes.push_back(layer_nodes);
     NNodes.push_back(network_details.NNodes(i));
+    vector <REAL> layer_dropout(network_details.NNodes(i),1.0);
+    dropout.push_back(layer_dropout);
   }
   vector<Neural_network_node*> output_layer;
   output_layer.push_back(new Neural_network_node(values.back().size(), "linear"));
@@ -107,7 +111,7 @@ Neural_network::Neural_network(const vector<System*> &in_systems, Functional_par
   last_i_sys = -1;
   
   if (!network_details.SGD()){
-      for(int i = 0; i < systems.size(); i++){
+      for(int i = 0; i < in_systems.size(); i++){
           this->training_set.push_back(i);
       }
   }
@@ -318,9 +322,10 @@ bool Neural_network::train() {
     REAL output = 0.0;
     my_dOutput_dParameters.assign(my_dOutput_dParameters.size(), 0);
     this->get_training_set();
-    //for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-    for (int jj = 0; jj < this->training_set.size(); jj ++ ) {
-      int i_sys = this->training_set[jj];
+    for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+    //for (int jj = 0; jj < this->training_set.size(); jj ++ ) {
+    //  int i_sys = this->training_set[jj];
+      this->bernoulli_sample(this->params.dropout());
       output = 0.0; 
       vector<REAL> temp_dOutput_dParameters(Nparams, 0.0);
       vector<REAL> dOut_dIn; 
@@ -785,6 +790,20 @@ void Neural_network::get_training_set() {
     }
 }
 
+void Neural_network::bernoulli_sample(REAL p) {
+    for (int i = 1; i < this->dropout.size(); i++) {
+        for (int j = 0; j<this->dropout[i].size(); j++) {
+            REAL r = ((REAL) rand() / (RAND_MAX));
+            if (r <= p) {
+                dropout[i][j] = 1.0;
+            } else {
+                dropout[i][j] = 0.0;
+                cout << "Node" << j << " in layer " << i << "will be dropped\n";
+            }
+        }
+    }
+    
+}
 // ########################################################
 // ########################################################
 

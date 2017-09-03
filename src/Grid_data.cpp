@@ -154,7 +154,7 @@ void Grid_data::normalize(REAL A) {
 // charge density vector. May have memory leaks
 
 void Grid_data::variance(vector <int> bounds) {
-    if ((bounds[0] == 0) && (bounds[1] == 0 )) { return; }
+    if ((bounds[0] == 0 && bounds[1] == 0 ) || bounds[0] == bounds[1]) { return; }
     vector <REAL> old_data = this->data;
     sort(old_data.begin(),old_data.end());
     REAL lower = old_data[floor(old_data.size()*bounds[0]/100.)];
