@@ -69,11 +69,11 @@ public:
     X += Parameters[Ninputs];
     out = (this->*transfer_function)(X, &dT_dX);
     for (int i=0; i<Ninputs; i++) {
-      my_dOutput_dParameters[i] = dT_dX*in[i];
-      my_dOutput_dInputs[i] = dT_dX*Parameters[i];
+      my_dOutput_dParameters[i] = this->dropout*dT_dX*in[i];
+      my_dOutput_dInputs[i] = this->dropout*dT_dX*Parameters[i];
     }
     my_dOutput_dParameters[Ninputs] = dT_dX;
-    return out;
+    return this->dropout*out;
   }
 
   inline REAL dout_din(const vector<REAL> &in, REAL &deriv) { }
@@ -97,6 +97,8 @@ public:
   void set_transfer_function(string new_transfer_function);
 
   virtual inline int Nparameters() { return my_Nparameters; }
+  
+  REAL dropout;
 
  private:
   

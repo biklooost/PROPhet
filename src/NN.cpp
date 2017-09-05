@@ -55,7 +55,7 @@ Neural_network::Neural_network(const vector<System*> &in_systems, Functional_par
   values.push_back(input_layer);
   NNodes.push_back(network_details.Ninput_nodes());
   vector <REAL> temp(network_details.Ninput_nodes(),1.0);
-  dropout.push_back(temp);
+  //dropout.push_back(temp);
   
   for (int i=0; i<network_details.Nlayers(); i++) {
     vector<REAL> layer_values(network_details.NNodes(i),0.0);
@@ -67,8 +67,8 @@ Neural_network::Neural_network(const vector<System*> &in_systems, Functional_par
     values.push_back(layer_values);
     nodes.push_back(layer_nodes);
     NNodes.push_back(network_details.NNodes(i));
-    vector <REAL> layer_dropout(network_details.NNodes(i),1.0);
-    dropout.push_back(layer_dropout);
+    //vector <REAL> layer_dropout(network_details.NNodes(i),1.0);
+    //dropout.push_back(layer_dropout);
   }
   vector<Neural_network_node*> output_layer;
   output_layer.push_back(new Neural_network_node(values.back().size(), "linear"));
@@ -337,7 +337,7 @@ bool Neural_network::train() {
 	
 	for (int layer=0; layer<nodes.size()-1; layer++) {
 	  for (int node=0; node<nodes[layer].size(); node++) {
-	    values[layer+1][node] = this->dropout[layer][node]*nodes[layer][node]->evaluate(values[layer]);
+	    values[layer+1][node] = nodes[layer][node]->evaluate(values[layer]);
 	  }
 	}
 
@@ -361,10 +361,10 @@ bool Neural_network::train() {
 	  for (int node=0; node<NNodes[layer]; node++) {
 	    for (int i=0; i<NNodes[layer-1]+1; i++) {
 	      temp_dOutput_dParameters.at(deriv_offsets.at(nodes.at(layer-1).at(node)->index())+i)
-		+= this->dropout[layer-1][node]*dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dParameters(i);
+		+= dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dParameters(i);
 	    }
 	    for (int i=0; i<NNodes[layer-1]; i++) {
-	      temp_dOut_dIn.at(i) += this->dropout[layer-1][node]*dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dInputs(i);
+	      temp_dOut_dIn.at(i) += dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dInputs(i);
 	    }
 	  }
 	  dOut_dIn = temp_dOut_dIn;
@@ -798,6 +798,18 @@ void Neural_network::get_training_set() {
 }
 
 void Neural_network::bernoulli_sample(REAL p) {
+    for (int layer=1; layer<nodes.size()-1; layer++) {
+        for (int node=0; node<nodes[layer].size(); node++) {
+            REAL r = ((REAL) rand() / (RAND_MAX));
+            if (r <= p) {
+                nodes[layer][node]->dropout = 1.0;
+            } else {
+                nodes[layer][node]->dropout = 0.0;
+                //cout << "Node" << j << " in layer " << i << " will be dropped\n";
+            }
+        }
+    }
+    /*
     for (int i = 1; i < this->dropout.size(); i++) {
         for (int j = 0; j<this->dropout[i].size(); j++) {
             REAL r = ((REAL) rand() / (RAND_MAX));
@@ -809,6 +821,7 @@ void Neural_network::bernoulli_sample(REAL p) {
             }
         }
     }
+    */ 
     
 }
 // ########################################################

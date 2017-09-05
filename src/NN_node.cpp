@@ -66,7 +66,7 @@ Neural_network_node::Neural_network_node(int Ninputs, string which_transfer_func
   for (int i=0; i<Ninputs; i++) {
     my_dOutput_dInputs.push_back(0);
   }
-    
+  this->dropout = 1.0;  
 }
 
 // ########################################################
