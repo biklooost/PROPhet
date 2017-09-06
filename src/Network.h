@@ -55,7 +55,7 @@ using namespace std;
 
 
 class Network {
-  
+
   
  public:
   
@@ -107,6 +107,8 @@ class Network {
 
   virtual void set_output_mean(REAL new_mean) = 0;
   virtual void set_output_variance(REAL new_variance) = 0;
+  
+  virtual void set_dropout(vector <double> dropout) = 0;
   
  private:
     

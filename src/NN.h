@@ -53,7 +53,7 @@ using namespace std;
 
 
 class Neural_network : public Network {
-  
+    
  public:
   
   Neural_network(const vector<System*> &systems, Functional_params network_details);
@@ -116,6 +116,7 @@ virtual vector<REAL> variance(vector<REAL> means);
   }
   
   void get_training_set();
+  void set_dropout(vector <double> dropout);
   
   
  private:
@@ -170,7 +171,8 @@ virtual vector<REAL> variance(vector<REAL> means);
 
   Functional_params  params;
   
-  void bernoulli_sample(REAL p);
+  //void bernoulli_sample(REAL p);
+  
 
 };
 

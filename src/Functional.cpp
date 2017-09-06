@@ -239,12 +239,12 @@ void Functional::train() {
   this->Normalize_data(params.input_mean, params.input_variance);
     
   while (net->train()) {
-   
+      
     this->save();
     if (opt->is_backup()){
         this->backup(opt->iteration());
     }
-
+    this->bernoulli_sample(params.dropout());
   }
   
   delete opt;
@@ -262,7 +262,7 @@ void Functional::train() {
 // ########################################################
 //                       EVALUATE
 // ########################################################
-// Fires the functional to get a prediciton
+// Fires the functional to get a prediction
 
 void Functional::evaluate() { 
 
@@ -481,6 +481,31 @@ void Functional::create_system_map() {
     }
   }
   
+}
+
+void Functional::bernoulli_sample(REAL p) {
+    vector <double> dropout;
+    for (int layer=0; layer<params.Nlayers(); layer++) {
+        for (int node=0; node<params.NNodes(layer); node++) {
+                dropout.push_back(1.0);
+        }
+    }
+    int cnt = 0;
+    if (this->mpi->io_node()) {
+        for (int layer=0; layer<params.Nlayers(); layer++) {
+            for (int node=0; node<params.NNodes(layer); node++) {
+                REAL r = ((REAL) rand() / (RAND_MAX));
+                if (r >= p) {
+                    dropout[cnt] = 0.0;
+                } else {
+                    dropout[cnt] = 1.0;;
+                } 
+            }
+        }
+    }
+    dropout = this->mpi->Bcast(dropout,dropout.size());
+    this->net->set_dropout(dropout);
+    //this->net->    
 }
 
 // ########################################################

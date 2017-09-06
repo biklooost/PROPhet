@@ -410,3 +410,7 @@ void Network_function::print(ostream &output) {
   
 }
 
+void Network_function::set_dropout(vector<double> dropout) {
+    
+}
+

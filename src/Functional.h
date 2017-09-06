@@ -90,6 +90,7 @@ class Functional {
 
   void create_system_map();
   vector<int> system_map;
+  void bernoulli_sample(REAL p);
 
 };
 

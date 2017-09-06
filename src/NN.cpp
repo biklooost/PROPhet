@@ -110,11 +110,11 @@ Neural_network::Neural_network(const vector<System*> &in_systems, Functional_par
   
   last_i_sys = -1;
   
-  if (!network_details.SGD()){
+  /*if (!network_details.SGD()){
       for(int i = 0; i < in_systems.size(); i++){
           this->training_set.push_back(i);
       }
-  }
+  }*/
 
   
 }
@@ -322,7 +322,7 @@ bool Neural_network::train() {
     REAL output = 0.0;
     my_dOutput_dParameters.assign(my_dOutput_dParameters.size(), 0);
     this->get_training_set();
-    this->bernoulli_sample(this->params.dropout());
+    //this->bernoulli_sample(this->params.dropout());
     for (int i_sys=0; i_sys<systems.size(); i_sys++) {
     //for (int jj = 0; jj < this->training_set.size(); jj ++ ) {
     //  int i_sys = this->training_set[jj];
@@ -797,31 +797,14 @@ void Neural_network::get_training_set() {
     }
 }
 
-void Neural_network::bernoulli_sample(REAL p) {
+void Neural_network::set_dropout(vector <double> dropout) {
+    int cnt = 0;
     for (int layer=1; layer<nodes.size()-1; layer++) {
         for (int node=0; node<nodes[layer].size(); node++) {
-            REAL r = ((REAL) rand() / (RAND_MAX));
-            if (r <= p) {
-                nodes[layer][node]->dropout = 1.0;
-            } else {
-                nodes[layer][node]->dropout = 0.0;
-                //cout << "Node" << j << " in layer " << i << " will be dropped\n";
-            }
+                nodes[layer][node]->dropout = dropout[cnt];
+                cnt++;
         }
     }
-    /*
-    for (int i = 1; i < this->dropout.size(); i++) {
-        for (int j = 0; j<this->dropout[i].size(); j++) {
-            REAL r = ((REAL) rand() / (RAND_MAX));
-            if (r <= p) {
-                dropout[i][j] = 1.0;
-            } else {
-                dropout[i][j] = 0.0;
-                //cout << "Node" << j << " in layer " << i << " will be dropped\n";
-            }
-        }
-    }
-    */ 
     
 }
 // ########################################################

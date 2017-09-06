@@ -110,6 +110,8 @@ class Network_function : public Network {
 
   inline void set_output_mean(REAL new_mean) { output_mean = new_mean; }
   inline void set_output_variance(REAL new_variance) { output_variance = new_variance; }
+  
+  void set_dropout(vector <double> dropout);
 
  private:
   
