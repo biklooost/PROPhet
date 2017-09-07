@@ -799,7 +799,7 @@ void Neural_network::get_training_set() {
 
 void Neural_network::set_dropout(vector <double> dropout) {
     int cnt = 0;
-    for (int layer=1; layer<nodes.size()-1; layer++) {
+    for (int layer=0; layer<nodes.size()-1; layer++) {
         for (int node=0; node<nodes[layer].size(); node++) {
                 nodes[layer][node]->dropout = dropout[cnt];
                 cnt++;
