@@ -244,7 +244,7 @@ void Functional::train() {
     if (opt->is_backup()){
         this->backup(opt->iteration());
     }
-    this->bernoulli_sample(params.dropout());
+        this->bernoulli_sample(params.dropout());
   }
   
   delete opt;
@@ -500,6 +500,7 @@ void Functional::bernoulli_sample(REAL p) {
                 } else {
                     dropout[cnt] = 1.0;;
                 } 
+                cnt++;
             }
         }
     }
