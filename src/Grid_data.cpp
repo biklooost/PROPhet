@@ -171,4 +171,18 @@ void Grid_data::variance(vector <int> bounds) {
 // ########################################################
 // ########################################################
 
-
+void Grid_data::activation(int n,REAL eta) {
+    vector <REAL> tmp = this->data;
+    for (int i = 0; i<this->N1; i++) {
+        for (int j = 0; j <this->N2; j++) {
+            for (int k = 0; k<this->N3; k++) {
+                tmp[N1*N2*k + N1*j + i] = 0.0;
+                for (int zz = -n; zz <= n; zz++ ) {
+                    tmp[N1*N2*k + N1*j + i] += (*this)[i+zz,j,k]*exp(eta*(i-zz)*(i-zz)/this->N1);
+                    tmp[N1*N2*k + N1*j + i] += (*this)[i,j+zz,k]*exp(eta*(j-zz)*(j-zz)/this->N2);
+                    tmp[N1*N2*k + N1*j + i] += (*this)[i,j,k+zz]*exp(eta*(k-zz)*(k-zz)/this->N3);
+                }
+            }
+        }
+    }
+}

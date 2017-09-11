@@ -80,6 +80,7 @@ System::System(map<string,string> files, Functional_params *F) {
       if (!Density.N()) { this->Density = DFT->get_density(files["density"],F->sample_step()); }
       if(F->NormCD()) { this->Density.normalize(F->NormCD_val());}
       this->Density.variance(F->var_bounds());
+      this->Density.activation();
       properties.push_back(this->Density.as_vector_ptr());
       Prefactor *= Density.get_dV();
       if (F->output_is_intensive()) {

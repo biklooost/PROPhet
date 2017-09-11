@@ -237,14 +237,16 @@ void Functional::train() {
   this->syncronize();
 
   this->Normalize_data(params.input_mean, params.input_variance);
-    
+  
   while (net->train()) {
       
     this->save();
     if (opt->is_backup()){
         this->backup(opt->iteration());
     }
-        this->bernoulli_sample(params.dropout());
+    if (opt->iteration() %100 == 0){
+        this->bernoulli_sample(params.dropout(),true);
+    }
   }
   
   delete opt;
@@ -483,7 +485,7 @@ void Functional::create_system_map() {
   
 }
 
-void Functional::bernoulli_sample(REAL p) {
+void Functional::bernoulli_sample(REAL p,bool update) {
     vector <double> dropout;
     for (int layer=0; layer<params.Nlayers(); layer++) {
         for (int node=0; node<params.NNodes(layer); node++) {
@@ -491,7 +493,7 @@ void Functional::bernoulli_sample(REAL p) {
         }
     }
     int cnt = 0;
-    if (this->mpi->io_node()) {
+    if (this->mpi->io_node() && update) {
         for (int layer=0; layer<params.Nlayers(); layer++) {
             for (int node=0; node<params.NNodes(layer); node++) {
                 REAL r = ((REAL) rand() / (RAND_MAX));

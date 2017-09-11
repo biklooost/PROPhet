@@ -777,7 +777,7 @@ void Neural_network::print(ostream &output) {
     for (int node=0; node<nodes.at(layer).size(); node++) {
         /*nodes[layer][node]->print(output);*/
         
-        if (layer == 0) {
+        if (layer == 0 || layer == nodes.size() - 1) {
             nodes[layer][node]->print(output,1.0);
         }  else {
             nodes[layer][node]->print(output,this->params.dropout());
