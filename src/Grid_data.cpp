@@ -173,9 +173,9 @@ void Grid_data::variance(vector <int> bounds) {
 
 void Grid_data::activation(int n) {
     vector <REAL> tmp = this->data;
-    REAL *conv = (REAL*)malloc(9*sizeof(REAL));
+    REAL *conv = (REAL*)malloc(3*3*3*sizeof(REAL));
     //This is the sharpen matrix. Eventually I want to expand this to other matrices
-    for (int i = 0; i < 3; i++) { conv[i] = -1.0; }
+    for (int i = 0; i < 3*3*3; i++) { conv[i] = -1.0; }
     conv[3*3*1 + 3*1 + 1] = 8.0;
     for (int i = 0; i<this->N1; i++) {
         for (int j = 0; j <this->N2; j++) {
@@ -189,13 +189,6 @@ void Grid_data::activation(int n) {
                     }
                 }
                 tmp[N1*N2*k + N1*j + i] = sum;
-                /*
-                for (int zz = -n; zz <= n; zz++ ) {
-                    tmp[N1*N2*k + N1*j + i] += (*this)(i+zz,j,k)*exp(eta*(i-zz)*(i-zz)/this->N1);
-                    tmp[N1*N2*k + N1*j + i] += (*this)(i,j+zz,k)*exp(eta*(j-zz)*(j-zz)/this->N2);
-                    tmp[N1*N2*k + N1*j + i] += (*this)(i,j,k+zz)*exp(eta*(k-zz)*(k-zz)/this->N3);
-                }
-                */
             }
         }
     }

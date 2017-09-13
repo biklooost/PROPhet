@@ -246,6 +246,8 @@ void Functional::train() {
     }
     if (opt->iteration() %100 == 0){
         this->bernoulli_sample(params.dropout(),true);
+    } else {
+        this->bernoulli_sample(params.dropout(),false);
     }
   }
   
