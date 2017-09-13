@@ -181,10 +181,12 @@ void Grid_data::conv_matrix(int n) {
             size = 3;
             conv = (REAL*)malloc(size*size*size*sizeof(REAL));
             for (int i = 0; i < size*size*size; i++) { conv[i] = -1.0; }
-            conv[size*size*1 + size*1 + 1] = 8.0;   
+            conv[size*size*1 + size*1 + 1] = 8.0;  
+            break;
         case 2: //Normalization/average
             conv = (REAL*)malloc(size*size*size*sizeof(REAL));
             for (int i = 0; i < size*size*size; i++) { conv[i] = 1.0/(size*size*size); }
+            break;
         case 3: //5x5 gaussian blur
             size = 5;
             sigma = 1.132;
@@ -192,10 +194,11 @@ void Grid_data::conv_matrix(int n) {
             for (int i = 0; i < size; i++) { 
                 for (int j = 0; j <size; j++) {
                     for (int k = 0; k < size; k++) {
-                        conv[size*size*k + size*j * i] = 1/(2*3.14*sigma)*exp(-(pow((k-2),2) + pow((j-2),2) + pow((i-2),2))/(2*sigma));
+                        conv[size*size*k + size*j + i] = 1/(2*3.14*sigma)*exp(-(pow((k-2),2) + pow((j-2),2) + pow((i-2),2))/(2*sigma));
                     }
                 }
             }
+            break;
         case 4: //unsharpen mask
             size = 5;
             sigma = 1.132;
@@ -203,16 +206,18 @@ void Grid_data::conv_matrix(int n) {
             for (int i = 0; i < size; i++) { 
                 for (int j = 0; j <size; j++) {
                     for (int k = 0; k < size; k++) {
-                        conv[size*size*k + size*j * i] = -1/(2*3.14*sigma)*exp(-(pow((k-2),2) + pow((j-2),2) + pow((i-2),2))/(2*sigma));
+                        conv[size*size*k + size*j + i] = -1/(2*3.14*sigma)*exp(-(pow((k-2),2) + pow((j-2),2) + pow((i-2),2))/(2*sigma));
                     }
                 }
             }
             conv[size*size*2 + size*2 + 2 ] *= -13.5; 
+            break;
         default:
             size = 3;
             conv = (REAL*)malloc(size*size*size*sizeof(REAL));
             for (int i = 0; i < size*size*size; i++) { conv[i] = 0.0; }
             conv[size*size*1 + size*1 + 1] = 1.0;
+            break;
     }
     int shift = (size-1)/2;
     for (int i = 0; i<this->N1; i++) {
