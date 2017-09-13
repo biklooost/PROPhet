@@ -83,6 +83,7 @@ System::System(map<string,string> files, Functional_params *F) {
       if (F->Nconv() < 10) {
         this->Density.conv_matrix(F->Nconv());
       }
+      this->Density.downsample(F->sample_step()); //Now downsampling is done outside of the read-in process
       properties.push_back(this->Density.as_vector_ptr());
       Prefactor *= Density.get_dV();
       if (F->output_is_intensive()) {

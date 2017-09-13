@@ -96,6 +96,7 @@ Functional_params::Functional_params() {
   this->my_dropoutP = 1.0;
   
   this->my_conv = 250; //This needs to just be some large number
+  this->my_conv_stride = 1;
 }
 
 // ########################################################

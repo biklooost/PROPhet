@@ -279,7 +279,7 @@ Grid_data VASP::get_density(string directory, int step) {
   file.close();
   
   REAL Nelectrons = density.integrate()*density.dV/density.volume;
-  
+  /*
   REAL average;
   int count1;
 
@@ -313,7 +313,8 @@ Grid_data VASP::get_density(string directory, int step) {
   double new_Ncells = downsample.Nx()*downsample.Ny()*downsample.Nz();
   downsample.set_dV(density.get_dV()*old_Ncells/new_Ncells);
 
-  return downsample;
+  return downsample;*/
+  return density;
   
 }
 

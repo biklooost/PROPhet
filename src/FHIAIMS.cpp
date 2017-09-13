@@ -227,11 +227,11 @@ Grid_data FHIAIMS::get_density(string CubeFile, int step) { //This is applicable
 	Line >> grid.Ny() >> grid.v2[0] >> grid.v2[1] >> grid.v2[2];
 	this->get_line();
 	Line >> grid.Nz() >> grid.v3[0] >> grid.v3[1] >> grid.v3[2];
-  for(int i = 0; i<3; i++) {
-    grid.v1[i] *= grid.Nx();
-    grid.v2[i] *= grid.Ny();
-    grid.v3[i] *= grid.Nz();
-  }
+        for(int i = 0; i<3; i++) {
+            grid.v1[i] *= grid.Nx();
+            grid.v2[i] *= grid.Ny();
+            grid.v3[i] *= grid.Nz();
+        }
 	this->skip_lines(natom);
 	do{
 	  this->get_line();
@@ -245,7 +245,7 @@ Grid_data FHIAIMS::get_density(string CubeFile, int step) { //This is applicable
 	}while(!this->file.eof());
 	grid.set_dV();
 	REAL Nelectrons = grid.integrate()*grid.dV;
-  
+        /*
 	REAL average;
 	int count1;
 
@@ -278,7 +278,8 @@ Grid_data FHIAIMS::get_density(string CubeFile, int step) { //This is applicable
 	double new_Ncells = downsample.Nx()*downsample.Ny()*downsample.Nz();
 	downsample.set_dV(grid.get_dV()*old_Ncells/new_Ncells);
 
-	return downsample;
+	return downsample;*/
+        return grid;
 
 }
 

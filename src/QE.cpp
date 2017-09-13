@@ -302,6 +302,7 @@ Grid_data QE::get_density(string prefix, int step) {
 		file.close();
 		density.set_dV();
 		REAL Nelectrons = density.integrate()*density.dV;
+                /*
 		REAL average;
 		int count1;
 		downsample.Nx() = 0;
@@ -316,12 +317,12 @@ Grid_data QE::get_density(string prefix, int step) {
 		      count1 = 0;
 		      average = 0.0;
 		      for (int ii=i; (ii<i+step && ii<density.Nx()); ii++) {
-            for (int jj=j; (jj<j+step && jj<density.Ny()); jj++) {
-              for (int kk=k; (kk<k+step && kk<density.Nz()); kk++) {
-                ++count1;
-                average += density(ii,jj,kk);
-              }
-            }
+                        for (int jj=j; (jj<j+step && jj<density.Ny()); jj++) {
+                          for (int kk=k; (kk<k+step && kk<density.Nz()); kk++) {
+                            ++count1;
+                            average += density(ii,jj,kk);
+                          }
+                        }
 		      }
 		      downsample.push_back(average/((double)(count1)));
 		    }
@@ -330,8 +331,9 @@ Grid_data QE::get_density(string prefix, int step) {
 		  downsample.volume = density.volume;
 		  double old_Ncells = density.Nx()*density.Ny()*density.Nz();
 		  double new_Ncells = downsample.Nx()*downsample.Ny()*downsample.Nz();
-		  downsample.set_dV(density.get_dV()*old_Ncells/new_Ncells);
-		  return downsample;
+		  downsample.set_dV(density.get_dV()*old_Ncells/new_Ncells);*/
+		  //return downsample;
+                return density;
 	}else cout << "Unable to Open Charge Density";
 }
 

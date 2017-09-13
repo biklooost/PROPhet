@@ -171,8 +171,8 @@ void Grid_data::variance(vector <int> bounds) {
 // ########################################################
 // ########################################################
 
-void Grid_data::conv_matrix(int n) {
-    vector <REAL> tmp = this->data;
+void Grid_data::conv_matrix(int n,int stride) {
+    vector <REAL> tmp; //= this->data;
     REAL *conv; 
     int size;
     REAL sigma;
@@ -184,6 +184,7 @@ void Grid_data::conv_matrix(int n) {
             conv[size*size*1 + size*1 + 1] = 8.0;  
             break;
         case 2: //Normalization/average
+            size = 3;
             conv = (REAL*)malloc(size*size*size*sizeof(REAL));
             for (int i = 0; i < size*size*size; i++) { conv[i] = 1.0/(size*size*size); }
             break;
@@ -220,9 +221,14 @@ void Grid_data::conv_matrix(int n) {
             break;
     }
     int shift = (size-1)/2;
-    for (int i = 0; i<this->N1; i++) {
-        for (int j = 0; j <this->N2; j++) {
-            for (int k = 0; k<this->N3; k++) {
+    int count1;
+    int Nx = 0, Ny = 0, Nz = 0;
+    for (int i = 0; i<this->N1; i+=stride) {
+        Nx += 1;
+        for (int j = 0; j <this->N2; j+=stride) {
+            if (i == 0) { Ny += 1; }
+            for (int k = 0; k<this->N3; k+=stride) {
+                if (i == 0 && j == 0) {Nz += 1; }
                 REAL sum = 0.0;
                 for (int ii =0; ii < size; ii ++){
                     for (int jj = 0; jj < size; jj++) {
@@ -231,9 +237,52 @@ void Grid_data::conv_matrix(int n) {
                         }
                     }
                 }
-                tmp[N1*N2*k + N1*j + i] = sum;
+                //tmp[N1*N2*k + N1*j + i] = sum;
+                tmp.push_back(sum);
             }
         }
     }
+    double old_Ncells = this->Nx()*this->Ny()*this->Nz();
+    double new_Ncells = Nx*Ny*Nz;
+    this->Nx() = Nx;
+    this->Ny() = Ny;
+    this->Nz() = Nz;
+    this->set_dV(this->get_dV()*old_Ncells/new_Ncells);
     this->data = tmp;
+}
+
+void Grid_data::downsample(int step) {
+    REAL average;
+    int count1;
+    int Nx = 0, Ny = 0, Nz = 0;
+    vector <REAL> downsample;
+    for (int i=0; i<this->Nx(); i+=step) {
+      Nx += 1; 
+      for (int j=0; j<this->Ny(); j+=step) {
+        if (i == 0) { Ny += 1; }
+        for (int k=0; k<this->Nz(); k+=step) {
+          if (i == 0 && j == 0) {Nz += 1; }
+          count1 = 0;
+          average = 0.0;
+          for (int ii=i; (ii<i+step && ii< this->Nx()); ii++) {
+            for (int jj=j; (jj<j+step && jj<this->Ny()); jj++) {
+              for (int kk=k; (kk<k+step && kk<this->Nz()); kk++) {
+                ++count1;
+                average += (*this)(ii,jj,kk);
+              }
+            }
+          }
+          downsample.push_back(average/((double)(count1)));
+        }
+      }
+    }
+      //downsample.volume = density.volume;
+      double old_Ncells = this->Nx()*this->Ny()*this->Nz();
+      double new_Ncells = Nx*Ny*Nz;
+      this->Nx() = Nx;
+      this->Ny() = Ny;
+      this->Nz() = Nz;
+      this->set_dV(this->get_dV()*old_Ncells/new_Ncells);
+      this->data = downsample;
+      //return downsample;
 }

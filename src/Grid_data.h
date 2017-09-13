@@ -111,7 +111,9 @@ class Grid_data {
   inline void set_dV(REAL new_dV) { dV = new_dV; }
   double volume;
   
-  void conv_matrix(int n = 11);
+  void conv_matrix(int n = 11,int stride = 1);
+  
+  void downsample(int step = 1);
 
  private:
   
