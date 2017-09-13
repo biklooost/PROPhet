@@ -94,6 +94,8 @@ Functional_params::Functional_params() {
   this->my_bounds = vector <int> (2,0);
 
   this->my_dropoutP = 1.0;
+  
+  this->my_conv = 250; //This needs to just be some large number
 }
 
 // ########################################################

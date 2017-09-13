@@ -191,6 +191,9 @@ void Setup::read_input (string filename) {
             Line >> int_value;
             F.my_bounds[cnt] = int_value;
         }
+    } else if (key == "conv_cd") {
+        Line >> int_value;
+        F.my_conv = int_value;
     } else if (key == "norm_cd") {
         Line >> real_value;
         F.my_norm_cd = true;

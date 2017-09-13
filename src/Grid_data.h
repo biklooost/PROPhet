@@ -111,7 +111,7 @@ class Grid_data {
   inline void set_dV(REAL new_dV) { dV = new_dV; }
   double volume;
   
-  void activation(int n = 1);
+  void conv_matrix(int n = 11);
 
  private:
   

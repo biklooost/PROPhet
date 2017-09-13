@@ -177,6 +177,7 @@ class Functional_params {
   inline map<string,REAL> FE() { return my_FE;}
   inline vector <int> var_bounds() {return my_bounds; }
   inline REAL dropout() { return my_dropoutP; }
+  inline int Nconv() { return my_conv; }
   
   vector<vector<REAL> >  G1;
   vector<vector<REAL> >  G2;
@@ -260,6 +261,8 @@ class Functional_params {
   int my_Nradial;
   int my_Nangular;
   std::map<string,REAL> my_FE;
+  
+  int my_conv;
 
 };
 

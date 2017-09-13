@@ -171,20 +171,58 @@ void Grid_data::variance(vector <int> bounds) {
 // ########################################################
 // ########################################################
 
-void Grid_data::activation(int n) {
+void Grid_data::conv_matrix(int n) {
     vector <REAL> tmp = this->data;
-    REAL *conv = (REAL*)malloc(3*3*3*sizeof(REAL));
-    //This is the sharpen matrix. Eventually I want to expand this to other matrices
-    for (int i = 0; i < 3*3*3; i++) { conv[i] = -1.0; }
-    conv[3*3*1 + 3*1 + 1] = 8.0;
+    REAL *conv; 
+    int size;
+    REAL sigma;
+    switch (n) {
+        case 1: //Edge detection
+            size = 3;
+            conv = (REAL*)malloc(size*size*size*sizeof(REAL));
+            for (int i = 0; i < size*size*size; i++) { conv[i] = -1.0; }
+            conv[size*size*1 + size*1 + 1] = 8.0;   
+        case 2: //Normalization/average
+            conv = (REAL*)malloc(size*size*size*sizeof(REAL));
+            for (int i = 0; i < size*size*size; i++) { conv[i] = 1.0/(size*size*size); }
+        case 3: //5x5 gaussian blur
+            size = 5;
+            sigma = 1.132;
+            conv = (REAL*)malloc(size*size*size*sizeof(REAL));
+            for (int i = 0; i < size; i++) { 
+                for (int j = 0; j <size; j++) {
+                    for (int k = 0; k < size; k++) {
+                        conv[size*size*k + size*j * i] = 1/(2*3.14*sigma)*exp(-(pow((k-2),2) + pow((j-2),2) + pow((i-2),2))/(2*sigma));
+                    }
+                }
+            }
+        case 4: //unsharpen mask
+            size = 5;
+            sigma = 1.132;
+            conv = (REAL*)malloc(size*size*size*sizeof(REAL));
+            for (int i = 0; i < size; i++) { 
+                for (int j = 0; j <size; j++) {
+                    for (int k = 0; k < size; k++) {
+                        conv[size*size*k + size*j * i] = -1/(2*3.14*sigma)*exp(-(pow((k-2),2) + pow((j-2),2) + pow((i-2),2))/(2*sigma));
+                    }
+                }
+            }
+            conv[size*size*2 + size*2 + 2 ] *= -13.5; 
+        default:
+            size = 3;
+            conv = (REAL*)malloc(size*size*size*sizeof(REAL));
+            for (int i = 0; i < size*size*size; i++) { conv[i] = 0.0; }
+            conv[size*size*1 + size*1 + 1] = 1.0;
+    }
+    int shift = (size-1)/2;
     for (int i = 0; i<this->N1; i++) {
         for (int j = 0; j <this->N2; j++) {
             for (int k = 0; k<this->N3; k++) {
                 REAL sum = 0.0;
-                for (int ii =0; ii < 3; ii ++){
-                    for (int jj = 0; jj < 3; jj++) {
-                        for (int kk = 0; kk < 3; kk++) {
-                            sum += conv[3*3*kk + 3*jj + ii]*(*this)(i+ii-1,j+jj-1,k+kk-1); //-1 to shift convolutional matrix  to center on (i,j,k) in tmp
+                for (int ii =0; ii < size; ii ++){
+                    for (int jj = 0; jj < size; jj++) {
+                        for (int kk = 0; kk < size; kk++) {
+                            sum += conv[size*size*kk + size*jj + ii]*(*this)(i+ii-shift,j+jj-shift,k+kk-shift); //shift is used to shift convolutional matrix  to center on (i,j,k) in tmp
                         }
                     }
                 }
