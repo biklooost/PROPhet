@@ -200,6 +200,21 @@ public:
       return in;
     }
   }
+  
+  inline REAL relu(REAL in, REAL *deriv) {
+      if ( deriv != NULL) {
+          if (in <= 0.0) {
+              (*deriv) = 0.0;
+          } else {
+              (*deriv) = 1.0;
+          }
+      }
+      if (in <= 0.0){
+          return 0.0;
+      } else {
+          return in;
+      }
+  }
 
   
   

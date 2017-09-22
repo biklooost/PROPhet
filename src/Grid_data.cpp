@@ -181,7 +181,7 @@ void Grid_data::conv_matrix(int n,int stride) {
             size = 3;
             conv = (REAL*)malloc(size*size*size*sizeof(REAL));
             for (int i = 0; i < size*size*size; i++) { conv[i] = -1.0; }
-            conv[size*size*1 + size*1 + 1] = 8.0;  
+            conv[size*size*1 + size*1 + 1] = 26.0;  
             break;
         case 2: //Normalization/average
             size = 3;
