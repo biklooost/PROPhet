@@ -112,7 +112,7 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
 	systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
         for (int i_v=0; i_v < systems[i_sys]->structure.G.size(); i_v++) {
             for(int j_v=0; j_v < systems[i_sys]->structure.G[i_v].size(); j_v ++){
-                gvectors << systems[i_sys]->structure.G[i_v][j_v];
+                gvectors << systems[i_sys]->structure.G[i_v][j_v] << ",";
             }
             gvectors << "\n";
         }
