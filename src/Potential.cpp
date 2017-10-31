@@ -102,25 +102,27 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
         cout << endl;
       }
     }
-    stringstream ss; 
-    ss << mpi->rank() << ".gvector";
-    ofstream gvectors;
-    gvectors.open(ss.str().c_str());
+
     if (!systems[0]->structure.is_initialized()) {
-      for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-	systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
-        for (int i_v=0; i_v < systems[i_sys]->structure.G[0].size(); i_v++) {
-            //cout << i_sys << endl;
-            for(int j_v=0; j_v < systems[i_sys]->structure.G.size(); j_v ++){
-                //cout << systems[i_sys]->structure.G.size() << " " << systems[i_sys]->structure.G[i_v].size() << endl;
-                gvectors << systems[i_sys]->structure.G[j_v][i_v] << ",";
-            }
-            gvectors << "\n";
+        stringstream ss; 
+        ss << mpi->rank() << ".gvector";
+        ofstream gvectors;
+        gvectors.open(ss.str().c_str());
+        for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+          systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
+          for (int i_v=0; i_v < systems[i_sys]->structure.G[0].size(); i_v++) {
+              //cout << i_sys << endl;
+              for(int j_v=0; j_v < systems[i_sys]->structure.G.size(); j_v ++){
+                  //cout << systems[i_sys]->structure.G.size() << " " << systems[i_sys]->structure.G[i_v].size() << endl;
+                  gvectors << systems[i_sys]->structure.G[j_v][i_v] << ",";
+              }
+              gvectors << "\n";
+          }
+          gvectors << "\n";
         }
-        gvectors << "\n";
-      }
+        gvectors.close();
     }
-    gvectors.close();
+
     /*
     for (int i_ = 0; i_ < g_vectors.size() ; i_++) {
         for (int j = 0; j < g_vectors.at(i_).size(); j++) {
