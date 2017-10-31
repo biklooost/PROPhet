@@ -102,7 +102,6 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
         cout << endl;
       }
     }
-    vector < vector <REAL *> > g_vectors;
     stringstream ss; 
     ss << mpi->rank() << ".gvector";
     ofstream gvectors;
@@ -110,12 +109,15 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
     if (!systems[0]->structure.is_initialized()) {
       for (int i_sys=0; i_sys<systems.size(); i_sys++) {
 	systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
-        for (int i_v=0; i_v < systems[i_sys]->structure.G.size(); i_v++) {
-            for(int j_v=0; j_v < systems[i_sys]->structure.G[i_v].size(); j_v ++){
-                gvectors << systems[i_sys]->structure.G[i_v][j_v] << ",";
+        for (int i_v=0; i_v < systems[i_sys]->structure.G[0].size(); i_v++) {
+            //cout << i_sys << endl;
+            for(int j_v=0; j_v < systems[i_sys]->structure.G.size(); j_v ++){
+                //cout << systems[i_sys]->structure.G.size() << " " << systems[i_sys]->structure.G[i_v].size() << endl;
+                gvectors << systems[i_sys]->structure.G[j_v][i_v] << ",";
             }
             gvectors << "\n";
         }
+        gvectors << "\n";
       }
     }
     gvectors.close();
