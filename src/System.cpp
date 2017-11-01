@@ -38,6 +38,7 @@
 #include "VASP.h"
 #include "QE.h"
 #include "FHIAIMS.h"
+#include "CUSTOM.h"
 
 
 
@@ -64,6 +65,10 @@ System::System(map<string,string> files, Functional_params *F) {
   } else if (files["code"] == "fhiaims") {
 
     DFT = new FHIAIMS();
+
+  } else if (files["code"] == "prophet") {
+
+        DFT = new CUSTOM();
     
   } else {
     
