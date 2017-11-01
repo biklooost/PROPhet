@@ -58,7 +58,6 @@ class CUSTOM : public DFT_IO {
 	virtual Structure read_structure(string prefix);
 	virtual REAL read_band_gap(string prefix);
 	virtual REAL read_Nelectrons(string prefix);
-	virtual void read_energies(string prefix,int nbnd, REAL *cbm, REAL *vbm);
 	virtual REAL get_property(string property,string directory); 
 
  private:

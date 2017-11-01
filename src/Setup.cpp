@@ -39,6 +39,7 @@
 #include "Art.h"
 #include <sys/stat.h>
 #include <limits>
+#include "xml_reader.h"
 
 
 // ########################################################
@@ -174,6 +175,32 @@ void Setup::read_input (string filename) {
 	if (property_map.count("key") != 0) { ERROR("Key \""+key+"\" specified more than once in data block"); }
 	if (to_lower(KEY) == "code") {
 	  property_map.insert(pair<string,string>(key,to_lower(string_value)));
+          if (to_lower(string_value) == "prophet") {
+            ifstream fname("PROPhet.xml",std::ifstream::in); 
+            string ltemp;
+            do {
+                std::getline(fname,ltemp);                               
+            } while(ltemp.find("<nsystem>") == std::string::npos);
+            xml_reader xml;
+            xml.read_string(ltemp);
+            int nsys = atoi(xml.get_node_by_name("nsystem").child_value());
+            for (int isys = 0; isys < nsys; isys++) {
+                map<string,string> new_system;
+                ostringstream t;
+                t << isys;
+                new_system.insert(pair<string,string>("base",t.str()));
+                for (map<string,string>::iterator it=property_map.begin(); it!=property_map.end(); ++it) {
+                    if (!it->first.compare("code")) {
+                        new_system.insert(pair<string,string>(it->first,it->second));
+                    } else {
+                        new_system.insert(pair<string,string>(it->first,new_system["base"]+"/"+it->second));
+                    }
+                }
+                this->systems.push_back(new_system);  
+            }     
+            fname.close();
+          }
+          
 	} else {
 	  property_map.insert(pair<string,string>(key, string_value));
 	}
@@ -417,14 +444,15 @@ void Setup::read_input (string filename) {
       Line >> real_value;
       F.dT = real_value;
       
-<<<<<<< HEAD
+
     }else if (key == "dropout") {
         
        Line >> real_value;
        F.my_dropoutP = real_value;
         
-=======
-    } else if (key == "nsys") {
+
+   /* } else if (key == "nsys") {
+        
         Line >> int_value; 
         if (Rcut_max) { F.Rcut(Rcut_max); }
         for (int isys = 0; isys < int_value; isys++) {
@@ -441,8 +469,8 @@ void Setup::read_input (string filename) {
             }
             this->systems.push_back(new_system);  
         }
+         */
 
->>>>>>> Initial commit for XML reading of input data
     } else {
       
       struct stat info;

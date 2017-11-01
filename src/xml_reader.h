@@ -59,6 +59,7 @@ class xml_reader {
   vector<pugi::xml_node> get_all_nodes_by_name(string node_name, string attribute_name, string attribute_value, pugi::xml_node in_node);
   
   void read(string filename);
+  void read_string(string parse);
   
  private:
   

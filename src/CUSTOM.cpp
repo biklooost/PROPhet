@@ -66,50 +66,6 @@ CUSTOM::~CUSTOM() { }
 // ########################################################
 // ########################################################
 
-
-
-
-// ########################################################
-//                       READ_ENERGIES
-// ########################################################
-// Read energies from 
-
-void CUSTOM::read_energies(string prefix,int nbnd, REAL  *cbm, REAL *vbm){
-	vector<REAL> energy;
-	vector<int> occu;
-	int i,indexVBM;
-	this->xml.read(prefix + "/data-file.xml");
-	vector<pugi::xml_node> nodes1 = xml.get_all_nodes_by_name("EIGENVALUES");
-	string temp = nodes1.front().child_value();
-	stringstream ss(temp.c_str());
-	while(getline(ss,temp,'\n')) {
-		if(std::string::npos != temp.find_first_of("0123456789")){
-		  energy.push_back(atof(temp.c_str()));
-		}
-	}
-	nodes1 = xml.get_all_nodes_by_name("OCCUPATIONS");
-	temp = nodes1.front().child_value();
-	stringstream ss1(temp);
-	while(getline(ss1,temp,'\n')) {
-		if(std::string::npos != temp.find_first_of("0123456789")) {
-		  occu.push_back(atoi(temp.c_str()));
-		}
-	}
-	for (i = 0; i < occu.size(); i++) {
-		if (occu[i] == 1) {
-			indexVBM = i;
-		}
-	}
-	file.close();
-	*vbm = energy[indexVBM];
-	*cbm = energy[indexVBM + 1];
-}
-
-// ########################################################
-// ########################################################
-
-
-
 // ########################################################
 //                       READ_STRUCTURE
 // ########################################################
@@ -117,108 +73,75 @@ void CUSTOM::read_energies(string prefix,int nbnd, REAL  *cbm, REAL *vbm){
 
 Structure CUSTOM::read_structure(string prefix) { 
 	Structure temps;
-
 	temps.CART = true;
 	temps.periodic = true;
-	
-	stringstream tvector;
-	vector< vector<REAL> > coordinates;
-	string datafile = prefix + "/data-file.xml";
-	this->xml.read(datafile);
-	vector<pugi::xml_node> node = xml.get_all_nodes_by_name("NUMBER_OF_ATOMS");
-	temps.Natom = atoi(node.back().child_value());
-	stringstream tcord;
-	stringstream atom;
-	node = this->xml.get_all_nodes_by_name("a1");
-	tvector << node.back().child_value();
-	REAL tnumber;
-	while (tvector >> tnumber) { temps.a.push_back(tnumber*0.529177249); }
+        ifstream fname("PROPhet.xml",std::ifstream::in); 
+        string ltemp;
+        stringstream cstring;
+        int id =0;
+        stringstream temp(directory);
+        temp >> id;
+        temp.str("");
+        temp.clear();
+        cstring << "<system id=\"" << id + 1<< "\">";
+        while(std::getline(fname, ltemp)) {
+            if (ltemp.find(cstring.str()) != std::string::npos) {
+                temp << ltemp;
+                do {
+                    std::getline(fname,ltemp);
+                    temp << ltemp;                                
+                } while(ltemp.find("</system>") == std::string::npos);
+                break;
+            }
+        }
+        fname.close();
+        this->xml.read_string(temp.str());
+        stringstream tvector,tcord;
+        REAL tnumber;
+        pugi::xml_node lattice = xml.get_node_by_name("lattice");
+        tvector << string(lattice.child("a1").child_value());
+        while (tvector >> tnumber) { temps.a.push_back(tnumber); }
 	tvector.str("");
-	tvector.clear();	
-	node = this->xml.get_all_nodes_by_name("a2");
-	tvector << node.back().child_value();
-	while (tvector >> tnumber) { temps.b.push_back(tnumber*0.529177249); }
+	tvector.clear();
+        tvector << string(lattice.child("a2").child_value());
+        while (tvector >> tnumber) { temps.b.push_back(tnumber); }
 	tvector.str("");
-	tvector.clear();	
-	node = this->xml.get_all_nodes_by_name("a3");
-	tvector << node.back().child_value();
-	while (tvector >> tnumber) { temps.c.push_back(tnumber*0.529177249); }
+	tvector.clear();
+        tvector << string(lattice.child("a3").child_value());
+        while (tvector >> tnumber) { temps.c.push_back(tnumber); }  
 	tvector.str("");
-	tvector.clear();	
-	for (int i = 1; i<=temps.Natom; i++) {
-		vector<REAL> row;
-		REAL tmp;
-		atom << "ATOM." << i;
-		node = xml.get_all_nodes_by_name(atom.str());
-		temps.types.push_back(Atom(node.back().attribute("SPECIES").value()));
-		tcord<< node.back().attribute("tau").value();		
+	tvector.clear();
+        vector <pugi::xml_node> node = xml.get_all_nodes_by_name("atoms");
+        pugi::xml_node atoms = node.back();
+        REAL tmp;
+        temps.Natom = atoi(atoms.child("natoms").child_value());
+        for (pugi::xml_node t_node = atoms.child("atom"); t_node; t_node = t_node.next_sibling("atom")) {
+            string specie = string(t_node.attribute("specie").value());
+            temps.types.push_back(Atom(specie));
+            tcord<< t_node.child_value();
+            vector<REAL> row;
 		for (int i = 0; i < 3; i++ ){
 			tcord >> tmp;
-			row.push_back(tmp*0.529177249);
+			row.push_back(tmp);
 		}
 		temps.pos.push_back(row);
-		coordinates.push_back(row);
-		atom.str("");
-		atom.clear();
 		tcord.str("");
 		tcord.clear();
-	}	
+        }
 	return temps;
 }
 REAL CUSTOM::get_property(string property,string directory) { 
-  string filename = directory+"/data-file.xml";
-  this->xml.read(filename);
 
-  if (property == "energy") {
-      try {
-        vector<pugi::xml_node> nodes = xml.get_all_nodes_by_name("TOTAL_ENERGY");
-        if (nodes.size() == 0) {
-          throw 3;
-        }
-        REAL energy = atof(nodes.back().child_value());
-        return energy;
-      } catch (int e) {
-        ERROR("Unable to parse " +directory + "/data-file.xml, it does not contain \"TOTAL ENERGY\" key");
-      }
-  } else if ( (property == "dft_gap") || (property == "gw_gap") ) {
-    REAL bndgap = read_band_gap(directory);
-    return bndgap;
-  }
-  
+    vector<pugi::xml_node> nodes = xml.get_all_nodes_by_name("target");
+    if (nodes.size() == 0) {
+        ERROR("For system " + directory + " no target key");
+    }
+    REAL target = atof(nodes.back().child_value());
+    return target;
 
 }
 REAL CUSTOM::read_band_gap(string prefix) { 
-		string datafile = prefix + "/data-file.xml";
-		int nKpoints, i, nbnd;
-		REAL CBM=9.0e9;
-		REAL VBM=-9.0e-9;
-		REAL tCBM, tVBM, Bandgap;
-		stringstream save_file;
-		this->xml.read(datafile);
-		vector<pugi::xml_node> nodes = xml.get_all_nodes_by_name("NUMBER_OF_K-POINTS");	
-		nKpoints = atoi(nodes.back().child_value());
-		if(nodes.empty()) { cout << "Unable to read K-Points from " << datafile << "\n"; }
-		nodes = xml.get_all_nodes_by_name("NUMBER_OF_BANDS");	
-		if(nodes.empty()) { cout << "Unable to read Number of bands from " << datafile << "\n"; }
-		nbnd = atoi(nodes.back().child_value());	
-		for (i = 1; i <= nKpoints; i++) {
-			if (i < 10) {
-				save_file << prefix << "/K0000" << nKpoints << "/eigenval.xml";		
-			}else if (i < 100) {
-				save_file << prefix << "/K000" << nKpoints << "/eigenval.xml";		
-			}else if (i < 1000) {
-				save_file << prefix << "/K00" << nKpoints << "/eigenval.xml";		
-			}else if (i < 10000) {
-				save_file << prefix << "/K0" << nKpoints << "/eigenval.xml";		
-			}else if (i < 100000) {
-				save_file << prefix << "/K" << nKpoints << "/eigenval.xml";		
-			}
-			read_energies(save_file.str(),nbnd, &tCBM, &tVBM);
-			if (tCBM < CBM) {CBM = tCBM;}
-			if (tVBM > VBM) {VBM = tVBM;}
-			save_file.str("");
-		}	
-		return (CBM - VBM)*27.211396132;
+    return 0.0;
 }
 
 // ########################################################

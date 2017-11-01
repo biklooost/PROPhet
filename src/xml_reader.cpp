@@ -38,6 +38,7 @@
 
 #include "xml_reader.h"
 #include "Error.h"
+#include <sstream>
 
 
 
@@ -89,6 +90,20 @@ void xml_reader::read(string filename) {
   if (!result) {
     ERROR("Could not load \""+filename+"\"");
   }
+  
+}
+
+void xml_reader::read_string(string parse) {
+  
+  pugi::xml_parse_result result = this->doc.load_string(parse.c_str());
+  
+  
+    if (!result){
+        std::stringstream msg;
+        msg << "XML [" << parse << "] parsed with errors, attr value: [" << doc.child("node").attribute("attr").value() << "]\n";
+        msg << "Error description: " << result.description() << "\n";
+        ERROR(msg.str());
+    }
   
 }
 
