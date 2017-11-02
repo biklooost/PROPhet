@@ -79,7 +79,7 @@ Structure CUSTOM::read_structure(string prefix) {
         string ltemp;
         stringstream cstring;
         int id =0;
-        stringstream temp(directory);
+        stringstream temp(prefix);
         temp >> id;
         temp.str("");
         temp.clear();
