@@ -99,15 +99,15 @@ Structure CUSTOM::read_structure(string prefix) {
         stringstream tvector,tcord;
         REAL tnumber;
         pugi::xml_node lattice = xml.get_node_by_name("lattice");
-        tvector << string(lattice.child("a1").child_value());
+        tvector << string(lattice.child("a").child_value());
         while (tvector >> tnumber) { temps.a.push_back(tnumber); }
 	tvector.str("");
 	tvector.clear();
-        tvector << string(lattice.child("a2").child_value());
+        tvector << string(lattice.child("b").child_value());
         while (tvector >> tnumber) { temps.b.push_back(tnumber); }
 	tvector.str("");
 	tvector.clear();
-        tvector << string(lattice.child("a3").child_value());
+        tvector << string(lattice.child("c").child_value());
         while (tvector >> tnumber) { temps.c.push_back(tnumber); }  
 	tvector.str("");
 	tvector.clear();
