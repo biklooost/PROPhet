@@ -454,27 +454,6 @@ void Setup::read_input (string filename) {
         
        Line >> real_value;
        F.my_dropoutP = real_value;
-        
-
-   /* } else if (key == "nsys") {
-        
-        Line >> int_value; 
-        if (Rcut_max) { F.Rcut(Rcut_max); }
-        for (int isys = 0; isys < int_value; isys++) {
-            map<string,string> new_system;
-            ostringstream t;
-            t << isys;
-            new_system.insert(pair<string,string>("base",t.str()));
-            for (map<string,string>::iterator it=property_map.begin(); it!=property_map.end(); ++it) {
-                if (!it->first.compare("code")) {
-                    new_system.insert(pair<string,string>(it->first,it->second));
-                } else {
-                    new_system.insert(pair<string,string>(it->first,new_system["base"]+"/"+it->second));
-                }
-            }
-            this->systems.push_back(new_system);  
-        }
-         */
 
     } else {
       
@@ -486,8 +465,15 @@ void Setup::read_input (string filename) {
       if (Rcut_max) { F.Rcut(Rcut_max); }
 
       map<string,string> new_system;
+      while (Line >> string_value) { }
+      string train;
+      if (string_value == "train" || string_value == "val" || string_value == "test") {
+          train = string_value;
+      } else { train = "train"; }
+      
       
       new_system.insert(pair<string,string>("base",KEY));
+      new_system.insert(pair<string,string>("train",train));
       for (map<string,string>::iterator it=property_map.begin(); it!=property_map.end(); ++it) {
         if (!it->first.compare("code")) {
           new_system.insert(pair<string,string>(it->first,it->second));
