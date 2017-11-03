@@ -288,6 +288,11 @@ void Setup::read_input (string filename) {
 	F.my_output_precondition = true;
       }
       
+    } else if (key == "print_gvector" || key == "print_gvectors"){
+        Line >> string_value;
+        if (string_value == "true" || string_value == "t" || string_value == "1") {
+            F.my_printgvectors = true;
+        }
     }else if (key == "network_type") {
       
       Line >> string_value;

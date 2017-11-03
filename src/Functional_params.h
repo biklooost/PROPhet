@@ -179,6 +179,7 @@ class Functional_params {
   inline REAL dropout() { return my_dropoutP; }
   inline int Nconv() { return my_conv; }
   inline int Nconv_stride() { return my_conv_stride;}
+  inline bool PGvectors() { return my_printgvectors; }
   
   vector<vector<REAL> >  G1;
   vector<vector<REAL> >  G2;
@@ -262,9 +263,13 @@ class Functional_params {
   int my_Nradial;
   int my_Nangular;
   std::map<string,REAL> my_FE;
+  //Printing the g-vectors to *.gvector files
+  bool my_printgvectors;
   
   int my_conv;
   int my_conv_stride;
+  
+  
 };
 
 #endif

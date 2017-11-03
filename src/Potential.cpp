@@ -104,6 +104,7 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
     }
 
     if (!systems[0]->structure.is_initialized()) {
+        if (params.PGvectors()) {
         stringstream ss; 
         ss << mpi->rank() << ".gvector";
         ofstream gvectors;
@@ -111,9 +112,7 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
         for (int i_sys=0; i_sys<systems.size(); i_sys++) {
           systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
           for (int i_v=0; i_v < systems[i_sys]->structure.G[0].size(); i_v++) {
-              //cout << i_sys << endl;
               for(int j_v=0; j_v < systems[i_sys]->structure.G.size(); j_v ++){
-                  //cout << systems[i_sys]->structure.G.size() << " " << systems[i_sys]->structure.G[i_v].size() << endl;
                   gvectors << systems[i_sys]->structure.G[j_v][i_v] << ",";
               }
               gvectors << "\n";
@@ -121,17 +120,13 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
           gvectors << "\n";
         }
         gvectors.close();
+        } else {
+            for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+                systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
+            }   
+        }
     }
 
-    /*
-    for (int i_ = 0; i_ < g_vectors.size() ; i_++) {
-        for (int j = 0; j < g_vectors.at(i_).size(); j++) {
-            gvectors << &g_vectors[i_][j] << ",";
-        }
-        gvectors << "\n";
-    }
-    gvectors.close();
-    */
     params.current_atom_type = atom.atomic_symbol();
     
     if (params.Network_type() == "neural_network" || params.Network_type() == "nn") {
@@ -171,12 +166,7 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
   }
   
   this->output_mean = params.output_mean;
-  
-  if (!F_in.SGD()){
-      for(int i = 0; i < this->systems.size(); i++){
-          this->training_set.push_back(i);
-      }
-  }
+ 
 
 }
 
@@ -550,29 +540,29 @@ REAL Potential::train() {
     REAL SSE = 0;
     gradient.assign(Ntotal_params, 0.0);
     
-    //for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-    for (int jj = 0; jj<this->training_set.size(); jj++) {
-      i_sys = this->training_set[jj];  
-      output = 0;
-      for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
-	output += nets[systems[i_sys]->structure.types[atom].atomic_number()]->train_MD(i_sys);
-      }
-      
-      Error = (output + output_mean) - systems[i_sys]->properties.target();
-      SSE += Error*Error;
+    for (int i_sys=0; i_sys<systems.size(); i_sys++) {  
+        if (systems[i_sys]->train == "train") {  
+            output = 0;
+            for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
+              output += nets[systems[i_sys]->structure.types[atom].atomic_number()]->train_MD(i_sys);
+            }
 
-      vector<REAL>::iterator vect_it;
-      
-      for (map<int,Network*>::iterator it=nets.begin(); it != nets.end(); ++it) {
-	const vector<REAL> temp_grad = it->second->get_gradient();
-	vect_it = indices[it->first];
-	for (int i=0; i<temp_grad.size(); i++) {
-	  (*vect_it) += 2*Error*temp_grad[i];
-	  ++vect_it;
-	}
-	
-      }
-      
+            Error = (output + output_mean) - systems[i_sys]->properties.target();
+            SSE += Error*Error;
+
+            vector<REAL>::iterator vect_it;
+
+            for (map<int,Network*>::iterator it=nets.begin(); it != nets.end(); ++it) {
+              const vector<REAL> temp_grad = it->second->get_gradient();
+              vect_it = indices[it->first];
+              for (int i=0; i<temp_grad.size(); i++) {
+                (*vect_it) += 2*Error*temp_grad[i];
+                ++vect_it;
+              }
+
+            }
+        } 
+        
     }
     
     opt->update_network(SSE, gradient);
@@ -876,6 +866,7 @@ void Potential::validate() {
 
   vector<REAL> my_outputs(systems.size(), 0.0);
   vector<REAL> unraveled(systems.size(),0.0);
+  vector<int> train_flag (systems.size(),1);
   map<string,REAL> FE = params.FE();
   bool unrav = !FE.empty();
   this->syncronize();
@@ -883,6 +874,9 @@ void Potential::validate() {
   for (int i_sys=0; i_sys<systems.size(); i_sys++) {
     for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
       my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(i_sys);
+      if (systems[i_sys]->train == "train"){
+        train_flag[i_sys] = 1;
+      } else { train_flag[i_sys] = 0; }
     }
     nat.at(i_sys) = systems[i_sys]->structure.Natom;
     if (unrav) {
@@ -906,6 +900,7 @@ void Potential::validate() {
   unraveled = mpi->Gatherv(unraveled);
   targets = mpi->Gatherv(targets);
   nat = mpi->Gatherv(nat);
+  train_flag = mpi->Gatherv(train_flag);
   double SSE = 0.0;
   int count = 0;
 
@@ -918,9 +913,9 @@ void Potential::validate() {
     }else {
      */
         //cout << "System         Prediction       Target       Natom"<<endl;
-        cout << "System" << setw(20) << "Prediction" << setw(20) << "Target" << setw(20)<< "Natom"<<endl;
+        cout << "System" << setw(20) << "Prediction" << setw(15) << "Target" << setw(18)<< "Natom"<< setw(15) << "Train" << endl ;
         //cout << "--------------------------------------------------"<<endl;
-        cout << setfill('-') << setw(67)<< "-" << setfill(' ') << endl;
+        cout << setfill('-') << setw(80)<< "-" << setfill(' ') << endl;
     //}
     REAL Error, min_E = 9e9, max_E = 0.0;
     int Nroot = my_outputs.size(), count=1;  
@@ -937,7 +932,9 @@ void Potential::validate() {
         Error = unraveled.at(index) - unTargets.at(index);
         SSE += pow(Error,2);
       }else {
-        cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) << "      " << nat.at(index) <<  endl;
+          string t = train_flag.at(index) == 1 ? "train" : "val";
+        //cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) << "      " << nat.at(index) << "      " << t <<  endl;
+          cout << setw(4) << count++ << setw(22) <<output.at(index)+output_mean << setw(20) <<targets.at(index) << setw(14) << nat.at(index) << setw(14) << t <<  endl;
         Error = output.at(index)+output_mean - targets.at(index);
         SSE += pow(Error,2);
       }
@@ -1127,7 +1124,7 @@ void Potential::insert_atom_type(int atom_number, char* filename, System* system
 //                      GET_TRAINING_SET
 // ########################################################
 // This splits the data in the case of SVD flag
-
+/*
 void Potential::get_training_set() {
     if (this->params.SGD()) {
         this->training_set.clear();
@@ -1135,7 +1132,7 @@ void Potential::get_training_set() {
             this->training_set.push_back(rand() % this->Nsystems);
         }
     }
-}
+}*/
 // ########################################################
 // ########################################################
 

@@ -99,6 +99,12 @@ Structure CUSTOM::read_structure(string prefix) {
         stringstream tvector,tcord;
         REAL tnumber;
         pugi::xml_node lattice = xml.get_node_by_name("lattice");
+        vector <pugi::xml_node> train = xml.get_all_nodes_by_name("train");
+        if (train.size() > 0) {
+            temps.train = string(train.back().child_value());
+        } else { temps.train = "train"; }
+        //cout << temps.train << endl;
+           
         tvector << string(lattice.child("a").child_value());
         while (tvector >> tnumber) { temps.a.push_back(tnumber); }
 	tvector.str("");

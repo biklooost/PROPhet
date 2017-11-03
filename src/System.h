@@ -53,17 +53,17 @@ using namespace std;
 class System {
   
 public:
+    System(map<string,string> files, Functional_params* F);
+    System();
+    ~System();
   
-  System(map<string,string> files, Functional_params* F);
-  System();
-  ~System();
-  
-  System_data properties;
+    System_data properties;
 
-  REAL Prefactor;
+    REAL Prefactor;
   
-  Structure structure;
-
+    Structure structure;
+    string train;
+  
  private:
   
   Grid_data Density;
@@ -72,6 +72,7 @@ public:
   vector<REAL> GW_gap;
   vector<REAL> DFT_gap;
   vector<REAL> volume;
+  
 
   string directory;
   

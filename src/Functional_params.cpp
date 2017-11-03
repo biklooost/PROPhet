@@ -97,6 +97,8 @@ Functional_params::Functional_params() {
   
   this->my_conv = 250; //This needs to just be some large number
   this->my_conv_stride = 1;
+  
+  this->my_printgvectors = false;
 }
 
 // ########################################################

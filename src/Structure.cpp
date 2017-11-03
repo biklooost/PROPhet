@@ -77,6 +77,7 @@ Structure::Structure() {
  
   is_MD = false;
   this->NORM = false;
+  this->train = "train";
   
 }
 

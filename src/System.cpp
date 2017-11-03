@@ -51,6 +51,7 @@
 System::System(map<string,string> files, Functional_params *F) {
   
   DFT_IO *DFT;
+  this->train = "train";
   
   this->Prefactor = 1.0;
   
@@ -104,6 +105,8 @@ System::System(map<string,string> files, Functional_params *F) {
       properties.push_back(&data[input]);
     } else if (input == "structure") {
       this->structure = DFT->read_structure(files["structure"]);
+      train = this->structure.train;
+      //cout << this->train << endl; 
       properties.lock(true);
     } else if (input == "random") {
       data.insert(pair<string,vector<REAL> >(input, vector<REAL>(1,RAND::Uniform())));

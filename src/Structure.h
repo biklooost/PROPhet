@@ -102,6 +102,8 @@ class Structure {
 	
         bool CART;
         bool NORM;
+        
+        string train;
 
     protected:
 	int my_NG;
