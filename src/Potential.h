@@ -90,6 +90,9 @@ class Potential {
   Optimizer* opt;
   
   int Nsystems;
+  int Ntrain;
+  int Nval;
+  int Nother;
   
   vector<int> training_set;
 

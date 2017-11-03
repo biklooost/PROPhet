@@ -60,6 +60,9 @@
 Potential::Potential(vector<System*> systems_in, Functional_params F_in) : systems(systems_in),params(F_in) {
 
   mpi = new Parallel;
+  this->Nother = 0;
+  this->Ntrain = 0;
+  this->Nval = 0;
 
   this->atom_types = this->get_all_atom_types();
 
@@ -74,74 +77,94 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
       cout << "Reading from checkpoint files:" <<endl <<endl;
   }
   for (int i=0; i<atom_types.size(); i++) {
-    string filename;
-    Atom atom(atom_types[i]);
-    if (!F_in.input_file().empty()) {
-      ifstream file;
-      filename = params.input_file() + "_" + atom.atomic_symbol();
-      file.open(filename.c_str());
-      if (!file.is_open()) { ERROR("Found atom type "+atom.atomic_symbol()+" but could not open restart file '"+filename+"'"); }
-      if (mpi->io_node()) { 
-	cout << "Reading parameters for "+atom.atomic_symbol()+" from file '"+filename+"'"<<endl;
-      }
-      
-      params.read(file);
+        string filename;
+        Atom atom(atom_types[i]);
+        if (!F_in.input_file().empty()) {
+          ifstream file;
+          filename = params.input_file() + "_" + atom.atomic_symbol();
+          file.open(filename.c_str());
+          if (!file.is_open()) { ERROR("Found atom type "+atom.atomic_symbol()+" but could not open restart file '"+filename+"'"); }
+          if (mpi->io_node()) { 
+            cout << "Reading parameters for "+atom.atomic_symbol()+" from file '"+filename+"'"<<endl;
+          }
 
-      if (mpi->io_node()) {
-	cout << "Hidden layers :  ";
-	for (int layer=0; layer<params.Nlayers(); layer++) {
-	  cout << params.NNodes(layer)<<"  ";
-	}
-        cout << endl;
-        map<string,REAL> FE = params.FE();
-        if(!FE.empty()) {
-            cout.precision(9);
-            cout << params.current_atom_type << " Free Energy : " << FE[params.current_atom_type] << endl;
-            cout.precision(6);
+          params.read(file);
+
+          if (mpi->io_node()) {
+            cout << "Hidden layers :  ";
+            for (int layer=0; layer<params.Nlayers(); layer++) {
+              cout << params.NNodes(layer)<<"  ";
+            }
+            cout << endl;
+            map<string,REAL> FE = params.FE();
+            if(!FE.empty()) {
+                cout.precision(9);
+                cout << params.current_atom_type << " Free Energy : " << FE[params.current_atom_type] << endl;
+                cout.precision(6);
+            }
+            cout << endl;
+          }
         }
-        cout << endl;
-      }
-    }
 
-    if (!systems[0]->structure.is_initialized()) {
-        if (params.PGvectors()) {
-        stringstream ss; 
-        ss << mpi->rank() << ".gvector";
-        ofstream gvectors;
-        gvectors.open(ss.str().c_str());
-        for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-          systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
-          for (int i_v=0; i_v < systems[i_sys]->structure.G[0].size(); i_v++) {
-              for(int j_v=0; j_v < systems[i_sys]->structure.G.size(); j_v ++){
-                  gvectors << systems[i_sys]->structure.G[j_v][i_v] << ",";
+        if (!systems[0]->structure.is_initialized()) {
+            if (params.PGvectors()) {
+            stringstream ss; 
+            ss << mpi->rank() << ".gvector";
+            ofstream gvectors;
+            gvectors.open(ss.str().c_str());
+            for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+              systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
+              for (int i_v=0; i_v < systems[i_sys]->structure.G[0].size(); i_v++) {
+                  for(int j_v=0; j_v < systems[i_sys]->structure.G.size(); j_v ++){
+                      gvectors << systems[i_sys]->structure.G[j_v][i_v] << ",";
+                  }
+                  gvectors << "\n";
               }
               gvectors << "\n";
-          }
-          gvectors << "\n";
-        }
-        gvectors.close();
-        } else {
-            for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-                systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
-            }   
-        }
-    }
+              if (systems[i_sys]->structure.train == "train") {
+                  this->Ntrain += 1;
+              } else if (systems[i_sys]->structure.train == "val") {
+                  this->Nval += 1;
+              } else { this->Nother += 1; }
+            }
+            gvectors.close();
 
-    params.current_atom_type = atom.atomic_symbol();
-    
-    if (params.Network_type() == "neural_network" || params.Network_type() == "nn") {
-      nets.insert(pair<int, Network*>(atom_types[i], new Neural_network(systems, params)));
-    } else if (params.Network_type() == "network_functions" || params.Network_type() == "nf") {
-      nets.insert(pair<int, Network*>(atom_types[i], new Network_function(systems, params)));
+            } else {
+                for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+                    systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
+                    if (systems[i_sys]->structure.train == "train") {
+                        this->Ntrain += 1;
+                    } else if (systems[i_sys]->structure.train == "val") {
+                        this->Nval += 1;
+                    } else { this->Nother += 1; }
+                }   
+            }
+        }
+
+
+        params.current_atom_type = atom.atomic_symbol();
+
+        if (params.Network_type() == "neural_network" || params.Network_type() == "nn") {
+          nets.insert(pair<int, Network*>(atom_types[i], new Neural_network(systems, params)));
+        } else if (params.Network_type() == "network_functions" || params.Network_type() == "nf") {
+          nets.insert(pair<int, Network*>(atom_types[i], new Network_function(systems, params)));
+        }
+        if (!F_in.input_file().empty()) {
+          ifstream file;
+          file.open(filename.c_str());
+          if (!file.is_open()) { ERROR("Could not open network restart file '"+filename+"'"); }
+          nets[atom_types[i]]->load(file);
+        }
+        Ntotal_params += nets[atom_types[i]]->Nparameters();
     }
-    if (!F_in.input_file().empty()) {
-      ifstream file;
-      file.open(filename.c_str());
-      if (!file.is_open()) { ERROR("Could not open network restart file '"+filename+"'"); }
-      nets[atom_types[i]]->load(file);
+    this->Ntrain = mpi->Reduce(this->Ntrain, MPI_SUM);
+    this->Nval = mpi->Reduce(this->Nval, MPI_SUM);
+    this->Nother = mpi->Reduce(this->Nother, MPI_SUM);
+
+    if (mpi->io_node()) {
+        cout << "Data Info: \n";
+        cout << "Train: " << this->Ntrain << " Val: " << this->Nval << " Other: " << this->Nother << endl << endl;
     }
-    Ntotal_params += nets[atom_types[i]]->Nparameters();
-  }
 //  if(!F_in.input_file().empty() && mpi->io_node()){
 //      cout << "############" << endl << endl;
 //  } 
@@ -156,7 +179,8 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
   
   if (mpi->io_node()) {
 
-    double ratio = (double)Nsystems/Ntotal_params;
+    //double ratio = (double)Nsystems/Ntotal_params;
+    double ratio = (double)Ntrain/Ntotal_params;
     if (ratio <= 1) {
       cout << "<< WARNING >> ";
     }
@@ -561,7 +585,7 @@ REAL Potential::train() {
               }
 
             }
-        } 
+        }
         
     }
     
