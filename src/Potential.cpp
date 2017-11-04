@@ -121,9 +121,9 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
                   gvectors << "\n";
               }
               gvectors << "\n";
-              if (systems[i_sys]->structure.train == "train") {
+              if (systems[i_sys]->train == "train") {
                   this->Ntrain += 1;
-              } else if (systems[i_sys]->structure.train == "val") {
+              } else if (systems[i_sys]->train == "val") {
                   this->Nval += 1;
               } else { this->Nother += 1; }
             }
@@ -132,9 +132,9 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
             } else {
                 for (int i_sys=0; i_sys<systems.size(); i_sys++) {
                     systems[i_sys]->properties.set_inputs(systems[i_sys]->structure.init_G(&params));
-                    if (systems[i_sys]->structure.train == "train") {
+                    if (systems[i_sys]->train == "train") {
                         this->Ntrain += 1;
-                    } else if (systems[i_sys]->structure.train == "val") {
+                    } else if (systems[i_sys]->train == "val") {
                         this->Nval += 1;
                     } else { this->Nother += 1; }
                 }   
