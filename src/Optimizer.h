@@ -96,7 +96,14 @@ class Optimizer {
   inline REAL dphi_dt() { return my_dphi_dt; }
 
   inline REAL get_error() { return Errors.back(); }
-  
+  //routines for early stopping/val SEE
+  inline void set_early_stop(bool early_stop) {
+   this->early_stop = early_stop;      
+  }
+  inline void set_val_sse(REAL SEE, int nval) {
+      this->SSE_val = SEE; 
+      this->nval = nval;
+  }
  private:
   
   
@@ -105,6 +112,11 @@ class Optimizer {
   vector<vector<Network_node*> > *nodes;
   Parallel *mpi; 
   Functional_params F_params;
+  
+  //functions for early stopping
+  bool early_stop; 
+  REAL SSE_val;
+  int nval;
  
 
   REAL line_min_threshold;

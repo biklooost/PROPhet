@@ -94,6 +94,8 @@ class Potential {
   int Nval;
   int Nother;
   
+  bool early_stop;
+  
   vector<int> training_set;
 
   REAL output_mean;

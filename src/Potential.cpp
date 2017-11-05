@@ -63,6 +63,7 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
   this->Nother = 0;
   this->Ntrain = 0;
   this->Nval = 0;
+  this->early_stop = false;
 
   this->atom_types = this->get_all_atom_types();
 
@@ -160,6 +161,10 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
     this->Ntrain = mpi->Reduce(this->Ntrain, MPI_SUM);
     this->Nval = mpi->Reduce(this->Nval, MPI_SUM);
     this->Nother = mpi->Reduce(this->Nother, MPI_SUM);
+    
+    if (this->Nval > 0) {
+        this->early_stop = true;
+    }
 
     if (mpi->io_node()) {
         cout << "Data Info: \n";
@@ -551,7 +556,9 @@ void Potential::init_optimizer() {
 REAL Potential::train() {
   
   this->Precondition();
-  opt = new Optimizer(mpi,params,Nsystems);
+  //opt = new Optimizer(mpi,params,Nsystems);
+  opt = new Optimizer(mpi,params,Ntrain);
+  opt->set_early_stop(this->early_stop);
   init_optimizer();  
   
   REAL Error;
@@ -562,6 +569,7 @@ REAL Potential::train() {
   while (!opt->is_converged()) {
     
     REAL SSE = 0;
+    REAL vSSE = 0;
     gradient.assign(Ntotal_params, 0.0);
     
     for (int i_sys=0; i_sys<systems.size(); i_sys++) {  
@@ -585,11 +593,22 @@ REAL Potential::train() {
               }
 
             }
+        } else if (systems[i_sys]->train == "val") {
+            output = 0;
+            for (int atom = 0; atom < systems[i_sys]->structure.Natom; atom++) {
+                output += nets[systems[i_sys]->structure.types[atom].atomic_number()]->train_MD(i_sys);
+            }
+
+            Error = (output + output_mean) - systems[i_sys]->properties.target();
+            vSSE += Error*Error;            
         }
         
     }
-    
+    if (this->early_stop) {
+        opt->set_val_sse(vSSE,Nval);
+    }    
     opt->update_network(SSE, gradient);
+
     
     if (opt->is_checkpoint()) {
       this->save();

@@ -233,8 +233,13 @@ void Optimizer::init(vector<vector<Network_node*> > *in_nodes) {
 void Optimizer::internal_init() {
   
   if (mpi->io_node()) {
-    cout << "Iteration    \u0190 = \u03A3(E\u00b2)       |\u2207\u0190|"<<endl;
-    cout << "-------------------------------------" << endl;
+      if (this->early_stop) {
+        cout << "Iteration    \u0190_train = \u03A3(E\u00b2)    \u0190_val = \u03A3(E\u00b2)       |\u2207\u0190|"<<endl;
+        cout << "-------------------------------------------------------------" << endl;
+      } else {
+        cout << "Iteration    \u0190 = \u03A3(E\u00b2)       |\u2207\u0190|"<<endl;
+        cout << "-------------------------------------" << endl;          
+      }
   }
   
   this->iteration_counter = 1;
@@ -929,14 +934,28 @@ void Optimizer::update_network(REAL Error, vector<REAL> grad, REAL SSE) {
   
   if (do_print) {
     if (mpi->io_node()) {
+        REAL sse_val;
+        if (this->early_stop) {
+            nval = mpi->Reduce(nval,MPI_SUM);
+            SSE_val = mpi->Reduce(SSE_val,MPI_SUM);
+            sse_val = sqrt(SSE_val/nval);
+        }
       if (this->line_min) {
 
         if ( !(iteration_counter % F_params.Nprint()) || my_is_converged){
-  #ifdef USE_LONG_DOUBLE
-          printf("%-9d %#13.6Le %#13.6Le\n",iteration_counter++,sqrt(SSE),norm);
-  #else
-          printf("%-9d %#13.6e %#13.6e\n",iteration_counter++,sqrt(SSE),norm);
-  #endif
+            if (! this->early_stop){
+                #ifdef USE_LONG_DOUBLE
+                        printf("%-9d %#13.6Le %#13.6Le\n",iteration_counter++,sqrt(SSE),norm);
+                #else
+                        printf("%-9d %#13.6e %#13.6e\n",iteration_counter++,sqrt(SSE),norm);
+                #endif
+            } else {
+                #ifdef USE_LONG_DOUBLE
+                        printf("%-9d %#13.6Le %#13.6Le %#13.6Le\n",iteration_counter++,sqrt(SSE),sse_val,norm);
+                #else
+                        printf("%-12d %#13.6e    %#13.6e    %#13.6e\n",iteration_counter++,sqrt(SSE),sse_val,norm);
+                #endif                
+            }
         } else {
           iteration_counter++;
         }
