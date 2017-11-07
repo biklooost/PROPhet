@@ -377,11 +377,13 @@ void Potential::Precondition() {
     
     
     for (int system=0; system<systems.size(); system++) {
-      vector<REAL> temp_means = systems[system]->structure.mean(type);
-      count += systems[system]->structure.count(type);
-      for (int i=0; i<temp_means.size(); i++) {
-	means[i] += temp_means[i];
-      }
+        if (systems[system]->train == "train") {
+            vector<REAL> temp_means = systems[system]->structure.mean(type);
+            count += systems[system]->structure.count(type);
+            for (int i=0; i<temp_means.size(); i++) {
+              means[i] += temp_means[i];
+            }
+        }
     }
     
     
@@ -398,10 +400,12 @@ void Potential::Precondition() {
     
     variances.assign(systems[0]->structure.NG(),0.0);
     for (int system=0; system<systems.size(); system++) {
-      vector<REAL> temp_variances = systems[system]->structure.variance(type, means);
-      for (int i=0; i<temp_variances.size(); i++) {
-	variances[i] += temp_variances[i];
-      }
+        if (systems[system]->train == "train") {
+            vector<REAL> temp_variances = systems[system]->structure.variance(type, means);
+            for (int i=0; i<temp_variances.size(); i++) {
+              variances[i] += temp_variances[i];
+            }
+        }
     }
     variances = mpi->Reduce(variances, MPI_SUM);
     if (mpi->rank() == 0 && count != 0) {
@@ -420,7 +424,14 @@ void Potential::Precondition() {
   if ( params.output_precondition() ) {
     
     // Precondition the network outputs
-    vector<REAL> targets = nets.begin()->second->get_targets();
+    //vector<REAL> targets = nets.begin()->second->get_targets();
+    //systems[0]->properties->target()
+      vector<REAL> targets;
+      for(int i=0 ; i < systems.size(); i++){
+          if (systems[i]->train == "train") {
+            targets.push_back(systems[i]->properties.target());
+          }
+      }
     targets = mpi->Gatherv(targets);
     
     this->output_mean = 0;
