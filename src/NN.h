@@ -89,7 +89,7 @@ class Neural_network : public Network {
   inline virtual void set_variances(vector<REAL> variances) { params.input_variance = variances; }
   inline virtual bool is_preconditioned() { return params.input_mean.size(); }
 
-virtual vector<REAL> variance(vector<REAL> means);
+  virtual vector<REAL> variance(vector<REAL> means);
   virtual void Normalize(vector<REAL> means, vector<REAL> variances);
   inline virtual vector<REAL> get_targets() {
     vector<REAL> targets;

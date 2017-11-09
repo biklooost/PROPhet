@@ -94,7 +94,10 @@ System::System(map<string,string> files, Functional_params *F) {
       Prefactor *= Density.get_dV();
       if (F->output_is_intensive()) {
 	Prefactor /= Density.volume;
-      } 
+      }
+      if(Density.train != "") {
+          this->train = Density.train;
+      }
     } else if (input == "density^2") {
       
       //Not implemented 
@@ -125,8 +128,12 @@ System::System(map<string,string> files, Functional_params *F) {
       REAL GW_gap = DFT->get_property("gw_gap",files["gw_gap"]);
       properties.target(GW_gap);
   } else if (F->output().find("user")==0) {
-    int prop = atoi(F->output().substr(4).c_str());
-    properties.target(DFT->get_user_property(prop, files["user"]).at(0));
+      if (files["code"] == "prophet") {
+          properties.target(DFT->get_property("user","user"));
+      }else {
+        int prop = atoi(F->output().substr(4).c_str());
+        properties.target(DFT->get_user_property(prop, files["user"]).at(0));
+      }
   } else if (F->output() == "energy") {
       REAL energy = DFT->get_property(F->output(), files[F->output()]);;
       if (!F->FE().empty() || !this->structure.FE.empty()){

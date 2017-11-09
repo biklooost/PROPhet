@@ -49,7 +49,10 @@
 // ########################################################
 //
 
-CUSTOM::CUSTOM() { }
+CUSTOM::CUSTOM() {
+    this->xml_process = false;
+
+}
 
 // ########################################################
 // ########################################################
@@ -61,7 +64,9 @@ CUSTOM::CUSTOM() { }
 // ########################################################
 //
 
-CUSTOM::~CUSTOM() { }
+CUSTOM::~CUSTOM() { 
+
+}
 
 // ########################################################
 // ########################################################
@@ -72,6 +77,7 @@ CUSTOM::~CUSTOM() { }
 // Reads the structure from a Quantum Espresso run.
 
 Structure CUSTOM::read_structure(string prefix) { 
+    if (this->xml_process == false) {
 	Structure temps;
 	temps.CART = true;
 	temps.periodic = true;
@@ -134,7 +140,12 @@ Structure CUSTOM::read_structure(string prefix) {
 		tcord.str("");
 		tcord.clear();
         }
+        this->xml_process = true;
+        this->xstruct = temps;
 	return temps;
+    } else {
+        return this->xstruct;
+    }
 }
 REAL CUSTOM::get_property(string property,string directory) { 
 
@@ -162,8 +173,49 @@ REAL CUSTOM::read_band_gap(string prefix) {
 // Reads the charge density from a Quantum Espresso run.
 
 Grid_data CUSTOM::get_density(string prefix, int step) { 
-    Grid_data x;
-    return x;
+    if (this->xml_process == false) {
+        Structure x = this->read_structure(prefix);
+        this->xstruct = x;
+        this->xml_process = true;
+    }
+    vector<pugi::xml_node> nodes = xml.get_all_nodes_by_name("charge-density");
+    if (nodes.size() == 0) {
+        ERROR("For system " + prefix + " charge density tag");
+    }    
+    string chd = nodes.back().child_value();
+    Grid_data grid, downsample;
+    int natom;
+    string token;
+    grid.a = 1;
+    this->open(chd);
+    this->skip_lines(2);
+    this->get_line();
+    Line >> natom;
+    this->get_line();
+    Line >> grid.Nx() >> grid.v1[0] >> grid.v1[1] >> grid.v1[2];
+    this->get_line();
+    Line >> grid.Ny() >> grid.v2[0] >> grid.v2[1] >> grid.v2[2];
+    this->get_line();
+    Line >> grid.Nz() >> grid.v3[0] >> grid.v3[1] >> grid.v3[2];
+    for(int i = 0; i<3; i++) {
+        grid.v1[i] *= grid.Nx();
+        grid.v2[i] *= grid.Ny();
+        grid.v3[i] *= grid.Nz();
+    }
+    this->skip_lines(natom);
+    do{
+      this->get_line();
+      while(getline(this->Line,token,' ')) {
+        if(token == "") { 
+          continue;
+            }else{
+              grid.push_back(atof(token.c_str()));
+        }
+      }
+    }while(!this->file.eof());
+    grid.set_dV();
+    grid.train = this->xstruct.train;
+    return grid;
 }
 
 // ########################################################

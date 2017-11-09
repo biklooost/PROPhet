@@ -60,6 +60,9 @@ class xml_reader {
   
   void read(string filename);
   void read_string(string parse);
+  inline void print() {
+      this->doc.save(std::cout, "", pugi::format_raw);
+  }
   
  private:
   

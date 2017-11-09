@@ -62,6 +62,8 @@ Grid_data::Grid_data() {
     v3.push_back(0.0);
   }
   
+  this->train = "";
+  
 
 }
 

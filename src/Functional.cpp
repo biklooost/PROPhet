@@ -49,7 +49,7 @@
 // ########################################################
 //
 
-Functional::Functional(const vector<System*> &systems, Functional_params F_in) : params(F_in) { 
+Functional::Functional(const vector<System*> &systems_in, Functional_params F_in) : systems(systems_in), params(F_in) { 
   
   if (params.Network_type() == "neural_network" || params.Network_type() == "nn") {
     
@@ -66,19 +66,41 @@ Functional::Functional(const vector<System*> &systems, Functional_params F_in) :
   }
   
   mpi = new Parallel;
+  this->early_stop = false;
   
   if (!F_in.input_file().empty()) {
     this->load(F_in.input_file());
   }
-  
+  this->Nval = 0;
+  this->Ntrain = 0;
+  this->Nother = 0;
+  for (int i = 0; i < systems.size(); i++) {
+      if(systems[i]->train == "train") {
+          this->Ntrain++;
+      } else if (systems[i]->train == "val") {
+          this->Nval++;
+      } else {
+          this->Nother++;
+      }
+      
+  }
   this->Nsystems = mpi->Reduce(systems.size(), MPI_SUM);
+  this->Ntrain = mpi->Reduce(this->Ntrain,MPI_SUM);
+  this->Nval = mpi->Reduce(this->Nval,MPI_SUM);
+  this->Nother = mpi->Reduce(this->Nother,MPI_SUM);
+    if (this->Nval > 0) {
+        this->early_stop = true;
+    }
   int Ntotal_params = this->net->Nparameters();
-  REAL ratio = (REAL)this->Nsystems/(REAL)Ntotal_params;
+  //REAL ratio = (REAL)this->Nsystems/(REAL)Ntotal_params;
+  REAL ratio = (REAL)this->Ntrain/(REAL)Ntotal_params;
   if (mpi->io_node()) {
+    cout << "Data Info: \n";
+    cout << "Train: " << this->Ntrain << " Val: " << this->Nval << " Other: " << this->Nother << endl << endl;
     if (ratio <= 1) {
         cout << "<< WARNING >> ";
     }
-    cout << "Ratio of training data to parameters =  "<< (REAL)this->Nsystems/Ntotal_params << endl << endl;
+    cout << "Ratio of training data to parameters =  "<< (REAL)this->Ntrain/Ntotal_params << endl << endl;
   }
 
   
@@ -174,7 +196,13 @@ void Functional::Normalize_data(vector<REAL> in_mean, vector<REAL> in_variance) 
 
   if (params.output_precondition() ) {
     // Precondition the network outputs                                                                              
-    vector<REAL> targets = net->get_targets();
+    //vector<REAL> targets = net->get_targets();
+      vector<REAL> targets;
+      for (int i = 0; i <systems.size(); i++) {
+          if (systems.at(i)->train == "train") {
+              targets.push_back(systems.at(i)->properties.target());
+          }
+      }
     targets = mpi->Gatherv(targets);
     
     output_mean = 0;
@@ -230,6 +258,7 @@ void Functional::train() {
   opt->set_threshold(params.threshold());
   opt->set_debug(params.debug());
   opt->set_Nbackup(params.Nbackup());
+  opt->set_early_stop(this->early_stop);
   
   
   net->attach_optimizer(opt);
@@ -318,6 +347,18 @@ void Functional::validate() {
   vector<REAL> output = net->evaluate();
   int Nroot = output.size();
   output = mpi->Gatherv(output);
+    vector<int> train_flag (systems.size(),0);
+    for (int i = 0; i < systems.size(); i++) {
+        if (systems.at(i)->train == "val") {
+            train_flag.at(i) = 1;
+        } else if (systems.at(i)->train == "train") { 
+            train_flag.at(i) = 0; 
+        }else if (systems.at(i)->train == "test") {
+            train_flag.at(i) = 2;
+        } else {
+            train_flag.at(i) = 3;
+        }
+    }
 
   vector<REAL> my_targets = net->get_targets();
   vector<REAL> targets = mpi->Gatherv(my_targets);
@@ -327,17 +368,22 @@ void Functional::validate() {
   
   if (mpi->io_node()) {
     cout << endl;
-    cout << "System         Prediction       Target"<<endl;
-    cout << "-----------------------------------------"<<endl;
+    //cout << "System         Prediction       Target"<<endl;
+    cout << "System" << setw(20) << "Prediction" << setw(15) << "Target" << setw(15) << "Train" << endl ;
+    cout << "--------------------------------------------------------"<<endl;
     
     REAL min_E = 9e9, max_E = -9e9, Error;
     create_system_map();
 
     for (int i=0; i<system_map.size(); i++) {
       int index = system_map[i];
+      string t_train = train_flag.at(index) == 0 ? "train" 
+              : train_flag.at(index) == 1 ? "val" 
+              : train_flag.at(index) == 2 ? "test"
+              : "other";
       
       cout << setprecision(10);
-      cout << count++ << "          " << output.at(index) << "  "<<targets.at(index)<<endl;
+      cout << setw(4) <<  count++ << setw(22) << output.at(index) << setw(14) <<targets.at(index) << setw(17) << t_train <<endl;
 	Error = output.at(index) - targets.at(index);
 	if (Error < min_E) {
 	  min_E = Error;

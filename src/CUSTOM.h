@@ -62,6 +62,8 @@ class CUSTOM : public DFT_IO {
 
  private:
 	xml_reader xml;
+        bool xml_process;
+        Structure xstruct;
 
 
 };

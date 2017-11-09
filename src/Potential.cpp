@@ -928,9 +928,18 @@ void Potential::validate() {
   for (int i_sys=0; i_sys<systems.size(); i_sys++) {
     for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {
       my_outputs[i_sys] += nets[systems[i_sys]->structure.types[atom].atomic_number()]->evaluate_MD(i_sys);
-      if (systems[i_sys]->train == "train"){
+        if (systems.at(i_sys)->train == "val") {
+            train_flag.at(i_sys) = 1;
+        } else if (systems.at(i_sys)->train == "train") { 
+            train_flag.at(i_sys) = 0; 
+        }else if (systems.at(i_sys)->train == "test") {
+            train_flag.at(i_sys) = 2;
+        } else {
+            train_flag.at(i_sys) = 3;
+        }      
+      /*if (systems[i_sys]->train == "train"){
         train_flag[i_sys] = 1;
-      } else { train_flag[i_sys] = 0; }
+      } else { train_flag[i_sys] = 0; }*/
     }
     nat.at(i_sys) = systems[i_sys]->structure.Natom;
     if (unrav) {
@@ -986,7 +995,10 @@ void Potential::validate() {
         Error = unraveled.at(index) - unTargets.at(index);
         SSE += pow(Error,2);
       }else {
-          string t = train_flag.at(index) == 1 ? "train" : "val";
+      string t = train_flag.at(index) == 0 ? "train" 
+              : train_flag.at(index) == 1 ? "val" 
+              : train_flag.at(index) == 2 ? "test"
+              : "other";
         //cout <<count++ << "              "<<output.at(index)+output_mean << "              "<<targets.at(index) << "      " << nat.at(index) << "      " << t <<  endl;
           cout << setw(4) << count++ << setw(22) <<output.at(index)+output_mean << setw(20) <<targets.at(index) << setw(14) << nat.at(index) << setw(14) << t <<  endl;
         Error = output.at(index)+output_mean - targets.at(index);

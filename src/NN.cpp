@@ -207,7 +207,9 @@ vector<REAL> Neural_network::count() {
   
   vector<REAL> counts(values[0].size(), 0);
   for (int i=0; i<systems.size(); i++) {
-    counts = vector_sum(counts, systems.at(i)->properties.count());
+      if (systems.at(i)->train == "train") {
+        counts = vector_sum(counts, systems.at(i)->properties.count());
+      }
   }
   return counts;
 
@@ -229,7 +231,9 @@ vector<REAL> Neural_network::mean() {
   
   vector<REAL> means(values[0].size(), 0.0);
   for (int i=0; i<systems.size(); i++) {
-    means = vector_sum(means, systems.at(i)->properties.mean());
+    if (systems.at(i)->train == "train") {
+        means = vector_sum(means, systems.at(i)->properties.mean());
+    }
   }
   return means;
 
@@ -252,7 +256,9 @@ vector<REAL> Neural_network::variance(vector<REAL> means) {
   
   vector<REAL> variances(values[0].size(), 0.0);
   for (int i=0; i<systems.size(); i++) {
-    variances = vector_sum(variances, systems.at(i)->properties.variance(means));
+    if(systems.at(i)->train == "train") {
+        variances = vector_sum(variances, systems.at(i)->properties.variance(means));
+    }
   }
   return variances;
   
@@ -314,93 +320,113 @@ bool Neural_network::train() {
   optimizer->init((vector<vector<Network_node*> >*)(&nodes));
   
   int debug_count = 0;
+  bool early_stop = false;
+  int nval = 0;
   
   while (!optimizer->is_converged() && !optimizer->is_checkpoint()) {
     REAL debug_error = 0.0;
     this->SSE = 0.0;
     this->SSE_mod = 0.0;
     REAL output = 0.0;
+    REAL vSSE = 0.0;
+    nval = 0.0;
     my_dOutput_dParameters.assign(my_dOutput_dParameters.size(), 0);
-    this->get_training_set();
     //this->bernoulli_sample(this->params.dropout());
     for (int i_sys=0; i_sys<systems.size(); i_sys++) {
-    //for (int jj = 0; jj < this->training_set.size(); jj ++ ) {
-    //  int i_sys = this->training_set[jj];
-      output = 0.0; 
-      vector<REAL> temp_dOutput_dParameters(Nparams, 0.0);
-      vector<REAL> dOut_dIn; 
-      dOut_dIn.reserve(NNodes_max);
-      vector<REAL> temp_dOut_dIn;
-      temp_dOut_dIn.reserve(this->NNodes_max);
-      
-      while (systems[i_sys]->properties.iterate(values[0])) {
-	
-	for (int layer=0; layer<nodes.size()-1; layer++) {
-	  for (int node=0; node<nodes[layer].size(); node++) {
-	    values[layer+1][node] = nodes[layer][node]->evaluate(values[layer]);
-	  }
-	}
+        if(systems.at(i_sys)->train == "train"){
+            output = 0.0; 
+            vector<REAL> temp_dOutput_dParameters(Nparams, 0.0);
+            vector<REAL> dOut_dIn; 
+            dOut_dIn.reserve(NNodes_max);
+            vector<REAL> temp_dOut_dIn;
+            temp_dOut_dIn.reserve(this->NNodes_max);
 
-	output += nodes.back().at(0)->evaluate(values.back());
-	
-	//Back propagate for network derivative with respect to parameters
-	///////////////////////////////////////////////////////////////////
-	
-	// Start with the output node
-	dOut_dIn.assign(NNodes.at(NNodes.size()-2),0.0);
+            while (systems[i_sys]->properties.iterate(values[0])) {
+              for (int layer=0; layer<nodes.size()-1; layer++) {
+                for (int node=0; node<nodes[layer].size(); node++) {
+                  values[layer+1][node] = nodes[layer][node]->evaluate(values[layer]);
+                }
+              }
 
-	for (int i=deriv_offsets.back(); i<Nparams; i++) {
-	  temp_dOutput_dParameters.at(i) += nodes.back().at(0)->dOutput_dParameters(i-deriv_offsets.back());
-	}
-	for (int i=0; i<dOut_dIn.size(); i++) {
-	  dOut_dIn.at(i) = nodes.back().at(0)->dOutput_dInputs(i);
-	}
-	
-	for (int layer=nodes.size()-1; layer>=1; layer--) {
-	  temp_dOut_dIn.assign(NNodes[layer-1],0.0);
-	  for (int node=0; node<NNodes[layer]; node++) {
-	    for (int i=0; i<NNodes[layer-1]+1; i++) {
-	      temp_dOutput_dParameters.at(deriv_offsets.at(nodes.at(layer-1).at(node)->index())+i)
-		+= dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dParameters(i);
-	    }
-	    for (int i=0; i<NNodes[layer-1]; i++) {
-	      temp_dOut_dIn.at(i) += dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dInputs(i);
-	    }
-	  }
-	  dOut_dIn = temp_dOut_dIn;
-	}
-	
-      }
+              output += nodes.back().at(0)->evaluate(values.back());
 
-      output *= systems[i_sys]->Prefactor*params.output_variance;
-      output += params.output_mean;
+              //Back propagate for network derivative with respect to parameters
+              ///////////////////////////////////////////////////////////////////
 
-      REAL dSSE_dOutput;
-      REAL error = output - systems[i_sys]->properties.target();
-      REAL lambda = optimizer->alpha();
-      
-      SSE += error*error;
-      
-      if (lambda == 0) {
-	
-	dSSE_dOutput = 2*error*params.output_variance;
-	
-      } else {
-	
-	REAL sign_phi = sign(error)*phi.at(i_sys);
-	REAL cos_error = cos(error+sign_phi);
-	
-	SSE_mod += systems[i_sys]->Prefactor*error*error*(1+lambda*cos_error*cos_error);
-	dSSE_dOutput = params.output_variance*systems[i_sys]->Prefactor*(2*lambda*(error*cos_error*cos_error - error*error*cos_error*sin(error+sign_phi)) + 2*error);
-	phi.at(i_sys) += optimizer->dphi_dt();
-      }
-      
-      for (int i=0; i<Nparams; i++) {
-	my_dOutput_dParameters.at(i) += systems[i_sys]->Prefactor*dSSE_dOutput*temp_dOutput_dParameters.at(i);
-      }
-      
+              // Start with the output node
+              dOut_dIn.assign(NNodes.at(NNodes.size()-2),0.0);
+
+              for (int i=deriv_offsets.back(); i<Nparams; i++) {
+                temp_dOutput_dParameters.at(i) += nodes.back().at(0)->dOutput_dParameters(i-deriv_offsets.back());
+              }
+              for (int i=0; i<dOut_dIn.size(); i++) {
+                dOut_dIn.at(i) = nodes.back().at(0)->dOutput_dInputs(i);
+              }
+
+              for (int layer=nodes.size()-1; layer>=1; layer--) {
+                temp_dOut_dIn.assign(NNodes[layer-1],0.0);
+                for (int node=0; node<NNodes[layer]; node++) {
+                  for (int i=0; i<NNodes[layer-1]+1; i++) {
+                    temp_dOutput_dParameters.at(deriv_offsets.at(nodes.at(layer-1).at(node)->index())+i)
+                      += dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dParameters(i);
+                  }
+                  for (int i=0; i<NNodes[layer-1]; i++) {
+                    temp_dOut_dIn.at(i) += dOut_dIn.at(node)*nodes.at(layer-1).at(node)->dOutput_dInputs(i);
+                  }
+                }
+                dOut_dIn = temp_dOut_dIn;
+              }
+
+            }
+
+            output *= systems[i_sys]->Prefactor*params.output_variance;
+            output += params.output_mean;
+
+            REAL dSSE_dOutput;
+            REAL error = output - systems[i_sys]->properties.target();
+            REAL lambda = optimizer->alpha();
+
+            SSE += error*error;
+
+            if (lambda == 0) {
+
+              dSSE_dOutput = 2*error*params.output_variance;
+
+            } else {
+
+              REAL sign_phi = sign(error)*phi.at(i_sys);
+              REAL cos_error = cos(error+sign_phi);
+
+              SSE_mod += systems[i_sys]->Prefactor*error*error*(1+lambda*cos_error*cos_error);
+              dSSE_dOutput = params.output_variance*systems[i_sys]->Prefactor*(2*lambda*(error*cos_error*cos_error - error*error*cos_error*sin(error+sign_phi)) + 2*error);
+              phi.at(i_sys) += optimizer->dphi_dt();
+            }
+
+            for (int i=0; i<Nparams; i++) {
+              my_dOutput_dParameters.at(i) += systems[i_sys]->Prefactor*dSSE_dOutput*temp_dOutput_dParameters.at(i);
+            }
+        } else if(systems.at(i_sys)->train == "val") {
+            early_stop = true;
+            output = 0.0; 
+            while (systems[i_sys]->properties.iterate(values[0])) {
+              for (int layer=0; layer<nodes.size()-1; layer++) {
+                for (int node=0; node<nodes[layer].size(); node++) {
+                  values[layer+1][node] = nodes[layer][node]->evaluate(values[layer]);
+                }
+              }
+              output += nodes.back().at(0)->evaluate(values.back()); 
+            }
+            output *= systems[i_sys]->Prefactor*params.output_variance;
+            output += params.output_mean;
+            REAL error = output - systems[i_sys]->properties.target();
+            //cout << output << " " << systems[i_sys]->properties.target() << endl;
+            vSSE += error*error;
+            nval++;
+        }
     }
-    
+    if (early_stop) {
+        optimizer->set_val_sse(vSSE,nval);
+    }
     if (SSE_mod) {
       optimizer->update_network(SSE_mod, my_dOutput_dParameters, SSE);
     } else {

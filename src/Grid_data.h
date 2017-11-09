@@ -57,6 +57,7 @@ class Grid_data {
   friend class VASP;
   friend class QE;
   friend class FHIAIMS;
+  friend class CUSTOM;
 
  public:
   
@@ -114,7 +115,7 @@ class Grid_data {
   void conv_matrix(int n = 11,int stride = 1);
   
   void downsample(int step = 1);
-
+  string train;
  private:
   
   double a;
@@ -128,6 +129,8 @@ class Grid_data {
   int N1, N2, N3;
   
   vector<REAL> data;
+  
+  
   
 };
 

@@ -59,7 +59,7 @@ class Functional {
 
  public:
   
-  Functional(const vector<System*> &systems, Functional_params F);
+  Functional(const vector<System*> &systems_in, Functional_params F);
   
   ~Functional();
   
@@ -71,8 +71,12 @@ class Functional {
   
   Parallel *mpi;
   Network *net;
-  
+  vector<System*> systems;
   int Nsystems;
+  int Nval;
+  int Ntrain; 
+  int Nother;
+  bool early_stop;
   
   Functional_params params;
   REAL output_mean;
