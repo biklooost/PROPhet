@@ -617,9 +617,7 @@ REAL Potential::train() {
         }
         
     }
-    if (this->early_stop) {
-        opt->set_val_sse(vSSE,Nval);
-    }    
+    opt->set_val_sse(vSSE,Nval);   
     opt->update_network(SSE, gradient);
 
     
