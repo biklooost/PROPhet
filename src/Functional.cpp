@@ -88,10 +88,12 @@ Functional::Functional(const vector<System*> &systems_in, Functional_params F_in
   this->Ntrain = mpi->Reduce(this->Ntrain,MPI_SUM);
   this->Nval = mpi->Reduce(this->Nval,MPI_SUM);
   this->Nother = mpi->Reduce(this->Nother,MPI_SUM);
+  if (mpi->io_node()) {  
     if (this->Nval > 0) {
-        this->early_stop = true;
-        this->early_stop = mpi->Bcast(this->early_stop);
+        this->early_stop = true;    
     }
+  }
+  this->early_stop = mpi->Bcast(this->early_stop);
   int Ntotal_params = this->net->Nparameters();
   //REAL ratio = (REAL)this->Nsystems/(REAL)Ntotal_params;
   REAL ratio = (REAL)this->Ntrain/(REAL)Ntotal_params;

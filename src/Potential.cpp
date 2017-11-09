@@ -161,11 +161,12 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
     this->Ntrain = mpi->Reduce(this->Ntrain, MPI_SUM);
     this->Nval = mpi->Reduce(this->Nval, MPI_SUM);
     this->Nother = mpi->Reduce(this->Nother, MPI_SUM);
-    
+    if(mpi->io_node()) {
     if (this->Nval > 0) {
         this->early_stop = true;
-        this->early_stop = mpi->Bcast(this->early_stop);
     }
+    }
+    this->early_stop = mpi->Bcast(this->early_stop);
 
     if (mpi->io_node()) {
         cout << "Data Info: \n";
