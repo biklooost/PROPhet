@@ -424,9 +424,7 @@ bool Neural_network::train() {
             nval++;
         }
     }
-    if (early_stop) {
-        optimizer->set_val_sse(vSSE,nval);
-    }
+    optimizer->set_val_sse(vSSE,nval);
     if (SSE_mod) {
       optimizer->update_network(SSE_mod, my_dOutput_dParameters, SSE);
     } else {
