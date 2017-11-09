@@ -930,16 +930,14 @@ void Optimizer::update_network(REAL Error, vector<REAL> grad, REAL SSE) {
     gradient.pop_front();
     Errors.pop_front();
   }
-  
-  
+    REAL sse_val;
+    if (this->early_stop) {
+       nval = mpi->Reduce(nval,MPI_SUM);
+       SSE_val = mpi->Reduce(SSE_val,MPI_SUM);
+       sse_val = sqrt(SSE_val/nval);
+    }
   if (do_print) {
     if (mpi->io_node()) {
-        REAL sse_val;
-        if (this->early_stop) {
-            nval = mpi->Reduce(nval,MPI_SUM);
-            SSE_val = mpi->Reduce(SSE_val,MPI_SUM);
-            sse_val = sqrt(SSE_val/nval);
-        }
       if (this->line_min) {
 
         if ( !(iteration_counter % F_params.Nprint()) || my_is_converged){

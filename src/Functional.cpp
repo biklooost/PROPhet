@@ -90,6 +90,7 @@ Functional::Functional(const vector<System*> &systems_in, Functional_params F_in
   this->Nother = mpi->Reduce(this->Nother,MPI_SUM);
     if (this->Nval > 0) {
         this->early_stop = true;
+        this->early_stop = mpi->Bcast(this->early_stop);
     }
   int Ntotal_params = this->net->Nparameters();
   //REAL ratio = (REAL)this->Nsystems/(REAL)Ntotal_params;

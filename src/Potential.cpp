@@ -164,6 +164,7 @@ Potential::Potential(vector<System*> systems_in, Functional_params F_in) : syste
     
     if (this->Nval > 0) {
         this->early_stop = true;
+        this->early_stop = mpi->Bcast(this->early_stop);
     }
 
     if (mpi->io_node()) {

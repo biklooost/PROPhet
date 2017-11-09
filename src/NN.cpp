@@ -320,7 +320,7 @@ bool Neural_network::train() {
   optimizer->init((vector<vector<Network_node*> >*)(&nodes));
   
   int debug_count = 0;
-  bool early_stop = false;
+  bool early_stop = false; 
   int nval = 0;
   
   while (!optimizer->is_converged() && !optimizer->is_checkpoint()) {
