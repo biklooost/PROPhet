@@ -962,9 +962,41 @@ void Structure::Set_Convert(){
       this->AtoF.push_back(row);
       this->FtoA.push_back(row);
   }
+  vector < vector <REAL> > cell; 
+  cell.push_back(this->a);
+  cell.push_back(this->b);
+  cell.push_back(this->c);
+  this->FtoA = transpose(cell);
+  
+  this->AtoF = invert(transpose(cell));
+  /*
+  cout << "CELL" << endl;
+  for (int i =0; i<3; i++){
+      for (int j = 0; j<3; j++) {
+          cout << cell[i][j] << " ";
+      }
+      cout << endl;
+  }
+  cout << "AtoF" << endl;
+  for (int i =0; i<3; i++){
+      for (int j = 0; j<3; j++) {
+          cout << this->AtoF[i][j] << " ";
+      }
+      cout << endl;
+  }
+  cout << "FtoA" << endl;
+  for (int i =0; i<3; i++){
+      for (int j = 0; j<3; j++) {
+          cout << this->FtoA[i][j] << " ";
+      }
+      cout << endl;
+  } */  
+  /*
+  //The following are actually the cosine version of the angles
   REAL alpha = (this->b[0]*this->c[0]+this->b[1]*this->c[1]+this->b[2]*this->c[2])/(this->norm['b']*this->norm['c']);
   REAL beta = (this->a[0]*this->c[0]+this->a[1]*this->c[1]+this->a[2]*this->c[2])/(this->norm['a']*this->norm['c']);
   REAL gamma = (this->b[0]*this->a[0]+this->b[1]*this->a[1]+this->b[2]*this->a[2])/(this->norm['b']*this->norm['a']);
+  //One sin version
   REAL sgamma = sin(acos(gamma));
   this->AtoF[0][0] = 1/this->norm['a'];
   this->AtoF[0][1] = -gamma/(this->norm['a']*sgamma);
@@ -978,6 +1010,7 @@ void Structure::Set_Convert(){
   this->FtoA[1][1] = this->norm['b']*sgamma;
   this->FtoA[1][2] = this->norm['c']*(alpha-beta*gamma)/sgamma;
   this->FtoA[2][2] = Volume/(this->norm['a']*this->norm['b']*sgamma);
+   */
 }
 
 // ########################################################

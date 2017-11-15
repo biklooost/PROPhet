@@ -99,6 +99,8 @@ class Structure {
 	vector<REAL> mean(int atomic_number);
 	int count(int atomic_number);
 	vector<REAL> variance(int atomic_number, const vector<REAL> &means);
+        
+
 	
         bool CART;
         bool NORM;
@@ -164,6 +166,72 @@ class Structure {
 	    }
 	  }
 	}
+        
+        inline vector < vector <REAL> > invert(vector < vector <REAL> > cell) {
+            REAL det = cell[0][ 0] * (cell[1][ 1] * cell[2][ 2] - cell[2][ 1] * cell[1][ 2]) -
+             cell[0][ 1] * (cell[1][ 0] * cell[2][ 2] - cell[1][ 2] * cell[2][ 0]) +
+             cell[0][ 2] * (cell[1][ 0] * cell[2][ 1] - cell[1][ 1] * cell[2][ 0]);
+            if (det == 0 ) { ERROR("Non-invertible unit cell"); }
+            REAL invdet = 1 / det;
+            vector <REAL> tmp(3,0.0);
+            vector < vector <REAL> > ident;
+            for(int i =0; i < 3; i++) {
+                ident.push_back(tmp);
+                ident[i][i] = 1.0;
+            }
+            ident[0][ 0] = (cell[1][ 1] * cell[2][ 2] - cell[2][ 1] * cell[1][ 2]) * invdet;
+            ident[0][ 1] = (cell[0][ 2] * cell[2][ 1] - cell[0][ 1] * cell[2][ 2]) * invdet;
+            ident[0][ 2] = (cell[0][ 1] * cell[1][ 2] - cell[0][ 2] * cell[1][ 1]) * invdet;
+            ident[1][ 0] = (cell[1][ 2] * cell[2][ 0] - cell[1][ 0] * cell[2][ 2]) * invdet;
+            ident[1][ 1] = (cell[0][ 0] * cell[2][ 2] - cell[0][ 2] * cell[2][ 0]) * invdet;
+            ident[1][ 2] = (cell[1][ 0] * cell[0][ 2] - cell[0][ 0] * cell[1][ 2]) * invdet;
+            ident[2][ 0] = (cell[1][ 0] * cell[2][ 1] - cell[2][ 0] * cell[1][ 1]) * invdet;
+            ident[2][ 1] = (cell[2][ 0] * cell[0][ 1] - cell[0][ 0] * cell[2][ 1]) * invdet;
+            ident[2][ 2] = (cell[0][ 0] * cell[1][ 1] - cell[1][ 0] * cell[0][ 1]) * invdet;
+            return ident;
+            /*
+            REAL prefactor;
+            vector <REAL> tmp(3,0.0);
+            vector < vector <REAL> > ident;
+            for(int i =0; i < 3; i++) {
+                ident.push_back(tmp);
+                ident[i][i] = 1.0;
+            }
+            
+            for (int i = 0; i < cell.size(); i++) {
+                prefactor = cell[i][i];
+                for (int j = 0; j < cell[i].size(); j++) {
+                    cell[i][j] /= prefactor;
+                    ident[i][j] /= prefactor;
+                }
+                for(int j =0; j<3; j++) {
+                    if (j != i) {
+                        prefactor = cell[j][i];
+                        for (int z = 0; z < 3; z++ ) {
+                            cell[j][z] = cell[j][z]  - cell[i][z] * prefactor;
+                            ident[j][z] = ident[j][z] - cell[i][z] * prefactor;
+                        }
+                    }
+                }
+            }
+             */
+            return ident;
+        }
+        
+        inline vector < vector <REAL> > transpose(vector < vector <REAL> > cell) {
+            //int i,j,k;
+            vector <REAL> tmp(3,0.0);
+            vector < vector <REAL> > ident;
+            for(int i =0; i < 3; i++) {
+                ident.push_back(tmp);
+            }   
+            for(int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    ident[j][i] = cell[i][j];
+                }
+            }
+            return ident;
+        }
 	
 	
 	// This functions calculates (1+lambda*cos(theta))^xi.
