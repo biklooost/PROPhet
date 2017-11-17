@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -28,7 +28,7 @@
 // ####################################################################
 //                         CLASS DESCRIPTION
 // ####################################################################
-// This is an interface to the LAMMPS MD code from Sandia National 
+// This is an interface to the LAMMPS MD code from Sandia National
 // Labs. This allows one to use PROPhet potentials in MD simulations
 // within LAMMPS.
 // ####################################################################
@@ -50,10 +50,12 @@ PairStyle(nn,PairNN)
 #include "Potential.h"
 #include "Functional_params.h"
 
-namespace LAMMPS_NS {
+namespace LAMMPS_NS
+{
 
-class PairNN: public Pair {
- public:
+class PairNN: public Pair
+{
+public:
   PairNN(class LAMMPS *);
   virtual ~PairNN();
   virtual void compute(int, int);
@@ -69,16 +71,16 @@ class PairNN: public Pair {
   void write_data(FILE *);
   void write_data_all(FILE *);
   double single(int, int, int, int, double, double, double, double &);
-  
+
   System* sysdata;
 
 
- protected:
+protected:
   vector<double> dE_dG;
 
   Functional_params params;
   Potential* potential;
-  
+
   void allocate();
   vector<int> atom_types;
   vector<string> potential_names;

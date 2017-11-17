@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -28,7 +28,7 @@
 // ####################################################################
 //                         CLASS DESCRIPTION
 // ####################################################################
-// 
+//
 // ####################################################################
 
 
@@ -50,22 +50,23 @@
 using namespace std;
 
 
-class Network_node {
-  
+class Network_node
+{
+
 public:
-  
+
   Network_node() { }
   ~Network_node() { }
-  
+
   virtual void set_parameters(vector<REAL> new_params) = 0;
   virtual vector<REAL> get_parameters() = 0;
-  
+
 //  virtual void print(ostream &stream = std::cout) = 0;
   virtual void print(ostream &steam = std::cout, REAL p=1.0) = 0;
   virtual void read(istream &input) = 0;
-  
+
   virtual int Nparameters() = 0;
-  
+
 };
 
 

@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -29,7 +29,7 @@
 //                         CLASS DESCRIPTION
 // ####################################################################
 // Class to define a general warning and error interface. The functions
-// here automatically provide location information as to where they 
+// here automatically provide location information as to where they
 // were called.
 // ####################################################################
 
@@ -55,5 +55,5 @@ using namespace std;
 void fatal_error(string message="", string in_class="", string in_function="",int on_line=0);
 void warning(string message="",string in_class="",string in_function="",int on_line=0);
 
-  
+
 #endif

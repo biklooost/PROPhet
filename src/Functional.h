@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -55,39 +55,40 @@
 
 using namespace std;
 
-class Functional {
+class Functional
+{
 
- public:
-  
+public:
+
   Functional(const vector<System*> &systems_in, Functional_params F);
-  
+
   ~Functional();
-  
+
   void train();
   void evaluate();
   void validate();
-  
- private:
-  
+
+private:
+
   Parallel *mpi;
   Network *net;
   vector<System*> systems;
   int Nsystems;
   int Nval;
-  int Ntrain; 
+  int Ntrain;
   int Nother;
   bool early_stop;
-  
+
   Functional_params params;
   REAL output_mean;
   REAL output_variance;
-  
+
   vector<REAL> dE_dParameters;
-  
+
   void save();
   void backup(int niter);
   void load(string file);
-  
+
   void syncronize();
 
   void Normalize_data(vector<REAL> in_mean, vector<REAL> in_variance);

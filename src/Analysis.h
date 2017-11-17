@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -28,7 +28,7 @@
 // ####################################################################
 //                         CLASS DESCRIPTION
 // ####################################################################
-// This class performs some basic analysis to help determine the 
+// This class performs some basic analysis to help determine the
 // quality of a fit. It implements histograms and an approximate
 // Kolmogorov-Smirnov test for the similarity of two distributions.
 // ####################################################################
@@ -48,9 +48,10 @@
 
 using namespace std;
 
-class Analysis {
+class Analysis
+{
 
- public:
+public:
 
   Analysis();
   ~Analysis();
@@ -61,10 +62,10 @@ class Analysis {
 
   REAL p;
 
- private:
+private:
 
-  
-  
+
+
 };
 
 

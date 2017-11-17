@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -49,9 +49,10 @@
 // ########################################################
 //
 
-Functional_params::Functional_params() {
+Functional_params::Functional_params()
+{
 
-  // default values                                                                                          
+  // default values
   this->my_input_file = "";
   this->my_output_file = "functional.save";
   this->my_network_type = "neural_network";
@@ -66,14 +67,14 @@ Functional_params::Functional_params() {
   this->my_downsample = 1;
   this->my_Ninput_nodes = 0;
   this->my_line_min_epsilon = 0;
-  this->my_sd_momentum = 0.0;  
+  this->my_sd_momentum = 0.0;
   this->my_SGD = false;
   this->my_SGD_cnt = 0;
 
   this->my_Rcut = 6.0;
   this->my_Nradial = 8;
   this->my_Nangular = 8;
-  
+
   this->T0 = 1;
   this->Tf = 0.1;
   this->dT = 0.98;
@@ -83,21 +84,21 @@ Functional_params::Functional_params() {
   this->is_MD = false;
 
   this->my_regularization = 0.0;
-  
+
   this->my_output_precondition = false;
   this->output_mean = 0;
   this->output_variance = 1;
-  
+
   this->my_Nbackup = 0;
   this->my_Tbackup = false;
   this->my_norm_cd = false;
   this->my_bounds = vector <int> (2,0);
 
   this->my_dropoutP = 1.0;
-  
+
   this->my_conv = 250; //This needs to just be some large number
   this->my_conv_stride = 1;
-  
+
   this->my_printgvectors = false;
 }
 
@@ -112,7 +113,8 @@ Functional_params::Functional_params() {
 // ########################################################
 //
 
-Functional_params::~Functional_params() {
+Functional_params::~Functional_params()
+{
 
 }
 
@@ -127,10 +129,11 @@ Functional_params::~Functional_params() {
 // ########################################################
 // Write state to checkpoint file
 
-void Functional_params::print(ostream &out) {
-  
-  out << this->my_network_type << endl; 
-  
+void Functional_params::print(ostream &out)
+{
+
+  out << this->my_network_type << endl;
+
   for (int i=0; i<my_inputs.size(); i++) {
     out << my_inputs.at(i) <<"  ";
   }
@@ -142,28 +145,28 @@ void Functional_params::print(ostream &out) {
     }
     out << endl;
     if (!this->my_FE.empty()) {
-        out.precision(9);
-        out << "FE:  " << this->my_FE[current_atom_type] << endl;
-        out.precision(6);
+      out.precision(9);
+      out << "FE:  " << this->my_FE[current_atom_type] << endl;
+      out.precision(6);
     }
     out << G1.size()+G2.size()+G3.size()+G4.size()<<endl;
     for  (int i=0; i<G1.size(); i++) {
       out << setprecision(12)<<"G1 "<<G1.at(i).at(0) << " "<<G1.at(i).at(1)
-	  << " "<<G1.at(i).at(2)<<endl;
+          << " "<<G1.at(i).at(2)<<endl;
     }
     for (int i=0; i<G2.size(); i++) {
       out << setprecision(12)<<"G2 "<<G2.at(i).at(0) << " "<<G2.at(i).at(1)
-	  <<" "<<G2.at(i).at(2)<< " "<<G2.at(i).at(3)<<endl;
+          <<" "<<G2.at(i).at(2)<< " "<<G2.at(i).at(3)<<endl;
     }
     for (int i=0; i<G3.size(); i++) {
       out << setprecision(12)<<"G3 "<<G3.at(i).at(0)<<" "<<G3.at(i).at(1)
-	  <<" "<<G3.at(i).at(2)<<" "<< G3.at(i).at(3)<<" "<<G3.at(i).at(4)
-	  <<endl;
+          <<" "<<G3.at(i).at(2)<<" "<< G3.at(i).at(3)<<" "<<G3.at(i).at(4)
+          <<endl;
     }
     for (int i=0; i<G4.size(); i++) {
       out << setprecision(12)<<"G4 "<<G4.at(i).at(0)<<" "<<G4.at(i).at(1)
-	  <<" "<<G4.at(i).at(2)<<" "<< G4.at(i).at(3)<<" "<<G4.at(i).at(4)
-	  <<endl;
+          <<" "<<G4.at(i).at(2)<<" "<< G4.at(i).at(3)<<" "<<G4.at(i).at(4)
+          <<endl;
     }
   }
   for (int i=0; i<input_mean.size(); i++) {
@@ -174,7 +177,7 @@ void Functional_params::print(ostream &out) {
     out << input_variance.at(i) << "  ";
   }
   out << endl;
-  
+
   out << my_output << endl;
   out << output_mean << endl;
   out << output_variance << endl;
@@ -200,7 +203,8 @@ void Functional_params::print(ostream &out) {
 // ########################################################
 // Read state from checkpoint file
 
-void Functional_params::read(istream &in) {
+void Functional_params::read(istream &in)
+{
   string line, input;
   istringstream Line;
   int hidden;
@@ -216,12 +220,18 @@ void Functional_params::read(istream &in) {
 
   vector<string> input_names;
   Line >> input;
-  if (input.empty()) { ERROR("Could not read network inputs from file"); }
+  if (input.empty()) {
+    ERROR("Could not read network inputs from file");
+  }
   input_names.push_back(input);
-  if (input == "structure") { is_potential = true; }
+  if (input == "structure") {
+    is_potential = true;
+  }
   while (Line >> input) {
     input_names.push_back(input);
-    if (input == "structure") { is_potential = true; }
+    if (input == "structure") {
+      is_potential = true;
+    }
   }
   this->set_inputs(input_names);
   Line.clear();
@@ -244,15 +254,15 @@ void Functional_params::read(istream &in) {
 
     getline(in, line);
     if (line.find("FE") != std::string::npos) {
-        Line.str(line);
-        REAL FE;
-        string temp;
-        Line.precision(9);
-        Line >> temp >> FE;
-        this->my_FE[this->current_atom_type] = FE;
-        Line.precision(6);
-        Line.clear();
-        getline(in,line);
+      Line.str(line);
+      REAL FE;
+      string temp;
+      Line.precision(9);
+      Line >> temp >> FE;
+      this->my_FE[this->current_atom_type] = FE;
+      Line.precision(6);
+      Line.clear();
+      getline(in,line);
     }
     Line.str(line);
     int Nfunctions, function_count=1;
@@ -271,26 +281,34 @@ void Functional_params::read(istream &in) {
       vector<REAL> temp;
       Line >> function_type;
       while (Line >> values) {
-	temp.push_back(values);
+        temp.push_back(values);
       }
       Line.clear();
-      if (function_type == "G1") { G1.push_back(temp); } 
-      else if (function_type == "G2") { G2.push_back(temp); }
-      else if (function_type == "G3") { G3.push_back(temp); }
-      else if (function_type == "G4") { G4.push_back(temp); }
-      else { ERROR("Symmetry functions not read correctly from checkpoint file"); }
+      if (function_type == "G1") {
+        G1.push_back(temp);
+      } else if (function_type == "G2") {
+        G2.push_back(temp);
+      } else if (function_type == "G3") {
+        G3.push_back(temp);
+      } else if (function_type == "G4") {
+        G4.push_back(temp);
+      } else {
+        ERROR("Symmetry functions not read correctly from checkpoint file");
+      }
       function_count++;
       if (temp[0] > Rcut_max) {
-	Rcut_max = temp[0];
+        Rcut_max = temp[0];
       }
     }
     if (G1.size()+G2.size()+G3.size()+G4.size()) {
       this->my_Ninput_nodes = my_atomic_numbers.size()*(G1.size()+G2.size())
-	+0.5*my_atomic_numbers.size()*(my_atomic_numbers.size()+1)*(G3.size()+G4.size());
+                              +0.5*my_atomic_numbers.size()*(my_atomic_numbers.size()+1)*(G3.size()+G4.size());
     } else {
       this->my_Ninput_nodes = this->inputs().size();
     }
-    if (Rcut_max > 0) {this->Rcut(Rcut_max); }
+    if (Rcut_max > 0) {
+      this->Rcut(Rcut_max);
+    }
   }
 
   input_mean.clear();
@@ -324,7 +342,7 @@ void Functional_params::read(istream &in) {
   Line.str(line);
   Line >> this->my_output;
   Line.clear();
-    
+
   getline(in, line);
   Line.str(line);
   Line >> this->output_mean;
@@ -333,12 +351,14 @@ void Functional_params::read(istream &in) {
   Line.str(line);
   Line >> this->output_variance;
   Line.clear();
-  
+
   vector<int> layer_config;
 
   getline(in,line);
   Line.str(line);
-  if (line.empty()) { ERROR("Could not read node configuration from save file"); }
+  if (line.empty()) {
+    ERROR("Could not read node configuration from save file");
+  }
   Line >> hidden;
 
   layer_config.push_back(hidden);

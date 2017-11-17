@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -58,26 +58,28 @@
 
 
 
-class Tables {
-  
- public:
-  
+class Tables
+{
+
+public:
+
   Tables();
   Tables(string function);
   ~Tables();
 
   void init(string type);
-  
+
   int slow_row(REAL value);
-  
-  int fast_row(REAL value) {
-    
+
+  int fast_row(REAL value)
+  {
+
     if (value < _X[0]) {
       return -1;
     } else if (value >= _X[my_Nvalues]) {
       return my_Nvalues + 1;
     }
-    
+
     int bin = (int)(m*value+b);
     if (value < _X[bin] || value > _X[bin+1]) {
       // Just in case something goes wrong
@@ -87,54 +89,75 @@ class Tables {
       my_shift = -_X[bin];
       return bin;
     }
-    
+
     my_shift = -_X[bin];
     return bin;
   }
-  
-  
-  
-  inline REAL operator()(int row, int power) { return coefficients[row][power]; }
-  
-  inline REAL operator()(REAL in_x) {
+
+
+
+  inline REAL operator()(int row, int power)
+  {
+    return coefficients[row][power];
+  }
+
+  inline REAL operator()(REAL in_x)
+  {
     int irow = fast_row(in_x);
-    if (irow < 0) { return small_x(); }
-    if (irow > my_Nvalues) { return large_x(); }    
+    if (irow < 0) {
+      return small_x();
+    }
+    if (irow > my_Nvalues) {
+      return large_x();
+    }
     x = in_x + my_shift;
     return ((coefficients[irow][0]*x + coefficients[irow][1])*x + coefficients[irow][2])*x + coefficients[irow][3];
   }
-  
-  inline REAL derivative(REAL in_x) {
+
+  inline REAL derivative(REAL in_x)
+  {
     int irow = fast_row(in_x);
-    if (irow < 0 ) { return 0; }
-    if (irow > my_Nvalues) { return 0; }
+    if (irow < 0 ) {
+      return 0;
+    }
+    if (irow > my_Nvalues) {
+      return 0;
+    }
     x = in_x + my_shift;
     return (3*coefficients[irow][0]*x + 2*coefficients[irow][1])*x + coefficients[irow][2];
   }
 
 
-  inline REAL shift() { return my_shift; }
-  
-  inline int Nvalues() { return my_Nvalues; }
-  
-  inline REAL small_x() { 
+  inline REAL shift()
+  {
+    return my_shift;
+  }
+
+  inline int Nvalues()
+  {
+    return my_Nvalues;
+  }
+
+  inline REAL small_x()
+  {
     if (small_x_saturation != NOT_SET) {
       return small_x_saturation;
     } else {
       ERROR("value out of bounds for table");
     }
   }
-  
-  inline REAL large_x() { 
+
+  inline REAL large_x()
+  {
     if (large_x_saturation != NOT_SET) {
       return large_x_saturation;
     } else {
       ERROR("value out of bounds for table");
     }
   }
-  
-  
- private:
+
+
+private:
 
   REAL my_shift;
   REAL **coefficients;
@@ -147,11 +170,11 @@ class Tables {
 
   REAL small_x_saturation;
   REAL large_x_saturation;
-  
+
   REAL min_value;
   REAL max_value;
   int my_Nvalues;
-  
+
   void init_tanh();
   void init_cos();
   void init_cutoff_1();
