@@ -318,16 +318,34 @@ protected:
 
   inline void To_Cart(vector <REAL>& proj )
   {
+      /*
     proj[0] = this->FtoA[0][0]*proj[0] + this->FtoA[0][1]*proj[1] + this->FtoA[0][2]*proj[2];
     proj[1] = this->FtoA[1][1]*proj[1] + this->FtoA[1][2]*proj[2];
     proj[2] = this->FtoA[2][2]*proj[2];
+       */
+      REAL t1,t2,t3;
+    t1 = this->FtoA[0][0]*proj[0] + this->FtoA[0][1]*proj[1] + this->FtoA[0][2]*proj[2];
+    t2 = this->FtoA[1][0]*proj[0] + this->FtoA[1][1]*proj[1] + this->FtoA[1][2]*proj[2];
+    t3 = this->FtoA[2][0]*proj[0] + this->FtoA[2][1]*proj[1] + this->FtoA[2][2]*proj[2];
+    proj[0] = t1;
+    proj[1] = t2;
+    proj[2] = t3;
   }
 
   inline void To_Frac(vector <REAL>& proj)
   {
+    /*
     proj[0] = this->AtoF[0][0]*proj[0] + this->AtoF[0][1]*proj[1] + this->AtoF[0][2]*proj[2];
     proj[1] = this->AtoF[1][1]*proj[1]+ this->AtoF[1][2]*proj[2];
     proj[2] = this->AtoF[2][2]*proj[2];
+     */
+      REAL t1, t2, t3;
+    t1 = this->AtoF[0][0]*proj[0] + this->AtoF[0][1]*proj[1] + this->AtoF[0][2]*proj[2];
+    t2 = this->AtoF[1][0]*proj[0] + this->AtoF[1][1]*proj[1] + this->AtoF[1][2]*proj[2];
+    t3 = this->AtoF[2][0]*proj[0] + this->AtoF[2][1]*proj[1] + this->AtoF[2][2]*proj[2];
+    proj[0] = t1;
+    proj[1] = t2;
+    proj[2] = t3;
   }
   inline REAL G1(vector <REAL>& row,REAL R)
   {
