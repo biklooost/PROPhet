@@ -1003,7 +1003,7 @@ void Potential::validate()
   unraveled = mpi->Gatherv(unraveled);
   targets = mpi->Gatherv(targets);
   nat = mpi->Gatherv(nat);
-  train_flag = mpi->Gatherv(train_flag);
+  //train_flag = mpi->Gatherv(train_flag);
   double SSE = 0.0;
   int count = 0;
 
