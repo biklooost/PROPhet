@@ -358,6 +358,9 @@ protected:
   }
   inline REAL G3(vector <REAL>& row,REAL R,REAL Ru, REAL Rjk, REAL theta)
   {
+      //cout << 1 + (row[4] * theta) << endl;
+      REAL term = 1 + (row[4] * theta);
+      if (term <= 0) { return 0.0; }
     return Structure::prefactor_A.at(row[3])*pow(1+(row[4]*theta),row[3])*exp(-row[2]*(R*R+Ru*Ru+Rjk*Rjk))*fc(R/row[0],row[1])*fc(Ru/row[0],row[1])*fc(Rjk/row[0],row[1]);
   }
   inline REAL G4(vector <REAL>& row,REAL R,REAL Ru, REAL Rjk,REAL theta)
