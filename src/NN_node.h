@@ -190,22 +190,28 @@ private:
   }
 
   // Standard library tanh transfer function
-  inline REAL tanh(REAL in,REAL *deriv)
-  {
+  inline REAL tanh(REAL in,REAL *deriv) {
     if (abs(in) > 6) {
-      int sign = ((REAL)(0) < in) - (in < (REAL)(0));
-      REAL exptl = exp(-2*sign*in);
+      int sign = ((REAL) (0) < in) - (in < (REAL) (0));
+      REAL exptl = exp(-2 * sign * in);
       if (deriv != NULL) {
-        (*deriv) = 4.0*exptl*(1-2*exptl);
+        (*deriv) = 4.0 * exptl * (1 - 2 * exptl);
       }
-      return sign*(1-2*exptl*(1-exptl));
+      return sign * (1 - 2 * exptl * (1 - exptl));
     }
     if (deriv != NULL) {
-      (*deriv) = 1.0/pow(std::cosh(in),2);
+      (*deriv) = 1.0 / pow(std::cosh(in), 2);
     }
     return std::tanh(in);
   }
 
+  inline REAL tanh_reco(REAL in, REAL *deriv) {
+    REAL x = this->tanh(in*(2/3),deriv);
+    (*deriv) *= 1.7159;
+    return 1.7159*x;
+
+
+  }
   // Crazy tanh
   inline REAL tanh_crazy(REAL in,REAL *deriv)
   {

@@ -84,7 +84,7 @@ public:
     if (value < _X[bin] || value > _X[bin+1]) {
       // Just in case something goes wrong
       int B = slow_row(value);
-      cout << bin << "  "<<B<<endl;
+      //cout << bin << "  "<<B<<endl;
       bin = slow_row(value);
       my_shift = -_X[bin];
       return bin;
