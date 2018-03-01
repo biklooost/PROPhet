@@ -37,8 +37,14 @@ void Network_function_node::set_parameters(vector<REAL> new_parameters)
     ERROR("Parameters set wrong");
   }
   for (int i=0; i<my_Nparameters; i++) {
+#if __cplusplus >= 201103L
+    Parameters.at(i).real(new_parameters.at(2*i));
+    Parameters.at(i).imag(new_parameters.at(2*i+1));
+
+#else
     Parameters.at(i).real() = new_parameters.at(2*i);
     Parameters.at(i).imag() = new_parameters.at(2*i+1);
+#endif
   }
 
 }

@@ -5,7 +5,7 @@ CC = @CXX@
 # -DUSE_MPI  turns on MPI parallelization
 #  DEFINE = #-DUSE_MPI -DNO_C11
 
-CFLAGS =-O3 @DUSE_MPI@ @NO_C11@ 
+CFLAGS =-O3 -std=c++98 @DUSE_MPI@ @NO_C11@ 
 
 LAMMPS_PATH = @LAMMPS@
 PROPhet_PATH = $(CURDIR)

@@ -90,13 +90,16 @@ bool System_data::iterate(vector<complex<REAL> > &output_data)
     for (int i=0; i<my_N; i++) {
       indices.push_back(0);
       N_max.push_back(data.at(i)->size());
-      output_data.at(i).real() = data.at(i)->at(0);
-      output_data.at(i).imag() = 0.0;
+      #if __cplusplus >= 201103L
+        output_data.at(i).real(data.at(i)->at(0));// = data.at(i)->at(0);
+        output_data.at(i).imag(0.0);// = 0.0;
+      #else
+        output_data.at(i).real() = data.at(i)->at(0);
+        output_data.at(i).imag() = 0.0;
+      #endif
     }
     return true;
   }
-
-
 
   indices.at(my_N-1)++;
   for (int i=my_N-1; (i>0)&&(indices[i]==N_max[i]); i--) {
@@ -113,8 +116,13 @@ bool System_data::iterate(vector<complex<REAL> > &output_data)
   }
 
   for (int i=0; i<my_N; i++) {
-    output_data[i].real() = data[i]->at(indices[i]);
-    output_data[i].imag() = 0.0;
+    #if __cplusplus >= 201103L
+      output_data[i].real(data[i]->at(indices[i]));
+      output_data[i].imag(0.0);
+    #else
+      output_data[i].real() = data[i]->at(indices[i]);
+      output_data[i].imag() = 0.0;
+    #endif
   }
 
   return true;
