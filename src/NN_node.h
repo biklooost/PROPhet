@@ -205,11 +205,6 @@ private:
     return std::tanh(in);
   }
 
-  inline REAL tanh_reco(REAL in, REAL *deriv) {
-    REAL x = this->tanh(in*(2/3),deriv);
-    (*deriv) *= 1.7159;
-    return 1.7159*x;
-  }
   // Crazy tanh
   inline REAL tanh_crazy(REAL in,REAL *deriv)
   {

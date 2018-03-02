@@ -55,7 +55,7 @@ void fatal_error(string message, string in_class, string in_function, int on_lin
     Parallel mpi;
     int error = 1;
     error = mpi.Bcast(error);
-    if (error = 1) {
+    if (error == 1) {
     //if (mpi.io_node()) {
 
       cout << endl;

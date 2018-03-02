@@ -160,10 +160,6 @@ void Neural_network_node::set_transfer_function(string new_function)
 
       transfer_function = &Neural_network_node::relu;
 
-  } else if (new_function == "tanh_new") {
-
-      transfer_function = &Neural_network_node::tanh_reco;
-
   } else {
 
     ERROR("Unrecognized transfer function '"+new_function+"'");
