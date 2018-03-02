@@ -55,7 +55,7 @@
       <target>-28597.15268073496</target>
     </system>
     <system id="2">
-      <train>train</train>
+      <train>val</train>
       <lattice units="angstrom">
         <a>7.96265280387 0.0 0.0</a>
         <b>0.0 7.96265280387 0.0</b>
@@ -108,7 +108,7 @@
       <target>-28596.462723949076</target>
     </system>
     <system id="3">
-      <train>train</train>
+      <train>test</train>
       <lattice units="angstrom">
         <a>3.98132640193 0.0 0.0</a>
         <b>0.0 3.98132640193 0.0</b>
@@ -3830,7 +3830,7 @@
       <target>-28596.798738295875</target>
     </system>
     <system id="97">
-      <train>train</train>
+      <train>val</train>
       <lattice units="angstrom">
         <a>3.98132640193 0.0 0.0</a>
         <b>0.0 3.98132640193 0.0</b>
@@ -3848,7 +3848,7 @@
       <target>-3574.644089564743</target>
     </system>
     <system id="98">
-      <train>train</train>
+      <train>val</train>
       <lattice units="angstrom">
         <a>7.96265280387 0.0 0.0</a>
         <b>0.0 7.96265280387 0.0</b>
@@ -3901,7 +3901,7 @@
       <target>-28596.692821065742</target>
     </system>
     <system id="99">
-      <train>train</train>
+      <train>test</train>
       <lattice units="angstrom">
         <a>7.96265280387 0.0 0.0</a>
         <b>0.0 7.96265280387 0.0</b>
@@ -3954,7 +3954,7 @@
       <target>-28596.826482899312</target>
     </system>
     <system id="100">
-      <train>train</train>
+      <train>test</train>
       <lattice units="angstrom">
         <a>7.96265280387 0.0 0.0</a>
         <b>0.0 7.96265280387 0.0</b>
