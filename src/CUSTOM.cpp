@@ -28,7 +28,7 @@
 // ####################################################################
 //                         CLASS DESCRIPTION
 // ####################################################################
-// An interface to the Quantum Espresso package. This package facilitates
+// An interface to the PROPhet XML file. This package facilitates
 // reading directly from CUSTOM files.  The package follows the DFT_IO
 // interface.
 // ####################################################################
@@ -76,7 +76,7 @@ CUSTOM::~CUSTOM()
 // ########################################################
 //                       READ_STRUCTURE
 // ########################################################
-// Reads the structure from a Quantum Espresso run.
+// Reads the structure from a PROPhet XML run.
 
 Structure CUSTOM::read_structure(string prefix)
 {
@@ -183,7 +183,7 @@ REAL CUSTOM::read_band_gap(string prefix)
 // ########################################################
 //                       GET_DENSTIY
 // ########################################################
-// Reads the charge density from a Quantum Espresso run.
+// Reads the charge density from a cube file.
 
 Grid_data CUSTOM::get_density(string prefix, int step)
 {
@@ -240,7 +240,7 @@ Grid_data CUSTOM::get_density(string prefix, int step)
 // ########################################################
 //                       READ_NELECTRONS
 // ########################################################
-// Reads the number of electrons from a Quantum Espresso run.
+// Reads the number of electrons from a PROPhet XML run.
 
 REAL CUSTOM::read_Nelectrons(string prefix)
 {

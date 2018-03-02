@@ -153,6 +153,17 @@ Nprint = 1000
 Ncheckpoint = 1000      #
 #============================================================
 
+#============================================================
+####                    NSAVE                            ####
+#============================================================
+# Number of steps between system backups
+# Every NSAVE steps, the network will backup as POTENTIAL_NSAVE
+# This is for processes such as early stopping
+# Note: saving too frequently will affect performance
+#------------------------------------------------------------
+Nsave = 1000      #
+#============================================================
+
 
 #============================================================
 ####             GLOBAL OPTIMIZATION PARAMETERS          ####
@@ -291,6 +302,31 @@ checkpoint_out = functional_temp
 # Nangular = 8
 #============================================================
 
+#============================================================
+###                         PRINT_GVECTOR                 ###
+#============================================================
+# This flag will print out the gvectors for all the training
+# data. It will save them to PROCESSOR.gvector with each row
+# being a system and each column being an element in the gvector
+# for the system. 
+#------------------------------------------------------------
+# print_gvector = true
+#============================================================
+
+#============================================================
+###                      FREE_ENERGY                      ###
+#============================================================
+# This flag will allow training to the free energy of the system
+# Use with caution, still under testing and development, may
+# not produce the proper forces within LAMMPS
+# Example:
+# free_energy O=-694.3766354 H=-428.0800225
+# will train to: target - free_energy_O - 2*free_energy_H
+# for an H2O molecule
+#------------------------------------------------------------
+# free_energy O=-694.3766354 H=-428.0800225
+#============================================================
+
 
 #============================================================
 ###                SYMMETRY FUNCTION BLOCK                ###
@@ -329,8 +365,32 @@ checkpoint_out = functional_temp
 #------------------------------------------------------------
 #============================================================
 
+##### CHARGE DENSITY RELATED FLAGS
+
+# This is for transformation of the charge density file for 
+# ease of training. Similar to convolutional networks, they
+# may be useful for complex systems. Use with care
 
 
+#============================================================
+###                     CONV_CD                           ###
+#============================================================
+# This convolves the charge density data with various filters
+# see Grid_data::conv_matrix
+#
+# Exmple:
+# conv_cd = 1
+#============================================================
+
+#============================================================
+###                     CONV_CD_STRIDE                    ###
+#============================================================
+# If CONV_CD is uses, this specifies the stride of the 
+# convulution. 1 means a stride of 1, 5 meas a stride of 5, etc
+#
+# Exmple:
+# conv_cd_stride = 1
+#============================================================
 
 #####         DATA RELATED FIELDS
 
@@ -346,6 +406,7 @@ checkpoint_out = functional_temp
 #     vasp
 #     qe
 #     fhiaims
+#     prophet
 # "property = property_dir" where "property" is an input 
 #     property specified  in the "inputs" field and 
 #     property_dir is the PATH RELATIVE TO THE DIRECTORIES THAT
@@ -353,6 +414,15 @@ checkpoint_out = functional_temp
 #     needed, and is only required when a particular property
 #     is not housed in the root directory for a run, e.g. you 
 #     run GW as a post-processing step in a sub-directory
+# Note: If you specify prophet, you need to provide PROPhet.xml file
+# This file needs to be line separated to be read properly.
+# If you specify this, target needs to be a scalar value (for 
+# energy or user input). Units MUST be in Angstrom
+# If training to charge-density, you need 
+# to add a <charge-density> flag in the <system id="1"> block such as:
+# <charge-density>/data/1/charge-density.cube</charge-density>
+# Do not specify an include line if you are using prophet.xml
+#
 # Note: There can be any number of "data" blocks, so
 # data generated in differen ways (e.g. using 
 # different codes) can be used
@@ -365,6 +435,14 @@ data code=vasp
 # "include filename".  This latter approach makes it easy to switch 
 # data sets, e.g. switch from a training set to a testing set, or 
 # between different training sets.
+# 
+# In specifying the data, you can point to the directory as well as 
+# a training flag. Example:
+# /data/dir1 train
+# /data/dir2 test
+# /data/dir3 val
+# If specifies, PROPhet will calculate the error on the val data as 
+# well during testing
 #------------------------------------------------------------
 include /home/homesoftware/NNProject/Si_training_data  
 #============================================================

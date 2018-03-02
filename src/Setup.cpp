@@ -630,8 +630,8 @@ void Setup::print_details()
     for (int i=0; i<F.Nlayers(); i++) {
       cout << F.hidden(i) << "   ";
     }
-    cout << endl << "Dropout Probability: " << 1 - F.dropout() << endl;
-    cout << "output :  " << F.output() << endl;
+    //cout << endl << "Dropout Probability: " << 1 - F.dropout() << endl;
+    cout << endl << "output :  " << F.output() << endl;
 
     //cout << endl;
     /*
