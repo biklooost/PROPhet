@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -57,40 +57,52 @@
 
 using namespace std;
 
-class Potential {
-  
- public:
+class Potential
+{
+
+public:
   Potential(vector<System*> systems_in, Functional_params F_in);
   Potential(Functional_params F_in);
   Potential();
   ~Potential();
-  
+
   REAL train();
   vector<REAL> evaluate();
   void validate();
   void forces();
   void get_training_set();
-  
+
   void insert_atom_type(int atom_number, char* filename, System* system);
-  
+
   //double evaluate_MD(int index, int type, vector<REAL> &dE_dG);
   double evaluate_MD(int index, int type, vector<REAL> &dE_dG);
   void add_system(System* new_system);
-  inline Functional_params ret_params() { return params; };
-  
+  inline Functional_params ret_params()
+  {
+    return params;
+  };
+
   void set_F_params(Functional_params F);
-  REAL energy_shift() { return output_mean; }
+  REAL energy_shift()
+  {
+    return output_mean;
+  }
 
   void optimize_Gs();
 
- private:
-  
+private:
+
   Parallel* mpi;
   map<int, Network*> nets;
   Optimizer* opt;
-  
+
   int Nsystems;
-  
+  int Ntrain;
+  int Nval;
+  int Nother;
+
+  bool early_stop;
+
   vector<int> training_set;
 
   REAL output_mean;
@@ -108,15 +120,15 @@ class Potential {
   void backup(int niter);
   void load(string filename);
   void Precondition();
-  
+
   void syncronize();
 
   vector<int> get_all_atom_types();
-  
+
   vector<System*> systems;
 
   int Ntotal_params;
-  
+
 
   void create_system_map();
   vector<int> system_map;
@@ -126,7 +138,7 @@ class Potential {
 
 
 
-  
+
 };
 
 

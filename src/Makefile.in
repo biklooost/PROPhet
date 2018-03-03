@@ -25,7 +25,7 @@ ALL_LIB = libPROPhet.a
 
 SOURCE = Structure.cpp Error.cpp  Tables.cpp Functional.cpp Potential.cpp \
 	System_data.cpp Setup.cpp Parallel.cpp Grid_data.cpp System.cpp VASP.cpp\
-	QE.cpp FHIAIMS.cpp Optimizer.cpp Functional_params.cpp xml_reader.cpp \
+	QE.cpp FHIAIMS.cpp CUSTOM.cpp Optimizer.cpp Functional_params.cpp xml_reader.cpp \
 	pugixml.cpp NN.cpp NN_node.cpp NF.cpp NF_node.cpp Atom.cpp Analysis.cpp
 
 

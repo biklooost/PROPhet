@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -45,7 +45,8 @@
 // ########################################################
 //
 
-Parallel::Parallel() {
+Parallel::Parallel()
+{
 
   my_rank = 0;
   my_Nprocs = 1;
@@ -60,15 +61,16 @@ Parallel::Parallel() {
   MPI_Comm_size(MPI_COMM_WORLD, &my_Nprocs);
 #endif
 }
- 
+
 // ########################################################
 // ########################################################
 
 
 
- 
+
 #ifndef USE_MPI
-int Parallel::io_node() {
+int Parallel::io_node()
+{
 #ifndef NOT_MD
   return 0;
 #else
@@ -76,7 +78,8 @@ int Parallel::io_node() {
 #endif
 }
 #else
-int Parallel::io_node() {
+int Parallel::io_node()
+{
   return !my_rank;
 }
 #endif
@@ -88,8 +91,9 @@ int Parallel::io_node() {
 // ########################################################
 //
 
-Parallel::~Parallel() {
-  
+Parallel::~Parallel()
+{
+
   // ########################################################
   // ########################################################
 
@@ -103,7 +107,7 @@ Parallel::~Parallel() {
     MPI_Finalize();
   }
 #endif
-  
+
 }
 
 

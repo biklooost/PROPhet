@@ -13,26 +13,27 @@ using namespace std;
 
 
 
-class Neural_network : public Network {
+class Neural_network : public Network
+{
 
   void train();
   double evaluate();
-  
+
   virtual void load();
   virtual void save();
 
- public:
-  
+public:
+
   Neural_network();
   ~Neural_network();
-  
-  
-  
 
-  
- private:
-  
-  
+
+
+
+
+private:
+
+
 
 
 

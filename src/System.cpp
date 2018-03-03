@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -38,6 +38,7 @@
 #include "VASP.h"
 #include "QE.h"
 #include "FHIAIMS.h"
+#include "CUSTOM.h"
 
 
 
@@ -47,16 +48,18 @@
 // ########################################################
 //
 
-System::System(map<string,string> files, Functional_params *F) {
-  
+System::System(map<string,string> files, Functional_params *F)
+{
+
   DFT_IO *DFT;
-  
+  this->train = "train";
+
   this->Prefactor = 1.0;
-  
+
   if (files["code"] == "vasp") {
-    
+
     DFT = new VASP();
-    
+
   } else if (files["code"] == "qe") {
 
     DFT = new QE();
@@ -64,21 +67,29 @@ System::System(map<string,string> files, Functional_params *F) {
   } else if (files["code"] == "fhiaims") {
 
     DFT = new FHIAIMS();
-    
+
+  } else if (files["code"] == "prophet") {
+
+    DFT = new CUSTOM();
+
   } else {
-    
+
     ERROR("Interface to code '"+files["code"]+"' has not been implemented");
-    
+
   }
-  
-  
+  train = files["train"];
+
   // Get input values
   for (int i=0; i<F->Ninputs(); i++) {
     string input = F->inputs(i);
-    
+
     if (!input.compare("density")) {
-      if (!Density.N()) { this->Density = DFT->get_density(files["density"],F->sample_step()); }
-      if(F->NormCD()) { this->Density.normalize(F->NormCD_val());}
+      if (!Density.N()) {
+        this->Density = DFT->get_density(files["density"],F->sample_step());
+      }
+      if(F->NormCD()) {
+        this->Density.normalize(F->NormCD_val());
+      }
       this->Density.variance(F->var_bounds());
       if (F->Nconv() < 10) {
         this->Density.conv_matrix(F->Nconv());
@@ -87,18 +98,25 @@ System::System(map<string,string> files, Functional_params *F) {
       properties.push_back(this->Density.as_vector_ptr());
       Prefactor *= Density.get_dV();
       if (F->output_is_intensive()) {
-	Prefactor /= Density.volume;
-      } 
+        Prefactor /= Density.volume;
+      }
+      if(Density.train != "") {
+        this->train = Density.train;
+      }
     } else if (input == "density^2") {
-      
-      //Not implemented 
-      
+
+      //Not implemented
+
     } else if (input.find("user") == 0) {
       int prop = atoi(input.substr(4).c_str());
       data.insert(pair<string,vector<REAL> >(input,DFT->get_user_property(prop, files["user"])));
       properties.push_back(&data[input]);
     } else if (input == "structure") {
       this->structure = DFT->read_structure(files["structure"]);
+      if (this->structure.train != "") {
+        train = this->structure.train;
+      }
+      //cout << this->train << endl;
       properties.lock(true);
     } else if (input == "random") {
       data.insert(pair<string,vector<REAL> >(input, vector<REAL>(1,RAND::Uniform())));
@@ -112,19 +130,23 @@ System::System(map<string,string> files, Functional_params *F) {
 
   // Get output values
   if (F->output() == "gw_gap") {
-      REAL GW_gap = DFT->get_property("gw_gap",files["gw_gap"]);
-      properties.target(GW_gap);
+    REAL GW_gap = DFT->get_property("gw_gap",files["gw_gap"]);
+    properties.target(GW_gap);
   } else if (F->output().find("user")==0) {
-    int prop = atoi(F->output().substr(4).c_str());
-    properties.target(DFT->get_user_property(prop, files["user"]).at(0));
-  } else if (F->output() == "energy") {
-      REAL energy = DFT->get_property(F->output(), files[F->output()]);;
-      if (!F->FE().empty() || !this->structure.FE.empty()){
-          energy = this->structure.train_Local(F,energy);
-      } 
-      //cout << "What we are training to: " << energy << endl;
-      properties.target(energy);
+    if (files["code"] == "prophet") {
+      properties.target(DFT->get_property("user","user"));
     } else {
+      int prop = atoi(F->output().substr(4).c_str());
+      properties.target(DFT->get_user_property(prop, files["user"]).at(0));
+    }
+  } else if (F->output() == "energy") {
+    REAL energy = DFT->get_property(F->output(), files[F->output()]);;
+    if (!F->FE().empty() || !this->structure.FE.empty()) {
+      energy = this->structure.train_Local(F,energy);
+    }
+    //cout << "What we are training to: " << energy << endl;
+    properties.target(energy);
+  } else {
     properties.target(DFT->get_property(F->output(), files[F->output()]));
   }
   delete DFT;
@@ -142,8 +164,9 @@ System::System(map<string,string> files, Functional_params *F) {
 // ########################################################
 //
 
-System::System() {
-  
+System::System()
+{
+
 }
 
 // ########################################################
@@ -156,8 +179,9 @@ System::System() {
 // ########################################################
 //
 
-System::~System() {
-  
+System::~System()
+{
+
 }
 
 // ########################################################

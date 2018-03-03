@@ -29,7 +29,7 @@
 //                         CLASS DESCRIPTION
 // ####################################################################
 // An interface to the Quantum Espresso package. This package facilitates
-// reading directly from QE files.  The package follows the DFT_IO
+// reading directly from CUSTOM files.  The package follows the DFT_IO
 // interface.
 // ####################################################################
 
@@ -37,8 +37,8 @@
 
 
 
-#ifndef __QE
-#define __QE
+#ifndef __CUSTOM
+#define __CUSTOM
 
 #include "DFT_IO.h"
 #include "Structure.h"
@@ -47,23 +47,24 @@
 #include <cstring>
 #include "Error.h"
 
-class QE : public DFT_IO
+class CUSTOM : public DFT_IO
 {
 
 public:
 
-  QE();
-  ~QE();
+  CUSTOM();
+  ~CUSTOM();
 
   virtual Grid_data get_density(string prefix, int step=1);
   virtual Structure read_structure(string prefix);
   virtual REAL read_band_gap(string prefix);
   virtual REAL read_Nelectrons(string prefix);
-  virtual void read_energies(string prefix,int nbnd, REAL *cbm, REAL *vbm);
   virtual REAL get_property(string property,string directory);
 
 private:
   xml_reader xml;
+  bool xml_process;
+  Structure xstruct;
 
 
 };
