@@ -250,9 +250,14 @@ void Setup::read_input (string filename)
       F.my_norm_cd = true;
       F.my_norm_cd_val = real_value;
     } else if (key == "sgd") {
-      Line >> int_value;
-      F.my_SGD = true;
-      F.my_SGD_cnt = int_value;
+      Line >> string_value;
+      if (string_value == "true" || string_value == "t" || string_value == "1") {
+        F.my_SGD = true;
+      } else {
+          F.my_SGD = false;
+      }
+      //F.my_SGD = true;
+      //F.my_SGD_cnt = int_value;
     } else if (key == "nsave") {
       Line >> int_value;
       F.my_Nbackup = int_value;

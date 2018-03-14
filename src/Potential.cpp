@@ -606,7 +606,11 @@ REAL Potential::train()
   opt = new Optimizer(mpi,params,Ntrain);
   opt->set_early_stop(this->early_stop);
   init_optimizer();
-
+  vector <int> order(systems.size());
+  for (int i = 0; i < systems.size(); i++) {
+      order[i] = i;
+  }
+  bool SGD = params.SGD();
   REAL Error;
   REAL output;
 
@@ -617,8 +621,13 @@ REAL Potential::train()
     REAL SSE = 0;
     REAL vSSE = 0;
     gradient.assign(Ntotal_params, 0.0);
-
-    for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+    if (SGD) {
+        std::random_shuffle(order.begin(),order.end());
+    }
+    //for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+    int i_sys;
+    for (int i=0; i<order.size(); i++) {
+      i_sys = order[i];
       if (systems[i_sys]->train == "train") {
         output = 0;
         for (int atom=0; atom<systems[i_sys]->structure.Natom; atom++) {

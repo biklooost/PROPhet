@@ -37,6 +37,7 @@
 #include "NN.h"
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 
 
@@ -333,7 +334,11 @@ bool Neural_network::train()
   int debug_count = 0;
   bool early_stop = false;
   int nval = 0;
-
+  vector <int> order(systems.size());
+  for (int i = 0; i < systems.size(); i++) {
+      order[i] = i;
+  }
+  bool SGD = params.SGD();
   while (!optimizer->is_converged() && !optimizer->is_checkpoint()) {
     REAL debug_error = 0.0;
     this->SSE = 0.0;
@@ -343,7 +348,13 @@ bool Neural_network::train()
     nval = 0.0;
     my_dOutput_dParameters.assign(my_dOutput_dParameters.size(), 0);
     //this->bernoulli_sample(this->params.dropout());
-    for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+    //for (int i_sys=0; i_sys<systems.size(); i_sys++) {
+    int i_sys;
+    if (SGD) {
+        std::random_shuffle(order.begin(),order.end());
+    }
+    for (int i=0; i<order.size(); i++) {
+      i_sys = order[i];
       if(systems.at(i_sys)->train == "train") {
         output = 0.0;
         vector<REAL> temp_dOutput_dParameters(Nparams, 0.0);
