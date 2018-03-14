@@ -616,11 +616,13 @@ REAL Potential::train()
 
   this->syncronize();
   int i_sys;
+  int nval;
   while (!opt->is_converged()) {
 
     REAL SSE = 0;
     REAL vSSE = 0;
     gradient.assign(Ntotal_params, 0.0);
+    nval = 0;
     if (SGD) {
         std::random_shuffle(order.begin(),order.end());
     }
@@ -656,10 +658,11 @@ REAL Potential::train()
 
         Error = (output + output_mean) - systems[i_sys]->properties.target();
         vSSE += Error*Error;
+        nval++;
       }
 
     }
-    opt->set_val_sse(vSSE,Nval);
+    opt->set_val_sse(vSSE,nval);
     opt->update_network(SSE, gradient);
 
 
