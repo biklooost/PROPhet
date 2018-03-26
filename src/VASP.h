@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -28,7 +28,7 @@
 // ####################################################################
 //                         CLASS DESCRIPTION
 // ####################################################################
-// An interface to the VASP code. This class follows the DFT_IO 
+// An interface to the VASP code. This class follows the DFT_IO
 // interface.
 // ####################################################################
 
@@ -45,13 +45,14 @@
 #include "Structure.h"
 
 
-class VASP : public DFT_IO {
+class VASP : public DFT_IO
+{
 
- public:
+public:
 
   VASP();
   ~VASP();
-  
+
   virtual Grid_data get_density(string directory, int step = 1);
   virtual Structure read_structure(string filename);
   virtual REAL read_band_gap(string filename);
@@ -59,10 +60,10 @@ class VASP : public DFT_IO {
 
   virtual REAL get_property(string property, string directory);
 
- private:
-  
+private:
+
   xml_reader xml;
-  
+
 
 };
 
