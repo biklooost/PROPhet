@@ -227,6 +227,10 @@ public:
   {
     return my_output_precondition;
   }
+  inline bool input_precondition()
+  {
+      return my_input_precondition;
+  }
   REAL output_mean;
   REAL output_variance;
 
@@ -358,6 +362,7 @@ private:
   bool my_SGD;
   int my_SGD_cnt;
   bool my_output_precondition;
+  bool my_input_precondition;
   REAL my_regularization;
   bool my_norm_cd;
   REAL my_norm_cd_val;

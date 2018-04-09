@@ -86,6 +86,7 @@ Functional_params::Functional_params()
   this->my_regularization = 0.0;
 
   this->my_output_precondition = false;
+  this->my_input_precondition = true;
   this->output_mean = 0;
   this->output_variance = 1;
 

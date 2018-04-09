@@ -315,6 +315,14 @@ void Setup::read_input (string filename)
       if (string_value == "true" || string_value == "t" || string_value == "1") {
         F.my_output_precondition = true;
       }
+      
+    }else if (key == "precondition_input") {
+      Line >> string_value;
+      if (string_value == "true" || string_value == "t" || string_value == "1") {
+        F.my_input_precondition = true;
+      } else {
+          F.my_input_precondition = false;
+      }  
 
     } else if (key == "print_gvector" || key == "print_gvectors") {
       Line >> string_value;
