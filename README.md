@@ -43,7 +43,7 @@ At the moment, PROPhet can couple automatically to the first-principles codes
 
 meaning it can extract many common properties directly from the output files of these codes, without user interaction.  Interfaces to other codes can be easily added.
 
-In addition, potentials created in PROPhet can be used for molecular dynamics runs with the freely-available [LAMMPS](http://lammps.sandia.gov/) MD code.  See the [documentation](http://biklooost.github.io/PROPhet/doc/PROPhet_documentation.pdf#page=16) for more details.
+In addition, potentials created in PROPhet can be used for molecular dynamics runs with the freely-available [LAMMPS](http://lammps.sandia.gov/) MD code.  See the [documentation](https://github.com/biklooost/PROPhet/blob/master/doc/PROPhet_documentation.pdf#page=16) for more details.
 
 
 
@@ -71,11 +71,11 @@ to insert it into the LAMMPS package system.  The LAMMPS
 code must be relinked after completion to link in the 
 PROPhet library.  If automatic instalation fails, the 
 library can be inserted into LAMMPS by following the 
-instructions given in the [documentation](http:/biklooost.github.io/PROPhet/doc/PROPhet_documentation.pdf#page=6).
+instructions given in the [documentation](https://github.com/biklooost/PROPhet/blob/master/doc/PROPhet_documentation.pdf#page=6).
 
 ### Usage Instructions
 ---
-Usage instructions including a tutorial can be found in the [documentation](http://biklooost.github.io/PROPhet/doc/PROPhet_documentation.pdf#page=8),
+Usage instructions including a tutorial can be found in the [documentation](https://github.com/biklooost/PROPhet/blob/master/doc/PROPhet_documentation.pdf#page=8),
 and by looking in the [doc/tutorial](https://github.com/biklooost/PROPhet/tree/master/doc/tutorial) directory. A fully
 annotated input_file is also included in the 
 [doc](https://github.com/biklooost/PROPhet/tree/master/doc) directory.
