@@ -12,7 +12,7 @@
  Brian Kolb and Levi Lentz     
   in the [group of Alexie Kolpak](http://kolpak.mit.edu/) at [![MIT](https://github.com/biklooost/PROPhet/blob/gh-pages/images/MIT-logo-red-gray-54x28.png)](http://web.mit.edu/)                                   
 
-  See the [documentation](http://biklooost.github.io/PROPhet/doc/PROPhet_documentation.pdf) for
+  See the [documentation](https://github.com/biklooost/PROPhet/blob/master/doc/PROPhet_documentation.pdf) for
   a full description of PROPhet.
 
   Please see the [LICENSE](https://github.com/biklooost/PROPhet/blob/master/LICENSE) file for license information
