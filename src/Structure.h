@@ -149,6 +149,7 @@ protected:
   REAL G_prefactor, G_angular, G_exp1, G_exp2, G_fc1, G_fc2;
   REAL old_delta, old_term;
   REAL old_R, old_Ru, old_row0, old_row1, old_row2;
+  REAL old_R3, old_Ru3, old_row03, old_row13, old_row23;
 
   static Tables my_cos;
   static Tables my_pow;
@@ -488,6 +489,7 @@ protected:
 
   inline int G_index(int G_number, int N)
   {
+      cout << "atom_index " << N << " " << atom_index[N] << endl;
     return Npair_Gs*(atom_index[N])+G_number;
 
   }
