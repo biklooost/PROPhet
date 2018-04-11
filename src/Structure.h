@@ -267,7 +267,7 @@ protected:
     if (row[3] == (int)(row[3])) {
       return int_power(1+theta,(int)(row[3]));
     }
-    //return pow(1+theta,row[3]);
+    return pow(1+theta,row[3]);
 
     //optional taylor series approximation to pow(1+theta)^xi. Comment out return
     // statment on previous line to use this (EXPERIMENTAL)
