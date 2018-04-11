@@ -162,6 +162,8 @@ protected:
 
       if(fcswitch == 0) {
         REAL x = M_PI*frac;
+        return 0.5*(1.0+cos(x));
+        /*
         if (x < 1.047197551196598) {
           return (0.043539571484819*x - 0.273567195834312)*x*x + 1.0;
         } else if (x < 2.094395102393195) {
@@ -171,6 +173,7 @@ protected:
           x -= 2.094395102393195;
           return ((0.043539571484819*x + 0.136783597917156)*x - 0.429718346348117)*x + 0.25;
         }
+        */
       } else {
         return pow(tanh(1-frac),3);
       }
@@ -425,6 +428,8 @@ protected:
     } else {
       if(fcswitch == 0) {
         REAL x = M_PI*Rij/Rc;
+        return -0.5*M_PI/Rc*sin(x);
+        /*
         if (x < 1.047197551196598) {
           return x*(0.410350793751469*x - 1.718873385392471)/Rc;
         } else if (x < 2.094395102393195) {
@@ -434,7 +439,7 @@ protected:
           x -= 2.094395102393195;
           return (x*(0.410350793751469*x + 0.859436692696233) - 1.35)/Rc;
         }
-
+        */
       } else {
         return (-3*tanh(1-Rij/Rc)*tanh(1-Rij/Rc)*(1/cosh(1-Rij/Rc))*(1/cosh(1-Rij/Rc)))/(2*Rij*Rc);
       }
