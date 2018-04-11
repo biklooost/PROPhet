@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -54,18 +54,21 @@
 using namespace std;
 
 
-class Network {
-  
-  
- public:
-  
-  Network() {
-    
-    
+class Network
+{
+
+
+public:
+
+  Network()
+  {
+
+
 
   }
-    
-  virtual ~Network() {
+
+  virtual ~Network()
+  {
 
   }
 
@@ -83,14 +86,14 @@ class Network {
 
   virtual int Nparameters() = 0;
   virtual const vector<REAL>& get_gradient() = 0;
-  
+
   virtual void print(ostream &output=std::cout) = 0;
   virtual void attach_optimizer(Optimizer *opt) = 0;
-  
+
 
   virtual vector<REAL> get_state() = 0;
   virtual void set_state(const vector<REAL>& new_state) = 0;
-  
+
   virtual vector<REAL> count() = 0;
   virtual vector<REAL> mean() = 0;
   virtual vector<REAL> variance(vector<REAL> means) = 0;
@@ -107,13 +110,15 @@ class Network {
 
   virtual void set_output_mean(REAL new_mean) = 0;
   virtual void set_output_variance(REAL new_variance) = 0;
-  
- private:
-    
-    
-  
 
-  
+  virtual void set_dropout(vector <double> dropout) = 0;
+
+private:
+
+
+
+
+
 
 };
 

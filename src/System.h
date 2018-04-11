@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -50,22 +50,23 @@
 
 using namespace std;
 
-class System {
-  
+class System
+{
+
 public:
-  
   System(map<string,string> files, Functional_params* F);
   System();
   ~System();
-  
+
   System_data properties;
 
   REAL Prefactor;
-  
-  Structure structure;
 
- private:
-  
+  Structure structure;
+  string train;
+
+private:
+
   Grid_data Density;
   map<string,vector<REAL> > data;
 
@@ -73,9 +74,10 @@ public:
   vector<REAL> DFT_gap;
   vector<REAL> volume;
 
+
   string directory;
-  
-  
+
+
 };
 
 #endif

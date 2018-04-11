@@ -1,4 +1,4 @@
-//     _____________________________________      _____   |    
+//     _____________________________________      _____   |
 //     ___/ __ \__/ __ \_/ __ \__/ __ \__/ /________/ /   |
 //     __/ /_/ /_/ /_/ // / / /_/ /_/ /_/ __ \/ _ \/ __/  |
 //     _/ ____/_/ _, _// /_/ /_/ ____/_/ / / /  __/ /_    |
@@ -14,7 +14,7 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 2 of the License, or
   (at your option) any later version.
-  
+
   PROPhet is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -55,14 +55,15 @@
 // ########################################################
 //
 
-Tables::Tables() { 
+Tables::Tables()
+{
 
   _X = NULL;
   coefficients = NULL;
 
   small_x_saturation = NOT_SET;
   large_x_saturation = NOT_SET;
-  
+
 }
 
 // ########################################################
@@ -76,7 +77,8 @@ Tables::Tables() {
 // ########################################################
 //
 
-Tables::Tables(string function) {
+Tables::Tables(string function)
+{
   this->init(function);
 }
 
@@ -91,7 +93,8 @@ Tables::Tables(string function) {
 // ########################################################
 //
 
-Tables::~Tables() { 
+Tables::~Tables()
+{
 
   if (coefficients != NULL) {
     for (int i=0; i<my_Nvalues-1; i++) {
@@ -117,26 +120,27 @@ Tables::~Tables() {
 // ########################################################
 // Initialize the table funtion to the function of choice.
 
-void Tables::init(string type) {
-  
+void Tables::init(string type)
+{
+
   if (!type.compare("tanh")) {
-    
+
     init_tanh();
 
   } else if (type == "cos") {
 
     init_cos();
-    
+
   } else if (type == "cutoff_1") {
 
     init_cutoff_1();
-    
+
   } else {
-    
+
     ERROR("Unrecognized table type '"+type+"'");
-    
+
   }
-  
+
 }
 
 // ########################################################
@@ -149,8 +153,9 @@ void Tables::init(string type) {
 // ########################################################
 // Set the internal coefficients for the function after reading.
 
-void Tables::set_coefficients(REAL X[], REAL a[][4]) {
-  
+void Tables::set_coefficients(REAL X[], REAL a[][4])
+{
+
   this->coefficients = new REAL* [my_Nvalues];
   this->_X = new REAL [my_Nvalues+1];
 
@@ -161,12 +166,12 @@ void Tables::set_coefficients(REAL X[], REAL a[][4]) {
       this->coefficients[i][j] = a[i][j];
     }
   }
-  
+
   this->_X[my_Nvalues] = X[my_Nvalues];
 
   this->m = (REAL)(my_Nvalues)/(_X[my_Nvalues]-_X[0]);
   this->b = -m*_X[0];
-  
+
 }
 
 // ########################################################
@@ -182,7 +187,8 @@ void Tables::set_coefficients(REAL X[], REAL a[][4]) {
 // ########################################################
 // Make a cosine function.
 
-void Tables::init_cos() {
+void Tables::init_cos()
+{
 
 #include "Table_cos.data"
 
@@ -203,14 +209,15 @@ void Tables::init_cos() {
 // ########################################################
 // Make a tanh function.
 
-void Tables::init_tanh() {
-  
+void Tables::init_tanh()
+{
+
 #include "Table_tanh_accurate.data"
   this->my_Nvalues = 1000;
   this->small_x_saturation = a[0][3];
   this->large_x_saturation = a[my_Nvalues-1][0]+a[my_Nvalues-1][1]+a[my_Nvalues-1][2]+a[my_Nvalues-1][3];
   set_coefficients(X,a);
-  
+
 }
 
 // ########################################################
@@ -224,7 +231,8 @@ void Tables::init_tanh() {
 // ########################################################
 // Make the function 0.5*(cos(pi*r/Rcut)+1);
 
-void Tables::init_cutoff_1() {
+void Tables::init_cutoff_1()
+{
 
 #include "Table_cutoff_1.data"
   this->my_Nvalues = 3;
@@ -245,8 +253,9 @@ void Tables::init_cutoff_1() {
 // that corresponds to a given input. Used as a fallback
 // if fast_row fails.
 
-int Tables::slow_row(REAL x) {
-  
+int Tables::slow_row(REAL x)
+{
+
   int min = 0;
   int max = my_Nvalues;
   int delta = max - min;
@@ -266,7 +275,7 @@ int Tables::slow_row(REAL x) {
     }
     irow = (int)(0.5*(double)(max+min));
   }
-  
+
 
 
   for (irow=min; irow<max; irow++) {
@@ -275,22 +284,22 @@ int Tables::slow_row(REAL x) {
       return irow;
     }
   }
-  
+
   ERROR("Could not find x value in Table function");
-  
+
 }
 
 // ########################################################
 // ########################################################
 
 
- 
 
 
 
 
 
-  
+
+
 
 
 
