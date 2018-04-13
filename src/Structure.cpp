@@ -318,7 +318,28 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f)
                     if (term <= 0) {
                       continue;
                     }
+                    prefactor = Structure::prefactor_A.at(G3p[r1][3])
+                              *dE_dG[i][G_index(r1,types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G3p[r1]);
 
+                    G_exp1 = exp_term(-G3p[r1][2]*(R*R + Ru*Ru + Rjk*Rjk));
+
+                    fc_R = fc(R/G3p[r1][0],G3p[r1][1]);
+                    fc_Ru = fc(Ru/G3p[r1][0],G3p[r1][1]);
+                    fc_Rjk = fc(Rjk/G3p[r1][0],G3p[r1][1]);
+
+                    dG_dR = G_exp1*fc_Ru*fc_Rjk*(d_fc(G3p[r1][0],R,G3p[r1][1]) - 2*R*G3p[r1][2]*fc_R);
+                    dG_dRu = G_exp1*fc_R*fc_Rjk*(d_fc(G3p[r1][0],Ru,G3p[r1][1]) - 2*Ru*G3p[r1][2]*fc_Ru);
+                    dG_dRjk = G_exp1*fc_R*fc_Ru*(d_fc(G3p[r1][0],Rjk,G3p[r1][1]) - 2*Rjk*G3p[r1][2]*fc_Rjk);
+                    dG_dcos = G_exp1*(G3p[r1][3]*G3p[r1][4]/term)*fc_R*fc_Ru*fc_Rjk/(R*Ru);
+                    for (int dir=0; dir<3; dir++) {
+                        Fjk = prefactor*dG_dRjk*del3[dir];
+                        Fij  = prefactor*(dG_dR*del[dir] + Ru*dG_dcos*(del2[dir] - theta*del[dir]));
+                        Fij2 = prefactor*(dG_dRu*del2[dir] + R*dG_dcos*(del[dir] - theta*del2[dir]));
+                        f[j][dir]  -= Fij + Fjk;
+                        f[j2][dir] -= Fij2 - Fjk;
+                        f[i][dir]  += Fij + Fij2 ;
+                    } 
+                    /*
                     prefactor = prefactor_A.at(G3p[r1][3])*angular_term(theta,G3p[r1])*exp_term(-G3p[r1][2]*(R*R + Ru*Ru + Rjk*Rjk)); //pow(term,G3p[r1][3])*exp(-G3p[r1][2]*(R*R + Ru*Ru + Rjk*Rjk));
                     prefactor *= dE_dG[i][G_index(r1,types[j].atomic_number(),types[j2].atomic_number())];
                     fc_R = fc(R/G3p[r1][0],G3p[r1][1]);
@@ -343,6 +364,7 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f)
                       //f[j2][dir] -= Fij2;
                       //f[i][dir] += Fij + Fij2;
                     }
+                     */
                   }
                 }
 
