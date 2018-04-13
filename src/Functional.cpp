@@ -184,10 +184,17 @@ void Functional::Normalize_data(vector<REAL> in_mean, vector<REAL> in_variance)
     }
 
     variances = mpi->Bcast(variances, variances.size());
-
+    if (!params.input_precondition()) {
+        std::fill(means.begin(),means.end(),0.0);
+        std::fill(variances.begin(),variances.end(),1.0);
+    }
     net->Normalize(means,variances);
 
   } else {
+    if (!params.input_precondition()) {
+        std::fill(in_mean.begin(),in_mean.end(),0.0);
+        std::fill(in_variance.begin(),in_variance.end(),1.0);
+    }
     net->Normalize(in_mean, in_variance);
 
   }
