@@ -494,7 +494,7 @@ protected:
 
   inline int G_index(int G_number, int N)
   {
-      cout << "atom_index " << N << " " << atom_index[N] << endl;
+      //cout << "atom_index " << N << " " << atom_index[N] << endl;
     return Npair_Gs*(atom_index[N])+G_number;
 
   }
@@ -502,6 +502,51 @@ protected:
   inline int G_index(int G_number, int N1, int N2)
   {
     return Npair_Gs*atom_index.size()+atom_matrix[atom_index[N1]][atom_index[N2]]+G_number;
+  }
+  
+  //AMP Helper-functions
+  
+  inline REAL kd(int i, int j) {
+      if (i == j) { return 1.0; }
+      else { return 0.0; }
+  }
+  
+  inline vector <REAL> delRdelR_vec (int i, int j, int m, int l) {
+      vector <REAL> dir_(3,1.0);
+      REAL prefactor = kd(m,j) - kd(m,i);
+      for (int i = 0; i < 3; i++) {
+          dir_[i] = prefactor*kd(i,l);
+      }
+      return dir_;
+  }
+  
+  inline REAL delRdelR (int i, int j, int m,REAL del_l, REAL Rij) {
+      return (kd(m,j) - kd(m,i))*del_l/Rij;
+  }
+  
+  template <typename T>
+  inline T dot (vector <T> i, vector<T> j) {
+      T r; 
+      r = i[0]*j[0] + i[1]*i[1] + i[2]*i[2];
+      return r;
+  }
+  //i,j,k,m are just indices
+  // REAL Rij, Rik, R are the magnitudes of delij, delik, and R is the location of atom m
+  // delij, delik are not unit vectors 
+  inline REAL delCosdelR(int i, int j, int m, int l, int k, REAL Rij, REAL Rik, vector <REAL> delij, vector <REAL> delik) {
+      vector <REAL> delRij_delRml_vec, delRik_delRml_vec;
+      REAL delRij_delml, delRik_delml;
+      REAL dot_1, dot_2, dot_3, dot_4;
+      delRij_delRml_vec = delRdelR_vec(i,j,m,l);
+      delRik_delRml_vec = delRdelR_vec(i,k,m,l);
+      delRij_delml = delRdelR(i,j,m,delij[l],Rij);
+      delRik_delml = delRdelR(i,k,m,delik[l],Rik);
+      dot_1 = dot(delRij_delRml_vec,delik);
+      dot_2 = dot(delij,delRik_delRml_vec);
+      dot_3 = dot(delij,delik);
+      dot_4 = dot(delij,delik);
+      return (1/(Rij*Rik))*dot_1 + (1/(Rij*Rik))*dot_2 - (dot_3/(Rij*Rij*Rik))*delRij_delml - (dot_4/(Rij*Rik*Rik))*delRik_delml;
+      
   }
 
 };
