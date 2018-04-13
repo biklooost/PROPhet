@@ -500,7 +500,7 @@ protected:
   }
   
   //AMP Helper-functions
-  
+  /*
   inline REAL kd(int i, int j) {
       if (i == j) { return 1.0; }
       else { return 0.0; }
@@ -543,6 +543,7 @@ protected:
       return (1/(Rij*Rik))*dot_1 + (1/(Rij*Rik))*dot_2 - (dot_3/(Rij*Rij*Rik))*delRij_delml - (dot_4/(Rij*Rik*Rik))*delRik_delml;
       
   }
+   */
 
 };
 
