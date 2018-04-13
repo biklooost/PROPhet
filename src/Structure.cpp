@@ -547,8 +547,6 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f)
                   f[j2][dir] -= Fij2 + dG_dRjk*del3[dir];
                   f[i][dir] += Fij + Fij2;
                 } */
-                /* This is the old force fix:*/ 
-                //if (r1 == 0) {
                   prefactor = Structure::prefactor_A.at(G3p[r1][3])
                               *dE_dG[i][G_index(r1,types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G3p[r1]);
 
@@ -563,38 +561,6 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f)
                   dG_dRjk = G_exp1*fc_R*fc_Ru*(d_fc(G3p[r1][0],Rjk,G3p[r1][1]) - 2*Rjk*G3p[r1][2]*fc_Rjk);
                   dG_dcos = G_exp1*(G3p[r1][3]*G3p[r1][4]/term)*fc_R*fc_Ru*fc_Rjk/(R*Ru);
 
-                /*} else {
-
-                  prefactor = Structure::prefactor_A.at(G3p[r1][3])
-                              *dE_dG[i][G_index(r1,types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G3p[r1]);
-                  if (old_row23 != G3p[r1][2]) {
-
-                    if (old_row03 != G3p[r1][0] || old_row13 != G3p[r1][1]) {
-                      fc_R = fc(R/G3p[r1][0],G3p[r1][1]);
-                      fc_Ru = fc(Ru/G3p[r1][0],G3p[r1][1]);
-                      fc_Rjk = fc(Rjk/G3p[r1][0],G3p[r1][1]);
-                      old_row03 = G3p[r1][0];
-                      old_row13 = G3p[r1][1];
-                    }
-
-                    G_exp1 = exp_term(-G3p[r1][2]*(R*R + Ru*Ru + Rjk*Rjk));
-
-                    dG_dR = G_exp1*fc_Ru*fc_Rjk*(d_fc(G3p[r1][0],R,G3p[r1][1]) - 2*R*G3p[r1][2]*fc_R);
-                    dG_dRu = G_exp1*fc_R*fc_Rjk*(d_fc(G3p[r1][0],Ru,G3p[r1][1]) - 2*Ru*G3p[r1][2]*fc_Ru);
-                    dG_dRjk = G_exp1*fc_R*fc_Ru*(d_fc(G3p[r1][0],Rjk,G3p[r1][1]) - 2*Rjk*G3p[r1][2]*fc_Rjk);
-                    old_row23 = G3p[r1][2];
-
-                  } else if (old_row03 != G3p[r1][0] || old_row13 != G3p[r1][1]) {
-                    fc_R = fc(R/G3p[r1][0],G3p[r1][1]);
-                    fc_Ru = fc(Ru/G3p[r1][0],G3p[r1][1]);
-                    fc_Rjk = fc(Rjk/G3p[r1][0],G3p[r1][1]);
-                    old_row03 = G3p[r1][0];
-                    old_row13 = G3p[r1][1];
-                  }
-
-                  dG_dcos = G_exp1*(G3p[r1][3]*G3p[r1][4]/term)*fc_R*fc_Ru*fc_Rjk/(R*Ru);//*Rjk);
-
-                }*/
 
                 for (int dir=0; dir<3; dir++) {
                   Fjk = prefactor*dG_dRjk*del3[dir];
@@ -605,40 +571,6 @@ void Structure::Get_Forces(const vector<vector<REAL> > &dE_dG, REAL **f)
                   f[j2][dir] -= Fij2 - Fjk;
                   f[i][dir]  += Fij + Fij2 ;
                 } 
-                //Here we are implementing the AMP-notation
-                /*
-                vector <REAL> delij(3,0.0), delik(3,0.0), deljk(3,0.0);
-                for (int zz = 0; zz < 3; zz++) {
-                    delij[zz] = R*del[zz];
-                    delik[zz] = Ru*del2[zz];
-                    deljk[zz] = Rjk*del3[zz];
-                }
-                vector <REAL> G3p_(G3p[r1]);
-                G3p_[3] = G3p_[3] - 1;
-                prefactor = Structure::prefactor_A.at(G3p[r1][3])
-                              *dE_dG[i][G_index(r1,types[j].atomic_number(),types[j2].atomic_number())]*angular_term(theta,G3p_);
-
-                G_exp1 = exp_term(-G3p[r1][2]*(R*R + Ru*Ru + Rjk*Rjk));
-                prefactor *= G_exp1; 
-                fc_R = fc(R/G3p[r1][0],G3p[r1][1]);
-                fc_Ru = fc(Ru/G3p[r1][0],G3p[r1][1]);
-                fc_Rjk = fc(Rjk/G3p[r1][0],G3p[r1][1]);
-                REAL dfc_ij, dfc_ik, dfc_jk; 
-                REAL delRij, delRik, delRjk,dcos;
-                dfc_ij = d_fc(G3p[r1][0],R,G3p[r1][1]);
-                dfc_ik = d_fc(G3p[r1][0],Ru,G3p[r1][1]);
-                dfc_jk = d_fc(G3p[r1][0],Ru,G3p[r1][1]);
-                //G3p vector: Rcut cutoff_type eta zeta lambda
-                //delRdelR (int i, int j, int m,REAL del_l, REAL Rij
-                vector <REAL> tmp_f(3,0.0);
-                for (int dir=0; dir<3; dir++) {
-                    dcos = delCosdelR(i,j,i,dir,j2,R,Ru,deljk,delik);
-                    delRij = delRdelR(i,j,i,delij[dir],R);
-                    delRik = delRdelR(i,j2,i,delik[dir],Ru);
-                    delRjk = delRdelR(j,j2,j,deljk[dir],Rjk);
-                    tmp_f[dir] = prefactor*fc_R*fc_Ru*fc_Rjk*(G3p[r1][4]*G3p[r1][3]*dcos - 2*G3p[r1][2]*term*(R*delRij + Ru*delRik + Rjk*delRjk))
-                            + prefactor*term*(dfc_R*delRij*fc_Ru*fc_Rjk+fc_R*)
-                }*/
               }
             }
 
