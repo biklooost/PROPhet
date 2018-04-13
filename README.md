@@ -6,6 +6,11 @@
 //     /_/     /_/ |_| \____/ /_/     /_/ /_/\___/\__/    |
 //---------------------------------------------------------
 ```
+
+This branch is specifically to enable AMP-potentials to be used in PROPhet. This effectively enables AMP potentials to be used within LAMMPS. 
+
+For a conversion script see [https://bitbucket.org/Efrem_Braun/amp/branch/amp-to-prophet](https://bitbucket.org/Efrem_Braun/amp/branch/amp-to-prophet). 
+
 [![DOI](https://zenodo.org/badge/68395684.svg)](https://zenodo.org/badge/latestdoi/68395684)
 
  PROPhet was ceated by      
