@@ -425,6 +425,9 @@ void Potential::Precondition()
     }
 
     means = mpi->Bcast(means,means.size());
+    if (!params.input_precondition()) {
+        std::fill(means.begin(),means.end(),0.0);
+    }
     nets.at(type)->set_means(means);
 
     variances.assign(systems[0]->structure.NG(),0.0);
@@ -446,6 +449,9 @@ void Potential::Precondition()
       }
     }
     variances = mpi->Bcast(variances, variances.size());
+    if (!params.input_precondition()) {
+        std::fill(variances.begin(),variances.end(),1.0);
+    }
     nets.at(type)->set_variances(variances);
   }
 
