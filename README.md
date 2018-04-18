@@ -16,6 +16,11 @@
   a full description of PROPhet.
 
   Please see the [LICENSE](https://github.com/biklooost/PROPhet/blob/master/LICENSE) file for license information
+  
+  If used for published work, please cite the following:
+  
+  [Scientific Reports 7, Article number: 1192 (2017)
+   doi:10.1038/s41598-017-01251-z](https://www.nature.com/articles/s41598-017-01251-z)
                                                            
 ---
 
